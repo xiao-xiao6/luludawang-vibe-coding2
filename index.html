@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="color-scheme" content="light">
 <meta name="description" content="打地鼠大作战·田园守护战——万物皆可锤的可爱打地鼠小游戏！三种难度模式、连击狂热、积分商城、排行榜，攒积分换新锤子，守护你的菜园！">
 <meta name="theme-color" content="#7ec850">
@@ -14,10 +14,13 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
+html{-webkit-text-size-adjust:100%}
 body{
   font-family:'Microsoft YaHei','PingFang SC','Segoe UI',sans-serif;
   background:linear-gradient(180deg,#a8ddf0 0%,#cfeef7 45%,#dff3cf 100%);
   overflow:hidden;
+  overscroll-behavior:none;
+  -webkit-touch-callout:none;
   user-select:none;
   touch-action:manipulation;
   display:flex;align-items:center;justify-content:center;
@@ -362,6 +365,7 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #d34e1e}
   margin-top:16px;background:#ffffff12;border:2px solid #ffffff24;
   border-radius:16px;padding:10px 14px 12px;max-width:560px;
 }
+.roster-toggle{display:none}
 .roster-title{color:#ffd93d;font-size:13px;font-weight:900;letter-spacing:2px;margin-bottom:8px}
 .roster-grid{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .r-cell{
@@ -510,30 +514,155 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #d34e1e}
 .best{color:#e8ffd0;font-size:13px;margin-top:10px}
 
 #muteBtn{
-  position:fixed;top:12px;right:12px;z-index:300;width:44px;height:44px;padding:0;
+  position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));z-index:300;width:44px;height:44px;padding:0;
   border-radius:50%;font-size:20px;background:#ffffff55;box-shadow:none;
   border:2px solid #ffffff88;color:#fff;
 }
 #muteBtn:active{transform:scale(.94)}
 
+/* ================= 双端适配（PC / 平板 / 手机） ================= */
+/* 动态视口高度：手机地址栏收展不再跳动 */
+@supports (height:100dvh){
+  html,body{height:100dvh}
+  #wrap{height:min(96dvh,780px)}
+}
+/* 内容超高时安全居中，小屏滚动不裁顶 */
+@supports (justify-content:safe center){
+  .overlay,.panel{justify-content:safe center}
+}
+/* 触屏：去掉粘滞 hover 位移、隐藏鼠标锤子 */
+@media (hover:none){
+  .mode-card:hover,.r-cell:hover,.shop-card:hover{transform:none}
+}
+@media (hover:none) and (pointer:coarse){
+  #cursor{display:none!important}
+}
+
+/* ---- 偏窄竖屏（手机/竖屏平板）：3 列场地 ---- */
 @media (max-aspect-ratio:3/4){
   #field{grid-template-columns:repeat(3,1fr)}
   .stat,#comboBox{font-size:12px;padding:4px 10px}
   .shop-grid{grid-template-columns:repeat(auto-fill,minmax(128px,1fr))}
   .panel-card{padding:14px 12px 12px}
-  .mode-card{width:128px;padding:10px 8px 8px}
+  .mode-card{width:132px;padding:10px 8px 8px}
   .roster-grid{gap:6px}
   .r-cell img{width:28px;height:28px}
-.r-cell .r-star-glyph{font-size:28px}
+  .r-cell .r-star-glyph{font-size:28px}
 }
-@media (max-height:700px){
+
+/* ---- 手机竖屏：全屏沉浸 + 首页纵向重排 ---- */
+@media (max-width:720px) and (max-aspect-ratio:4/5){
+  #wrap{width:100%;height:100%}
+  #game{border-radius:0;padding:10px 10px calc(12px + env(safe-area-inset-bottom,0px));box-shadow:inset 0 0 0 3px #ffffffcc}
+  .overlay,.panel{border-radius:0}
+  #hud{gap:6px;padding:2px 2px 6px}
+  .stat,#comboBox{font-size:11px;padding:4px 9px;border-width:2.5px}
+  .stat b,#comboBox b{font-size:16px}
+  #comboBox .mult{font-size:11px}
+  #comboBarWrap{height:5px;margin:0 2px 6px}
+  #field{gap:6px;padding:8px;border-radius:14px}
+  .pit{border-width:3px}
+
+  .home-eyebrow{font-size:11px;letter-spacing:3px;padding:3px 12px;margin-bottom:5px}
+  .home-title{font-size:clamp(30px,9vw,44px);margin-bottom:0}
+  .home-title small{letter-spacing:5px}
+  .home-slogan{font-size:12px;letter-spacing:normal;margin:5px 0 9px;padding:0 12px;line-height:1.6;max-width:100%}
+  .wallet-row{gap:6px;margin-bottom:9px}
+  .wallet{flex:1 1 0;min-width:96px;padding:5px 8px;font-size:11px;border-radius:14px}
+  .wallet b{font-size:17px}
+  .wallet .w-icon{font-size:18px}
+
+  .mode-row{flex-direction:column;gap:6px;width:100%;max-width:340px;margin-bottom:9px}
+  .mode-card{width:100%;display:flex;align-items:center;text-align:left;gap:10px;padding:6px 11px}
+  .mode-card:hover,.mode-card.sel{transform:none}
+  .mc-icon{font-size:25px;margin-bottom:0;flex:none}
+  .mc-info{flex:1;min-width:0}
+  .mc-name{font-size:15px}
+  .mc-desc{font-size:11px;min-height:0;margin:1px 0 3px;line-height:1.4}
+  .mc-stats{flex-direction:row;gap:8px;flex-wrap:wrap}
+  .mc-best{margin-top:2px}
+
+  .big-btn{font-size:19px;padding:11px 38px}
+  .menu-row{gap:10px;margin-top:8px}
+  .menu-btn{font-size:14px;padding:8px 20px}
+
+  .float-crop{font-size:22px;opacity:.2}
+  .fc5,.fc6{display:none}
+  .roster{display:none}
+  .roster-toggle{
+    display:inline-flex;align-items:center;gap:6px;margin-top:8px;
+    background:#ffffff1f;border:2px solid #ffffff3c;border-radius:999px;
+    color:#fff;font-size:12px;font-weight:bold;padding:6px 18px;
+    cursor:pointer;font-family:inherit;
+  }
+  .roster-toggle:active{transform:scale(.96)}
+  .roster-toggle .rt-icon{transition:transform .2s}
+  .roster-toggle.open .rt-icon{transform:rotate(180deg)}
+  .roster.open{display:block;padding:8px 10px 10px;max-width:340px;margin-top:6px}
+  .roster.open .roster-note{display:block;font-size:10px}
+  .roster-title{margin-bottom:5px;font-size:12px}
+  .roster-grid{gap:5px}
+  .r-cell{padding:4px 6px 3px}
+  .r-cell .r-name{font-size:9px}
+  .home-inner > *{animation-duration:.4s}
+
+  .panel{padding:10px}
+  .panel-card{width:100%;max-width:430px;border-width:3px;padding:12px 10px 10px}
+  .panel-title{font-size:19px}
+  .panel-sub{font-size:11px}
+  .rank-row{padding:7px 10px;gap:8px}
+  .rank-medal{font-size:20px;width:26px}
+  .rank-no{width:26px;height:26px;font-size:13px}
+  .rank-score{font-size:18px}
+  .shop-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .shop-icon{width:58px;height:58px}
+  .shop-name{font-size:13px}
+  .shop-desc{font-size:10px;min-height:26px}
+  .shop-btn{font-size:12px;padding:6px 14px}
+
+  #rankLetter{font-size:62px}
+  #finalScore{font-size:30px}
+  #bonusLine,#coinGain{font-size:13px;padding:5px 14px}
+  #statLine{font-size:11px}
+  .end-btns button{font-size:17px;padding:11px 34px}
+}
+
+/* ---- 矮屏（横屏手机 / 小窗口） ---- */
+@media (max-height:640px){
+  .sky{display:none}
   .big-btn{font-size:20px;padding:11px 42px}
   .roster{display:none}
   .home-slogan{margin:4px 0 8px}
   .wallet-row{margin-bottom:8px}
-  .mode-row{margin-bottom:8px}
-  #rankLetter{font-size:60px}
-  #finalScore{font-size:30px}
+  .wallet{padding:6px 12px}
+  .mode-row{margin-bottom:8px;gap:10px}
+  .mode-card{width:140px;padding:10px 8px 8px}
+  .mc-desc{min-height:0}
+  #rankLetter{font-size:56px}
+  #finalScore{font-size:28px}
+  #hud{gap:6px;padding:2px 2px 5px}
+  .stat,#comboBox{font-size:11px;padding:3px 9px}
+  .stat b,#comboBox b{font-size:15px}
+  #field{gap:6px;padding:8px}
+}
+@media (max-height:500px){
+  .home-eyebrow{display:none}
+  .float-crop{display:none}
+  .mc-icon{font-size:24px}
+  .mc-stats{display:none}
+  .mode-card{width:118px;padding:8px 6px 6px}
+  .wallet .w-icon{font-size:16px}
+  #comboBarWrap{height:4px;margin-bottom:4px}
+}
+
+/* ---- 大屏桌面：整体放大一档 ---- */
+@media (min-width:1280px) and (min-height:860px){
+  #wrap{width:min(94vw,980px);height:min(94vh,860px)}
+}
+
+/* ---- 减少动态效果偏好：关掉纯装饰动画 ---- */
+@media (prefers-reduced-motion:reduce){
+  .cloud,.butterfly,.sun,.float-crop,.mc-icon,.big-btn,.home-title{animation:none!important}
 }
 </style>
 </head>
@@ -584,35 +713,41 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #d34e1e}
         <button class="mode-card" data-mode="easy">
           <div class="mc-check">✔</div>
           <div class="mc-icon">🌱</div>
-          <div class="mc-name">简易</div>
-          <div class="mc-desc">悠闲节奏热身<br>目标露头更久</div>
-          <div class="mc-stats">
-            <div class="mc-mult">积分 ×0.5</div>
-            <div class="mc-bonus">通关 +100</div>
+          <div class="mc-info">
+            <div class="mc-name">简易</div>
+            <div class="mc-desc">悠闲节奏热身<br>目标露头更久</div>
+            <div class="mc-stats">
+              <div class="mc-mult">积分 ×0.5</div>
+              <div class="mc-bonus">通关 +100</div>
+            </div>
+            <div class="mc-best" data-best="easy">最佳 --</div>
           </div>
-          <div class="mc-best" data-best="easy">最佳 --</div>
         </button>
         <button class="mode-card" data-mode="normal">
           <div class="mc-check">✔</div>
           <div class="mc-icon">🌻</div>
-          <div class="mc-name">普通</div>
-          <div class="mc-desc">标准经典节奏<br>攻守平衡之选</div>
-          <div class="mc-stats">
-            <div class="mc-mult">积分 ×1.0</div>
-            <div class="mc-bonus">通关 +200</div>
+          <div class="mc-info">
+            <div class="mc-name">普通</div>
+            <div class="mc-desc">标准经典节奏<br>攻守平衡之选</div>
+            <div class="mc-stats">
+              <div class="mc-mult">积分 ×1.0</div>
+              <div class="mc-bonus">通关 +200</div>
+            </div>
+            <div class="mc-best" data-best="normal">最佳 --</div>
           </div>
-          <div class="mc-best" data-best="normal">最佳 --</div>
         </button>
         <button class="mode-card" data-mode="hard">
           <div class="mc-check">✔</div>
           <div class="mc-icon">🔥</div>
-          <div class="mc-name">困难</div>
-          <div class="mc-desc">疾速风暴挑战<br>高手冲榜赚分</div>
-          <div class="mc-stats">
-            <div class="mc-mult">积分 ×1.8</div>
-            <div class="mc-bonus">通关 +400</div>
+          <div class="mc-info">
+            <div class="mc-name">困难</div>
+            <div class="mc-desc">疾速风暴挑战<br>高手冲榜赚分</div>
+            <div class="mc-stats">
+              <div class="mc-mult">积分 ×1.8</div>
+              <div class="mc-bonus">通关 +400</div>
+            </div>
+            <div class="mc-best" data-best="hard">最佳 --</div>
           </div>
-          <div class="mc-best" data-best="hard">最佳 --</div>
         </button>
       </div>
 
@@ -631,6 +766,7 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #d34e1e}
           不同模式难度不同，<b>积分倍率</b>与<b>通关加成</b>也不同，量力而行哦！
         </div>
       </div>
+      <button class="roster-toggle" id="rosterToggle" type="button"><span class="rt-icon">⌄</span>📋 目标图鉴</button>
     </div>
   </div>
 
@@ -1538,6 +1674,19 @@ $('#muteBtn').addEventListener('click', function(){
 });
 $('#startBtn').addEventListener('click', startGame);
 $('#restartBtn').addEventListener('click', startGame);
+
+/* 手机端图鉴展开/收起 */
+(function(){
+  var toggle = $('#rosterToggle'), roster = $('.roster');
+  if(!toggle || !roster) return;
+  toggle.addEventListener('click', function(){
+    roster.classList.toggle('open');
+    toggle.classList.toggle('open');
+    toggle.innerHTML = roster.classList.contains('open')
+      ? '<span class="rt-icon">⌃</span>📋 收起图鉴'
+      : '<span class="rt-icon">⌄</span>📋 目标图鉴';
+  });
+})();
 
 /* ================= 初始化 ================= */
 buildField();
