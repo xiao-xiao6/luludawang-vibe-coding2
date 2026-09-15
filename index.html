@@ -153,10 +153,12 @@ body.fever #game{animation:feverPulse .4s ease-in-out infinite alternate}
 }
 .slot{position:absolute;inset:0 0 12% 0;z-index:2;clip-path:inset(-40% -40% 0 -40%)}
 
-/* ================= 目标（全新可爱SVG · GSAP驱动） ================= */
+/* ================= 目标（纯符号 emoji 贴图 · GSAP驱动） ================= */
 .mob{position:absolute;left:50%;bottom:0;width:78%;height:100%;cursor:pointer}
 .mob-body{position:absolute;inset:0;transform-origin:50% 100%;will-change:transform}
-.mob-body svg{width:100%;height:100%;display:block;filter:drop-shadow(0 4px 4px #0002)}
+.mob-body svg{width:100%;height:100%;display:block}
+.mob-body .glyph-svg{filter:drop-shadow(0 5px 5px #0002)}
+.mob-body .glyph{font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif}
 .fx-star{position:fixed;font-size:18px;font-weight:bold;will-change:transform}
 .ripple{position:fixed;width:72px;height:72px;border:3px solid #fff;border-radius:50%;pointer-events:none;will-change:transform}
 
@@ -643,9 +645,13 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #d34e1e}
   .cloud,.butterfly,.sun,.float-crop,.mc-icon,.big-btn,.home-title{animation:none!important}
 }
 
-/* ================= 图鉴 SVG 图标 / 难度点 ================= */
-.r-cell .r-icon{width:34px;height:34px;display:block}
-.r-cell .r-icon svg{width:100%;height:100%;display:block;filter:drop-shadow(0 2px 2px #0003)}
+/* ================= 图鉴符号图标 / 难度点 ================= */
+.r-cell .r-icon{width:34px;height:34px;display:flex;align-items:center;justify-content:center}
+.r-cell .r-glyph{
+  font-size:26px;line-height:1;
+  font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif;
+  filter:drop-shadow(0 2px 2px #0003);
+}
 .mc-diff{display:flex;align-items:center;gap:3px;margin-top:3px;justify-content:center}
 .mc-diff i{width:7px;height:7px;border-radius:50%;background:#ffffff38;display:block}
 .mc-diff i.on{background:#ffd93d;box-shadow:0 0 7px #ffd93d99}
@@ -663,6 +669,76 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
   .mc-diff{justify-content:flex-start}
   #hud{padding-right:58px}   /* 给右上角固定的静音键让位，避免压住连击框 */
 }
+
+/* ================= v2：符号贴图目标 / 危险示意 / 稀有度 / 收集 / 事件 ================= */
+.mob-body .spark,.mob-body .sway{position:absolute;display:block;z-index:3;pointer-events:none;will-change:transform}
+.mob-body .spark{font-size:15px;color:#fff8c0;text-shadow:0 0 6px #ffd93d99}
+.mob-body .sp1{top:6%;left:4%}
+.mob-body .sp2{top:14%;right:5%}
+.mob-body .sp3{bottom:34%;left:1%}
+.mob-body .sway{top:1%;left:50%;margin-left:-7px;font-size:14px}
+.mob-hp{position:absolute;left:16%;right:16%;top:-1%;height:7px;z-index:6;background:#00000055;border-radius:4px;overflow:hidden}
+.mob-hp i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#ff6b6b,#ffd93d);transition:width .12s linear}
+/* 危险示意：不可打目标统一标识 */
+.mob.danger::before{
+  content:'';position:absolute;left:1%;right:1%;top:8%;bottom:14%;z-index:1;
+  border:3px dashed #ff6b6bcc;border-radius:50%;
+  animation:dangerSpin 7s linear infinite;
+}
+@keyframes dangerSpin{to{transform:rotate(360deg)}}
+.mob.danger::after{
+  content:'⚠';position:absolute;top:-1%;right:2%;z-index:7;font-size:16px;
+  filter:drop-shadow(0 2px 2px #0005);animation:dangerBlink .75s ease-in-out infinite alternate;
+}
+@keyframes dangerBlink{from{opacity:1}to{opacity:.35}}
+.mob.fake::before{border-color:#c8a86bdd;border-style:dotted;animation:none}
+.mob.fake::after{content:'✖';color:#e8d0ac}
+.mob.bonus::before{border:3px solid #ffd93daa;border-style:solid;animation:none}
+.mob.judge::before{border:3px dashed #7be0ffcc;animation:none}
+.mob.mom::before{border:3px solid #ffc2dc99;border-style:solid;animation:none}
+.mob.elite::before{border-color:#ff9ad5cc;border-style:solid;animation:none}
+@media (prefers-reduced-motion:reduce){
+  .mob.danger::before,.mob.danger::after{animation:none!important}
+}
+/* 稀有度卡框 + 收集进度 */
+.r-cell{position:relative}
+.r-cell .r-badge{
+  position:absolute;top:-7px;left:-6px;font-size:9px;font-weight:900;
+  border-radius:7px;padding:1px 5px;background:#00000055;color:#fff;
+  border:1.5px solid #ffffff44;letter-spacing:1px;
+}
+.r-cell.r-common{border-color:#c9d4e0aa}
+.r-cell.r-rare{border-color:#7be0ffcc;background:#7be0ff1a}
+.r-cell.r-epic{border-color:#c9a6ffcc;background:#c9a6ff1a}
+.r-cell.r-legend{border-color:#ffd93dcc;background:#ffd93d1f;box-shadow:0 0 12px #ffd93d55}
+.r-cell.locked .r-icon{filter:brightness(0) opacity(.42)}
+.r-cell.locked .r-name{color:#ffffff77}
+.roster-prog{display:flex;align-items:center;gap:8px;margin:0 0 8px;color:#ffffffcc;font-size:11px;font-weight:bold}
+.roster-prog b{color:#ffd93d;font-size:13px}
+.roster-prog .bar{flex:1;min-width:60px;height:7px;background:#ffffff22;border-radius:4px;overflow:hidden}
+.roster-prog .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#8ed16f,#ffd93d);border-radius:4px;transition:width .3s}
+/* 事件横幅 / 成就吐司 / 任务面板 */
+.event-banner{
+  position:fixed;left:50%;top:15%;transform:translateX(-50%);z-index:220;pointer-events:none;
+  background:#3c5233ee;border:3px solid #ffd93d;border-radius:999px;padding:8px 26px;
+  color:#ffe9a8;font-size:17px;font-weight:900;white-space:nowrap;box-shadow:0 10px 26px #0006;
+}
+.achv-toast{
+  position:fixed;left:50%;bottom:8%;transform:translateX(-50%);z-index:240;pointer-events:none;
+  background:linear-gradient(180deg,#fff8e0,#ffe9a8);border:3px solid #ffd93d;border-radius:16px;
+  padding:8px 18px;color:#8a6a1a;font-weight:900;font-size:13px;
+  box-shadow:0 10px 26px #0006;white-space:nowrap;
+}
+.ach-row{
+  display:flex;align-items:center;gap:10px;background:#fff;border:2.5px solid #e8d9b0;
+  border-radius:14px;padding:8px 12px;
+}
+.ach-row.done{border-color:#8ed16f;background:#f4ffee}
+.ach-ico{font-size:20px;width:26px;text-align:center;flex:none}
+.ach-txt{flex:1;text-align:left;font-size:12px;font-weight:bold;color:#5a4a2a;line-height:1.45}
+.ach-txt small{display:block;color:#a08a5a;font-size:11px;font-weight:normal}
+.ach-reward{font-size:12px;font-weight:900;color:#e8a20c;flex:none}
+.ach-row.done .ach-reward{color:#4d8a35}
 </style>
 </head>
 <body>
@@ -758,14 +834,20 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
       <div class="menu-row">
         <button class="menu-btn gold" id="boardBtn">🏆 排行榜</button>
         <button class="menu-btn pink" id="shopBtn">🛒 工具商城</button>
+        <button class="menu-btn" id="taskBtn">🏅 成就任务</button>
       </div>
 
       <div class="roster">
         <div class="roster-title">📋 目标图鉴</div>
+        <div class="roster-prog">
+          <span>收集进度</span><b id="rosterProg">0 / 12</b>
+          <span class="bar"><i id="rosterBar"></i></span>
+        </div>
         <div class="roster-grid" id="rosterGrid"></div>
         <div class="roster-note">
           连击越高 <b>×2/×3/×5</b> 倍分 · 连续命中触发 <b>🔥狂热时间</b><br>
-          <b>橙宝</b>和<b>水蜜桃</b>是无辜的，打了会扣分哦！
+          <b>🍊噜噜</b>和<b>🍑水蜜桃</b>是无辜的，打了会扣分哦！<br>
+          <b>⚠ 危险目标</b>带虚线光环；<b>💤打盹鼠</b>打它不加分但会吓跑同伴；<b>🎁礼物鼠</b>有惊喜
         </div>
       </div>
       <button class="roster-toggle" id="rosterToggle" type="button"><span class="rt-icon">⌄</span>📋 目标图鉴</button>
@@ -814,6 +896,22 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
     </div>
   </div>
 
+  <!-- ============ 成就 / 每日任务 ============ -->
+  <div id="taskPanel" class="panel hidden">
+    <div class="panel-card">
+      <button class="panel-close" data-close="taskPanel">✕</button>
+      <div class="panel-title">🏅 成就 · 每日任务</div>
+      <div class="panel-sub">每日任务每天刷新 · 成就为一次性奖励 · 完成后自动发积分</div>
+      <div class="panel-body">
+        <div class="panel-title" style="font-size:16px;margin:2px 0 6px">📅 今日任务</div>
+        <div id="dailyList"></div>
+        <div class="panel-title" style="font-size:16px;margin:12px 0 6px">🏆 成就</div>
+        <div id="achvList"></div>
+      </div>
+      <div class="panel-foot">💰 当前积分 <b id="taskCoins">0</b></div>
+    </div>
+  </div>
+
   <div id="fxLayer"></div>
 </div>
 <div id="cursor"></div>
@@ -842,7 +940,7 @@ var scoreEl = $('#score'), timeEl = $('#time'), comboEl = $('#combo'),
     multEl = $('#mult'), comboBar = $('#comboBar'),
     timeBox = $('#timeBox'), scoreBox = $('#scoreBox');
 var startScreen = $('#startScreen'), endScreen = $('#endScreen');
-var boardPanel = $('#boardPanel'), shopPanel = $('#shopPanel');
+var boardPanel = $('#boardPanel'), shopPanel = $('#shopPanel'), taskPanel = $('#taskPanel');
 
 /* ================= 本地存档（Netlify 友好） ================= */
 var store = {
@@ -907,119 +1005,56 @@ var SFX = {
   fanfare: function(){ var c = ac(); if(!c) return; var t = c.currentTime; [523, 659, 784, 1046, 1318].forEach(function(f, i){ tone('triangle', f, null, t + i * 0.11, 0.22, 0.16); }); },
   sad: function(){ var c = ac(); if(!c) return; var t = c.currentTime; [440, 370, 311, 262].forEach(function(f, i){ tone('triangle', f, null, t + i * 0.16, 0.24, 0.14); }); },
   buy: function(){ var c = ac(); if(!c) return; var t = c.currentTime; tone('sine', 990, null, t, 0.1, 0.16); tone('sine', 1320, null, t + 0.09, 0.16, 0.16); noise(t + 0.02, 0.05, 0.12, 2600); },
-  equip: function(){ var c = ac(); if(!c) return; var t = c.currentTime; tone('triangle', 520, 780, t, 0.14, 0.14); }
+  equip: function(){ var c = ac(); if(!c) return; var t = c.currentTime; tone('triangle', 520, 780, t, 0.14, 0.14); },
+  /* ---- v2 新增音效（全部 WebAudio 合成，不引入外部音频文件） ---- */
+  trap: function(){ var c = ac(); if(!c) return; var t = c.currentTime; noise(t, 0.09, 0.28, 700); tone('sine', 320, 150, t, 0.14, 0.22); },
+  nap: function(){ var c = ac(); if(!c) return; var t = c.currentTime; tone('sine', 300, 190, t, 0.34, 0.18); tone('sine', 240, 150, t + 0.24, 0.4, 0.14); },
+  gift: function(){ var c = ac(); if(!c) return; var t = c.currentTime; [784, 988, 1319].forEach(function(f, i){ tone('triangle', f, null, t + i * 0.06, 0.14, 0.15); }); },
+  gentle: function(){ var c = ac(); if(!c) return; var t = c.currentTime; [523, 659, 880].forEach(function(f, i){ tone('sine', f, null, t + i * 0.12, 0.3, 0.13); }); },
+  elite: function(){ var c = ac(); if(!c) return; var t = c.currentTime; noise(t, 0.12, 0.5, 520); tone('square', 180, 60, t, 0.2, 0.4); },
+  event: function(){ var c = ac(); if(!c) return; var t = c.currentTime; [660, 880, 1100, 1320].forEach(function(f, i){ tone('triangle', f, null, t + i * 0.08, 0.18, 0.16); }); }
 };
 
-/* ================= 目标形象（可爱 SVG · GSAP 驱动） ================= */
-var MOB_SVG = {
-  mushroom:
-'<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
-  '<ellipse cx="50" cy="93" rx="26" ry="5" fill="#00000018"/>' +
-  '<path d="M37 58 Q35 88 50 90 Q65 88 63 58 Z" fill="#fff6e6" stroke="#e2cba6" stroke-width="2.4" stroke-linejoin="round"/>' +
-  '<path d="M13 57 Q11 22 50 20 Q89 22 87 57 Q87 64 78 64 L22 64 Q13 64 13 57 Z" fill="#ff6b6b" stroke="#d84343" stroke-width="2.8" stroke-linejoin="round"/>' +
-  '<ellipse cx="31" cy="38" rx="9" ry="7" fill="#fffaf0" transform="rotate(-14 31 38)"/>' +
-  '<ellipse cx="63" cy="33" rx="7.5" ry="6" fill="#fffaf0" transform="rotate(10 63 33)"/>' +
-  '<ellipse cx="50" cy="50" rx="6.5" ry="4.6" fill="#fffaf0"/>' +
-  '<g class="eye"><ellipse cx="38" cy="73" rx="4.4" ry="5.6" fill="#3b2b2b"/><circle cx="39.6" cy="71" r="1.8" fill="#fff"/></g>' +
-  '<g class="eye"><ellipse cx="62" cy="73" rx="4.4" ry="5.6" fill="#3b2b2b"/><circle cx="63.6" cy="71" r="1.8" fill="#fff"/></g>' +
-  '<ellipse cx="28" cy="79" rx="5.4" ry="3.2" fill="#ff9c9c" opacity=".6"/>' +
-  '<ellipse cx="72" cy="79" rx="5.4" ry="3.2" fill="#ff9c9c" opacity=".6"/>' +
-  '<path class="mouth" d="M45 81 Q50 86 55 81" stroke="#c9604f" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
-'</svg>',
-
-  carrot:
-'<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
-  '<ellipse cx="50" cy="94" rx="20" ry="4.5" fill="#00000015"/>' +
-  '<path d="M50 34 Q38 14 26 10 Q34 26 44 34 Z" fill="#63c44a" stroke="#3d9c2b" stroke-width="2.2" stroke-linejoin="round"/>' +
-  '<path d="M50 34 Q46 10 50 4 Q56 14 56 34 Z" fill="#82d96a" stroke="#3d9c2b" stroke-width="2.2" stroke-linejoin="round"/>' +
-  '<path d="M50 34 Q62 14 74 10 Q66 26 56 34 Z" fill="#63c44a" stroke="#3d9c2b" stroke-width="2.2" stroke-linejoin="round"/>' +
-  '<path d="M35 36 Q65 36 61 64 Q57 88 50 95 Q43 88 39 64 Q35 40 35 36 Z" fill="#ff9d3f" stroke="#dd7a12" stroke-width="2.8" stroke-linejoin="round"/>' +
-  '<path d="M39 50 Q50 54 61 50 M41 61 Q50 65 59 61" stroke="#e8871f" stroke-width="2" fill="none" opacity=".5" stroke-linecap="round"/>' +
-  '<g class="eye"><ellipse cx="43" cy="58" rx="4" ry="5" fill="#3b2b2b"/><circle cx="44.4" cy="56" r="1.6" fill="#fff"/></g>' +
-  '<g class="eye"><ellipse cx="57" cy="58" rx="4" ry="5" fill="#3b2b2b"/><circle cx="58.4" cy="56" r="1.6" fill="#fff"/></g>' +
-  '<ellipse cx="36" cy="65" rx="4.6" ry="2.8" fill="#ff8f8f" opacity=".55"/>' +
-  '<ellipse cx="64" cy="65" rx="4.6" ry="2.8" fill="#ff8f8f" opacity=".55"/>' +
-  '<path class="mouth" d="M45 67 Q50 71 55 67" stroke="#c9603f" stroke-width="2" fill="none" stroke-linecap="round"/>' +
-'</svg>',
-
-  cucumber:
-'<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
-  '<ellipse cx="50" cy="94" rx="18" ry="4" fill="#00000015"/>' +
-  '<circle cx="50" cy="9" r="5" fill="#ffe27a" stroke="#e0a800" stroke-width="2"/>' +
-  '<path d="M50 12 Q56 2 62 4 Q58 12 56 16 Z" fill="#ffd23f" stroke="#e0a800" stroke-width="2" stroke-linejoin="round"/>' +
-  '<rect x="36" y="16" width="28" height="76" rx="14" fill="#7ec850" stroke="#4f9a2c" stroke-width="2.8"/>' +
-  '<g fill="#9ede78" opacity=".9"><circle cx="44" cy="30" r="2.4"/><circle cx="56" cy="36" r="2.2"/><circle cx="43" cy="46" r="2.3"/><circle cx="57" cy="54" r="2.4"/><circle cx="44" cy="64" r="2.2"/><circle cx="56" cy="74" r="2.3"/><circle cx="48" cy="84" r="2.1"/></g>' +
-  '<g class="eye"><ellipse cx="44" cy="52" rx="3.6" ry="4.8" fill="#3b2b2b"/><circle cx="45.2" cy="50.4" r="1.5" fill="#fff"/></g>' +
-  '<g class="eye"><ellipse cx="56" cy="52" rx="3.6" ry="4.8" fill="#3b2b2b"/><circle cx="57.2" cy="50.4" r="1.5" fill="#fff"/></g>' +
-  '<ellipse cx="38.5" cy="60" rx="4" ry="2.5" fill="#ff9c9c" opacity=".55"/>' +
-  '<ellipse cx="61.5" cy="60" rx="4" ry="2.5" fill="#ff9c9c" opacity=".55"/>' +
-  '<path class="mouth" d="M46 61 Q50 65 54 61" stroke="#3d7a24" stroke-width="2" fill="none" stroke-linecap="round"/>' +
-'</svg>',
-
-  roach:
-'<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
-  '<ellipse cx="50" cy="92" rx="22" ry="4.5" fill="#00000015"/>' +
-  '<g class="sway"><path d="M34 30 Q22 16 14 8" stroke="#8a5a2a" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M66 30 Q78 16 86 8" stroke="#8a5a2a" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="13" cy="7" r="3" fill="#c07a3a"/><circle cx="87" cy="7" r="3" fill="#c07a3a"/></g>' +
-  '<g stroke="#7a4a22" stroke-width="2.8" stroke-linecap="round"><path d="M30 62 L12 74"/><path d="M30 72 L14 88"/><path d="M70 62 L88 74"/><path d="M70 72 L86 88"/></g>' +
-  '<ellipse cx="50" cy="58" rx="26" ry="30" fill="#b87940" stroke="#8a5424" stroke-width="2.8"/>' +
-  '<ellipse cx="50" cy="44" rx="20" ry="14" fill="#d09456" opacity=".6"/>' +
-  '<path d="M50 30 L50 86" stroke="#8a5424" stroke-width="2" opacity=".45"/>' +
-  '<g class="eye"><ellipse cx="42" cy="56" rx="4.4" ry="5.4" fill="#2e2222"/><circle cx="43.4" cy="54" r="1.7" fill="#fff"/></g>' +
-  '<g class="eye"><ellipse cx="58" cy="56" rx="4.4" ry="5.4" fill="#2e2222"/><circle cx="59.4" cy="54" r="1.7" fill="#fff"/></g>' +
-  '<path class="mouth" d="M43 68 Q50 75 57 68" stroke="#4e3011" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
-  '<path d="M46 68 Q50 71 54 68 L54 70 Q50 73 46 70 Z" fill="#fff" opacity=".9"/>' +
-'</svg>',
-
-  star:
-'<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
-  '<g class="spark"><path d="M50 3 L50 12" stroke="#ffe98a" stroke-width="2.6" stroke-linecap="round"/><path d="M9 23 L18 29" stroke="#ffe98a" stroke-width="2.6" stroke-linecap="round"/><path d="M91 23 L82 29" stroke="#ffe98a" stroke-width="2.6" stroke-linecap="round"/><circle cx="22" cy="24" r="3" fill="#fff8c0"/><circle cx="79" cy="50" r="2.6" fill="#fff8c0"/><circle cx="30" cy="76" r="2.2" fill="#fff8c0"/></g>' +
-  '<path d="M50 9 L61 39 L93 41 L68 60 L77 91 L50 74 L23 91 L32 60 L7 41 L39 39 Z" fill="#ffd93d" stroke="#e0a800" stroke-width="2.8" stroke-linejoin="round"/>' +
-  '<path d="M50 20 L57 38 L48 48 L43 37 Z" fill="#fff8c0" opacity=".55"/>' +
-  '<g class="eye"><ellipse cx="40" cy="50" rx="5.2" ry="6.2" fill="#3a2a10"/><circle cx="41.8" cy="47.6" r="2.1" fill="#fff"/></g>' +
-  '<g class="eye"><ellipse cx="60" cy="50" rx="5.2" ry="6.2" fill="#3a2a10"/><circle cx="61.8" cy="47.6" r="2.1" fill="#fff"/></g>' +
-  '<path d="M32 41 Q39 37 45 41" stroke="#a06a00" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
-  '<path d="M55 38 Q61 34 68 39" stroke="#a06a00" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
-  '<path class="mouth" d="M37 61 Q50 74 64 58" stroke="#8a5a00" stroke-width="2.6" fill="none" stroke-linecap="round"/>' +
-  '<path d="M44 63 Q50 69 57 62 L57 67 Q50 73 44 68 Z" fill="#fff" opacity=".95"/>' +
-  '<path d="M31 69 Q27 65 26 60" stroke="#8a5a00" stroke-width="1.8" fill="none" stroke-linecap="round" opacity=".65"/>' +
-'</svg>',
-
-  orange:
-'<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
-  '<ellipse cx="50" cy="93" rx="24" ry="4.6" fill="#00000015"/>' +
-  '<g class="sway"><path d="M50 24 Q56 10 68 7 Q60 19 54 26 Z" fill="#63c44a" stroke="#3f9a2c" stroke-width="2.1" stroke-linejoin="round"/><path d="M50 22 L50 11" stroke="#8a5a2a" stroke-width="3" stroke-linecap="round"/></g>' +
-  '<circle cx="50" cy="58" r="33" fill="#ffa726" stroke="#e07a14" stroke-width="2.8"/>' +
-  '<circle cx="50" cy="58" r="26" fill="#ffb648" opacity=".5"/>' +
-  '<path d="M28 44 Q36 38 42 46" stroke="#d96f10" stroke-width="1.7" fill="none" opacity=".3"/>' +
-  '<path d="M72 44 Q64 38 58 46" stroke="#d96f10" stroke-width="1.7" fill="none" opacity=".3"/>' +
-  '<g class="eye"><ellipse cx="40" cy="54" rx="4.6" ry="5.6" fill="#3b2b2b"/><circle cx="41.6" cy="52" r="1.9" fill="#fff"/></g>' +
-  '<g class="eye"><ellipse cx="60" cy="54" rx="4.6" ry="5.6" fill="#3b2b2b"/><circle cx="61.6" cy="52" r="1.9" fill="#fff"/></g>' +
-  '<path d="M32 45 Q39 42 45 46" stroke="#b06010" stroke-width="2.1" fill="none" stroke-linecap="round"/>' +
-  '<path d="M55 46 Q61 42 68 45" stroke="#b06010" stroke-width="2.1" fill="none" stroke-linecap="round"/>' +
-  '<ellipse cx="30" cy="66" rx="5.4" ry="3.2" fill="#ff8a80" opacity=".6"/>' +
-  '<ellipse cx="70" cy="66" rx="5.4" ry="3.2" fill="#ff8a80" opacity=".6"/>' +
-  '<path class="mouth" d="M44 70 Q50 75 56 70" stroke="#b06010" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
-  '<circle cx="72" cy="32" r="2.6" fill="#fff" opacity=".7"/>' +
-'</svg>',
-
-  peach:
-'<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
-  '<ellipse cx="50" cy="93" rx="23" ry="4.4" fill="#00000015"/>' +
-  '<g class="sway"><path d="M50 26 Q58 12 70 9 Q62 21 56 27 Z" fill="#63c44a" stroke="#3f9a2c" stroke-width="2.2" stroke-linejoin="round"/><path d="M50 26 Q49 14 52 6" stroke="#8a5a2a" stroke-width="2.6" stroke-linecap="round" fill="none"/></g>' +
-  '<path d="M50 26 Q26 32 26 55 Q26 83 50 92 Q74 83 74 55 Q74 32 50 26 Z" fill="#ffb3c6" stroke="#ef8aa8" stroke-width="2.8" stroke-linejoin="round"/>' +
-  '<path d="M50 27 Q50 56 50 92" stroke="#ef8aa8" stroke-width="1.7" opacity=".38" fill="none"/>' +
-  '<ellipse cx="33" cy="43" rx="6" ry="3.6" fill="#ff9ab5" opacity=".4"/>' +
-  '<g class="eye"><ellipse cx="40" cy="56" rx="4.8" ry="6.4" fill="#3b2b3a"/><circle cx="41.6" cy="53.2" r="2.1" fill="#fff"/></g>' +
-  '<g class="eye"><ellipse cx="60" cy="56" rx="4.8" ry="6.4" fill="#3b2b3a"/><circle cx="61.6" cy="53.2" r="2.1" fill="#fff"/></g>' +
-  '<path d="M33 46 Q40 42 46 47" stroke="#d96a86" stroke-width="2" fill="none" stroke-linecap="round"/>' +
-  '<path d="M54 47 Q60 42 67 46" stroke="#d96a86" stroke-width="2" fill="none" stroke-linecap="round"/>' +
-  '<path class="tear" d="M32 62 Q29.5 70 32 75 Q35 70 32 62 Z" fill="#8ed6ff" opacity=".95"/>' +
-  '<path class="tear" d="M68 62 Q70.5 70 68 75 Q65 70 68 62 Z" fill="#8ed6ff" opacity=".95"/>' +
-  '<ellipse cx="28" cy="67" rx="5" ry="3" fill="#ff8fa8" opacity=".5"/>' +
-  '<ellipse cx="72" cy="67" rx="5" ry="3" fill="#ff8fa8" opacity=".5"/>' +
-  '<path class="mouth" d="M44 75 Q50 80 56 75" stroke="#d96a86" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
-'</svg>'
+/* ================= v2 目标贴图：纯符号 emoji（无脸 · 无位图） ================= */
+var LULU_NAME = '噜噜';
+var MOB_EMOJI = {
+  mushroom: '🍄', carrot: '🥕', cucumber: '🥒', roach: '🪳',
+  star: '⭐', orange: '🍊', peach: '🍑',
+  nap: '💤', gift: '🎁', mom: '🍼', fake: '📦', elite: '👑'
 };
+function emojiOf(id){ return MOB_EMOJI[id] || '⭐'; }
+/* 内联 SVG <text> 承载 emoji：随洞口尺寸自动缩放，零位图依赖 */
+function mobGlyph(id, cls){
+  return '<svg class="glyph-svg' + (cls ? ' ' + cls : '') + '" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
+           '<text class="glyph" x="50" y="53" text-anchor="middle" dominant-baseline="central" font-size="82">' +
+             emojiOf(id) +
+           '</text></svg>';
+}
+/* 稀有度：决定出场权重与图鉴卡框（分值直接写在 TYPES.points，不动 MODES.rank 平衡） */
+var RARITY = {
+  common: { name:'普通', w: 1.00, frame:'r-common', color:'#c9d4e0' },
+  rare:   { name:'稀有', w: 0.55, frame:'r-rare',   color:'#7be0ff' },
+  epic:   { name:'史诗', w: 0.34, frame:'r-epic',   color:'#c9a6ff' },
+  legend: { name:'传说', w: 0.18, frame:'r-legend', color:'#ffd93d' },
+  trap:   { name:'陷阱', w: 1.00, frame:'r-common', color:'#ff8a8a' }
+};
+function rarityOf(id){ var T = TYPES[id] || {}; return RARITY[T.rarity] || RARITY.common; }
+/* 目标外层类名：危险示意 / 特殊标识 */
+function kindClass(id){
+  if(id === 'elite') return 'elite';
+  if(id === 'fake')  return 'danger fake';
+  if(id === 'nap')   return 'judge';
+  if(id === 'gift')  return 'bonus';
+  if(id === 'mom')   return 'mom';
+  if((TYPES[id] || {}).bad) return 'danger';
+  return '';
+}
+/* 符号贴图上的装饰钩子（.spark / .sway 由 animateMobLife 驱动） */
+function decoFor(id){
+  if(id === 'star') return '<span class="spark sp1">✦</span><span class="spark sp2">✧</span><span class="spark sp3">✦</span>';
+  if(id === 'orange') return '<span class="sway">🍃</span>';
+  return '';
+}
 
 /* ================= 工具图鉴（SVG 锤子皮肤） ================= */
 var TOOL_SVG = {};
@@ -1100,15 +1135,20 @@ var TOOLS = {
 };
 var TOOL_ORDER = ['hand','mallet','candy','star','meow','gold'];
 
-/* ================= 目标配置（贴图系） ================= */
+/* ================= 目标配置（符号贴图系） ================= */
 var TYPES = {
-  mushroom: { name:'蘑菇君', points: 10, up: [1150, 1700], bad: false, cls:'good' },
-  carrot:   { name:'萝卜君', points: 10, up: [1350, 1900], bad: false, cls:'good' },
-  cucumber: { name:'黄瓜君', points: 10, up: [1100, 1600], bad: false, cls:'good' },
-  roach:    { name:'小强',   points: 10, up: [800, 1250],  bad: false, cls:'good' },
-  star:     { name:'闪耀星星', points: 50, up: [620, 900], bad: false, cls:'gold' },
-  orange:   { name:'橙宝',   points: -20, up: [1400, 1900], bad: true },
-  peach:    { name:'水蜜桃', points: -30, up: [1300, 1800], bad: true }
+  mushroom: { name:'蘑菇君', points: 10, up: [1150, 1700], bad: false, cls:'good', kind:'normal', rarity:'common' },
+  carrot:   { name:'萝卜君', points: 10, up: [1350, 1900], bad: false, cls:'good', kind:'normal', rarity:'common' },
+  cucumber: { name:'黄瓜君', points: 10, up: [1100, 1600], bad: false, cls:'good', kind:'normal', rarity:'common' },
+  roach:    { name:'小强',   points: 10, up: [800, 1250],  bad: false, cls:'good', kind:'normal', rarity:'common' },
+  star:     { name:'闪耀星星', points: 50, up: [620, 900], bad: false, cls:'gold', kind:'normal', rarity:'rare' },
+  orange:   { name:LULU_NAME, points: -20, up: [1400, 1900], bad: true, cls:'bad', kind:'trap', rarity:'trap' },
+  peach:    { name:'水蜜桃', points: -30, up: [1300, 1800], bad: true, cls:'bad', kind:'trap', rarity:'trap' },
+  nap:      { name:'打盹鼠', points: 0,   up: [1500, 2050], bad: false, cls:'good', kind:'judge', rarity:'rare' },
+  gift:     { name:'礼物鼠', points: 0,   up: [1100, 1550], bad: false, cls:'gold', kind:'bonus', rarity:'epic' },
+  mom:      { name:'护崽鼠', points: 0,   up: [1700, 2200], bad: false, cls:'good', kind:'bonus', rarity:'epic' },
+  fake:     { name:'空手鼠', points: -5,  up: [900, 1350],  bad: true,  cls:'bad',  kind:'trap', rarity:'common' },
+  elite:    { name:'精英鼠', points: 150, up: [1500, 1900], bad: false, cls:'gold', kind:'elite', rarity:'legend', hp: 3 }
 };
 var TAUNTS = {
   mushroom: ['伞伞~', '长高高!', '我在长大~', '晒太阳~'],
@@ -1116,8 +1156,13 @@ var TAUNTS = {
   cucumber: ['顶花带刺!', '脆不脆?', '清爽一夏~', '咔嚓咔嚓!'],
   roach:    ['小强来袭!', '抓不到~', '嗖嗖嗖!', '打我呀~', '靴靴别打!'],
   star:     ['闪到你眼花~', '来呀来呀~', '我是传说!', '追不上我吧~', '快点我呀~'],
-  orange:   ['橙宝乖~', '别摔我!', '很酸的哦~', '皮很厚!', '剥皮好疼~', '维C满满~'],
-  peach:    ['桃桃~', '甜不甜?', '毛毛痒~', '别捏我!', '会爆汁的!', '呜呜呜~']
+  orange:   ['噜噜乖~', '别打我呀噜~', '很酸的哦~', '皮很厚!', '剥皮好疼噜~', '维C满满~'],
+  peach:    ['桃桃~', '甜不甜?', '毛毛痒~', '别捏我!', '会爆汁的!', '呜呜呜~'],
+  nap:      ['呼…呼…', '别吵…', '再睡五分钟…', '梦到萝卜了…'],
+  gift:     ['送你个小礼物~', '拆开看看?', '惊喜哦!', '接好啦~'],
+  mom:      ['嘘…宝宝在睡', '轻一点哦~', '别吵醒它…', '我会保护它!'],
+  fake:     ['…', '纸板做的哦', '噗——'],
+  elite:    ['我可是王!', '接得住三下吗?', '别小看我!', '再来!']
 };
 var HIT_WORDS = ['咚!', '梆!', '嘿!', '哐!', '咚!!'];
 
@@ -1152,9 +1197,63 @@ if(!MODES[mode]){ mode = 'normal'; }
 var holes = [], running = false, fever = false;
 var score = 0, combo = 0, bestCombo = 0, timeLeft = 60, elapsed = 0;
 var lastHitAt = 0, lastTickSec = 99;
-var stats = { hits: 0, star: 0, wrong: 0, escaped: 0 };
-var spawnTO = null, clockIV = null, rafId = null;
+var stats = { hits: 0, star: 0, wrong: 0, escaped: 0, gentle: 0, lulu: 0, gift: 0, eliteHit: 0, events: 0 };
+var spawnTO = null, clockIV = null, rafId = null, eventTO = null;
 var TOTAL_TIME = 60, clockStart = 0, clockPaused = 0, hiddenAt = 0;
+var eliteCount = 0, feverCount = 0;
+/* 局内随机事件状态（C2） */
+var eventState = { scoreMul: 1, starMul: 1, freeze: false, fired: 0 };
+
+/* ================= 收集 / 成就 / 每日任务（新增存档键，不动旧键） ================= */
+var COLLECT_IDS = ['mushroom','carrot','cucumber','roach','star','orange','peach','nap','gift','mom','fake','elite'];
+function loadCollect(){
+  var c = store.get('collect', null);
+  if(!c || typeof c !== 'object'){ c = {}; }
+  COLLECT_IDS.forEach(function(id){
+    if(!c[id]){ c[id] = { seen:0, spawn:0, hit:0, spared:0 }; }
+    else {
+      c[id].seen = c[id].seen || 0; c[id].spawn = c[id].spawn || 0;
+      c[id].hit = c[id].hit || 0; c[id].spared = c[id].spared || 0;
+    }
+  });
+  return c;
+}
+var collect = loadCollect();
+function seenCount(){ var n = 0; COLLECT_IDS.forEach(function(id){ if(collect[id] && collect[id].seen > 0){ n++; } }); return n; }
+function saveCollect(){ store.set('collect', collect); }
+function logCollect(id, field, n){
+  if(!collect[id]){ collect[id] = { seen:0, spawn:0, hit:0, spared:0 }; }
+  collect[id][field] = (collect[id][field] || 0) + (n || 1);
+  if(collect[id].seen === 0){ collect[id].seen = 1; }
+  saveCollect();
+}
+function rarityDone(rk){
+  var ids = COLLECT_IDS.filter(function(id){
+    return (TYPES[id] || {}).rarity === rk;
+  });
+  if(!ids.length) return true;
+  return ids.every(function(id){ return collect[id] && collect[id].seen > 0; });
+}
+function checkRarityReward(){
+  var got = store.get('rarityGot', []);
+  if(!Array.isArray(got)){ got = []; }
+  var gain = 0, names = [];
+  ['common','rare','epic','legend'].forEach(function(rk){
+    if(got.indexOf(rk) < 0 && rarityDone(rk)){
+      var R = RARITY[rk];
+      var n = rk === 'common' ? 120 : rk === 'rare' ? 250 : rk === 'epic' ? 600 : 1200;
+      got.push(rk); gain += n; names.push(R.name + ' +' + n);
+    }
+  });
+  if(gain > 0){
+    store.set('rarityGot', got);
+    store.set('coins', store.get('coins', 0) + gain);
+    spawnText(window.innerWidth / 2, window.innerHeight * 0.34,
+      '🎉 稀有度集齐！' + names.join(' · '), 'feverTxt');
+    SFX.fanfare();
+  }
+  return gain;
+}
 
 function difficulty(){ return Math.min(1, elapsed / 55 * MODES[mode].ramp); }
 function spawnDelay(){
@@ -1173,6 +1272,7 @@ function motionOn(){
 }
 function killMobTweens(mob){
   if(!mob) return;
+  if(mob._blinks){ clearInterval(mob._blinks); mob._blinks = null; }
   if(mob._tweens){ mob._tweens.forEach(function(t){ try{ t.kill(); }catch(e){} }); mob._tweens = null; }
   gsap.killTweensOf(mob);
   var kids = mob.querySelectorAll('*');
@@ -1188,16 +1288,17 @@ function countUp(el, to, dur, prefix){
   });
 }
 function animateMobLife(mob, type){
-  if(!motionOn()) return;
   var body = mob.querySelector('.mob-body');
   if(!body) return;
+  if(!motionOn()) return;
   mob._tweens = [];
   mob._tweens.push(gsap.to(body, { y: -3, rotation: 2.6, duration: 0.5, ease: 'sine.inOut', yoyo: true, repeat: -1 }));
-  var eyes = mob.querySelectorAll('.eye');
-  if(eyes.length){
-    mob._tweens.push(gsap.to(eyes, {
-      scaleY: 0.12, transformOrigin: '50% 50%', duration: 0.07, ease: 'power2.inOut',
-      yoyo: true, repeat: -1, repeatDelay: 2 + Math.random() * 2.4, stagger: 0.02
+  /* 符号贴图的“呼吸”律动，代替原来的眨眼动画 */
+  var glyphEl = mob.querySelector('.mob-body .glyph-svg');
+  if(glyphEl){
+    mob._tweens.push(gsap.to(glyphEl, {
+      scale: 1.08, transformOrigin: '50% 84%', duration: 0.92,
+      ease: 'sine.inOut', yoyo: true, repeat: -1
     }));
   }
   var spark = mob.querySelectorAll('.spark');
@@ -1261,14 +1362,23 @@ function closePanel(panel){
 function pickType(){
   var d = difficulty();
   var M = MODES[mode];
+  /* 精英鼠：最后 15 秒才有机会登场（每局最多 2 只） */
+  if(elapsed > TOTAL_TIME - 15 && eliteCount < 2 && Math.random() < 0.28){
+    eliteCount++;
+    return 'elite';
+  }
   var w = [
     ['mushroom', 20],
     ['carrot',   18 + 4 * (1 - d)],
     ['cucumber', 16],
     ['roach',    14 + 10 * d],
-    ['star',     M.starW],
+    ['star',     M.starW * eventState.starMul],
     ['orange',   12 * M.badMul * (1 + 0.5 * d)],
-    ['peach',     9 * M.badMul * (1 + 0.7 * d)]
+    ['peach',     9 * M.badMul * (1 + 0.7 * d)],
+    ['fake',      7 * M.badMul * (1 + 0.4 * d)],
+    ['nap',      10 * RARITY.rare.w * 2],
+    ['gift',      6 * RARITY.epic.w * 2],
+    ['mom',       5 * RARITY.epic.w * 2]
   ];
   var sum = 0; w.forEach(function(x){ sum += x[1]; });
   var r = Math.random() * sum;
@@ -1301,8 +1411,15 @@ function spawnOne(){
   hole.busy = true;
   var type = pickType(), T = TYPES[type];
   var mob = document.createElement('div');
-  mob.className = 'mob ' + type;
-  mob.innerHTML = '<div class="mob-body">' + (MOB_SVG[type] || '') + '</div>';
+  var kc = kindClass(type);
+  mob.className = 'mob ' + type + (kc ? ' ' + kc : '');
+  var inner = '<div class="mob-body">' + mobGlyph(type) + decoFor(type) + '</div>';
+  if(T.hp && T.hp > 1){ inner += '<div class="mob-hp"><i></i></div>'; }
+  mob.innerHTML = inner;
+  mob._hp = T.hp || 1;
+  var hpBar = mob.querySelector('.mob-hp i');
+  if(hpBar){ hpBar.style.width = '100%'; }
+  logCollect(type, 'spawn');
   if(Math.random() < (type === 'star' ? 0.55 : 0.32)){
     var b = document.createElement('div');
     b.className = 'bubble';
@@ -1334,10 +1451,16 @@ function spawnLoop(){
 
 function flee(mob){
   if(mob._hit || !mob.isConnected) return;
+  /* ⏱️ 时钟冻结事件：地鼠暂不缩回 */
+  if(eventState.freeze){ mob._to = setTimeout(function(){ flee(mob); }, 320); return; }
   mob._hit = true;
   clearTimeout(mob._to);
   killMobTweens(mob);
-  if(!TYPES[mob._type].bad) stats.escaped++;
+  var type = mob._type, T = TYPES[type];
+  if(!T.bad){ stats.escaped++; }
+  /* 🐣 护崽鼠：逃走前没被打 → 累计温柔奖励（结算时发放） */
+  if(T.kind === 'bonus' && type === 'mom'){ stats.gentle = (stats.gentle || 0) + 1; }
+  if(T.bad || type === 'mom' || type === 'nap'){ logCollect(type, 'spared'); }
   var hole = mob._hole;
   gsap.to(mob, {
     yPercent: 112, duration: motionOn() ? 0.3 : 0, ease: 'power2.in',
@@ -1346,6 +1469,45 @@ function flee(mob){
 }
 
 /* ================= 命中处理 ================= */
+function softSquash(body){
+  if(!body || !motionOn()) return;
+  gsap.fromTo(body, { scaleX: 1.32, scaleY: 0.68 },
+    { scaleX: 1, scaleY: 1, duration: 0.28, ease: 'elastic.out(1,0.5)' });
+}
+/* 打盹鼠被吵醒：同屏其他目标立刻缩回（惩罚=打断节奏） */
+function scareOthers(exceptHole){
+  holes.forEach(function(h){
+    if(h === exceptHole) return;
+    var other = h.slot.querySelector('.mob');
+    if(other && !other._hit){
+      other._hit = true;
+      clearTimeout(other._to);
+      killMobTweens(other);
+      (function(o2, hh){
+        gsap.to(o2, { yPercent: 112, duration: motionOn() ? 0.26 : 0, ease: 'power2.in',
+          onComplete: function(){ o2.remove(); hh.busy = false; } });
+      })(other, h);
+    }
+  });
+}
+/* 礼物鼠奖励之一：清掉一个危险目标 */
+function clearOneBad(){
+  var found = null;
+  holes.forEach(function(h){
+    if(found) return;
+    var m = h.slot.querySelector('.mob');
+    if(m && !m._hit && TYPES[m._type] && TYPES[m._type].bad && TYPES[m._type].kind === 'trap'){ found = m; }
+  });
+  if(!found){ return false; }
+  found._hit = true;
+  clearTimeout(found._to);
+  killMobTweens(found);
+  var hh = found._hole;
+  gsap.to(found, { yPercent: 112, duration: motionOn() ? 0.24 : 0, ease: 'power2.in',
+    onComplete: function(){ found.remove(); hh.busy = false; } });
+  spawnText(window.innerWidth / 2, window.innerHeight * 0.4, '✨ 危险目标已清空!', 'good');
+  return true;
+}
 function onHit(e){
   e.preventDefault();
   e.stopPropagation();
@@ -1353,12 +1515,96 @@ function onHit(e){
   if(mob._hit || !running) return;
   mob._hit = true;
   clearTimeout(mob._to);
+  if(mob._blinks){ clearInterval(mob._blinks); mob._blinks = null; }
 
   var type = mob._type, T = TYPES[type];
   var r = mob.getBoundingClientRect();
   var x = r.left + r.width / 2, y = r.top + r.height / 2;
   killMobTweens(mob);
   var body = mob.querySelector('.mob-body');
+  logCollect(type, 'hit');
+
+  /* ---------- 👑 精英鼠：血量 3 点，需连点 3 次 ---------- */
+  if(T.kind === 'elite'){
+    mob._hp = (mob._hp || T.hp) - 1;
+    SFX.elite();
+    softSquash(body);
+    spawnRipple(x, y, '#ffd6ec');
+    spawnToolImpact(x, y);
+    spawnStars(x, y, 12);
+    shake(9);
+    stats.eliteHit = (stats.eliteHit || 0) + 1;
+    var bar = mob.querySelector('.mob-hp i');
+    if(bar){ bar.style.width = Math.max(0, Math.round(mob._hp / T.hp * 100)) + '%'; }
+    if(mob._hp > 0){
+      spawnText(x, y - 30, 'HP ' + mob._hp + ' / ' + T.hp, 'comboTxt');
+      setTimeout(function(){
+        if(!mob.isConnected) return;
+        mob._hit = false;
+        mob._to = setTimeout(function(){ flee(mob); }, 620);
+      }, 220);
+      return;
+    }
+    spawnText(x, y - 72, '击破!!', 'comboTxt');
+    flash('#ff9ad555');
+  }
+
+  /* ---------- 💤 打盹鼠：不加分也不扣分，但会吓跑同屏其他目标 ---------- */
+  if(T.kind === 'judge'){
+    SFX.nap();
+    softSquash(body);
+    spawnRipple(x, y, '#cfe6ff');
+    spawnText(x, y - 30, '呼啊…被吓醒了!', 'bad');
+    flash('#cfe6ff44');
+    shake(5);
+    stats.nap = (stats.nap || 0) + 1;
+    scareOthers(mob._hole);
+    var holeN = mob._hole;
+    setTimeout(function(){ mob.remove(); holeN.busy = false; }, 340);
+    return;
+  }
+
+  /* ---------- 🎁 礼物鼠：随机掉落一个小奖励 ---------- */
+  if(T.kind === 'bonus' && type === 'gift'){
+    SFX.gift();
+    hitSquash(body, mob);
+    spawnRipple(x, y, '#ffe9a8');
+    spawnToolImpact(x, y);
+    spawnStars(x, y, 14);
+    combo++;
+    bestCombo = Math.max(bestCombo, combo);
+    lastHitAt = performance.now();
+    updateCombo(false);
+    stats.gift = (stats.gift || 0) + 1;
+    var roll = Math.floor(Math.random() * 3);
+    if(roll === 0){
+      addScore(Math.round(20 * MODES[mode].mult), x, y);
+    } else if(roll === 1){
+      eventState.scoreMul = 2;
+      spawnText(x, y - 72, '下 3 秒分数 ×2!', 'comboTxt');
+      setTimeout(function(){ if(eventState.scoreMul === 2){ eventState.scoreMul = 1; } }, 3000);
+    } else {
+      if(!clearOneBad()){ addScore(Math.round(20 * MODES[mode].mult), x, y); }
+    }
+    var holeG = mob._hole;
+    setTimeout(function(){ mob.remove(); holeG.busy = false; }, 320);
+    return;
+  }
+
+  /* ---------- 🍼 护崽鼠：打它不加分（只走保底反馈），放过才有温柔奖励 ---------- */
+  if(T.kind === 'bonus' && type === 'mom'){
+    SFX.wrong();
+    hitSquash(body, mob);
+    spawnRipple(x, y, '#ffe3ee');
+    spawnText(x, y - 30, '别打妈妈呀!', 'bad');
+    combo = 0;
+    exitFever();
+    updateCombo(true);
+    shake(6);
+    var holeM = mob._hole;
+    setTimeout(function(){ mob.remove(); holeM.busy = false; }, 320);
+    return;
+  }
 
   if(!T.bad){
     SFX.whack();
@@ -1371,7 +1617,7 @@ function onHit(e){
     combo++;
     bestCombo = Math.max(bestCombo, combo);
     lastHitAt = performance.now();
-    var mult = multiplier() * MODES[mode].mult;
+    var mult = multiplier() * MODES[mode].mult * eventState.scoreMul;
     addScore(Math.round(T.points * mult), x, y);
     updateCombo(false);
     if(combo >= MODES[mode].feverAt && !fever){ enterFever(); }
@@ -1400,12 +1646,20 @@ function onHit(e){
       spawnText(x, y - 30, '桃汁四溅!', 'bad');
       shake(14);
       flash('#ffb3cf55');
-    } else {
+    } else if(type === 'orange'){
       SFX.wrong();
-      spawnText(x, y - 30, '橙宝不能打!', 'bad');
+      spawnText(x, y - 30, LULU_NAME + '不能打!', 'bad');
+      spawnText(x, y - 62, '这次打得我…好痛噜', 'bad');
       spawnHearts(x, y);
       shake(6);
       flash('#ffb06644');
+      stats.lulu = (stats.lulu || 0) + 1;
+    } else {
+      /* 🕳️ 空手鼠：泡沫假货，噗一声 */
+      SFX.trap();
+      spawnText(x, y - 30, '噗——打空了!', 'bad');
+      shake(4);
+      flash('#d8c8a855');
     }
     var hole2 = mob._hole;
     gsap.to(mob, {
@@ -1572,6 +1826,9 @@ function clearFx(){
   fx.innerHTML = '';
   var flashes = document.querySelectorAll('body > .flash');
   for(var j = 0; j < flashes.length; j++){ gsap.killTweensOf(flashes[j]); flashes[j].remove(); }
+  /* v2：清掉残留的事件横幅与成就吐司 */
+  var loose = document.querySelectorAll('body > .event-banner, body > .achv-toast');
+  for(var q = 0; q < loose.length; q++){ gsap.killTweensOf(loose[q]); loose[q].remove(); }
 }
 
 /* ================= 状态更新 ================= */
@@ -1592,6 +1849,7 @@ function updateCombo(silent){
 
 function enterFever(){
   fever = true;
+  feverCount++;
   document.body.classList.add('fever');
   spawnText(window.innerWidth / 2, window.innerHeight * 0.3, '🔥 狂热时间! 🔥', 'feverTxt');
   if(motionOn()){
@@ -1654,7 +1912,9 @@ function startGame(){
   startCursorLoop();
   score = 0; combo = 0; bestCombo = 0; timeLeft = TOTAL_TIME; elapsed = 0;
   lastHitAt = 0; lastTickSec = 99; fever = false;
-  stats = { hits: 0, star: 0, wrong: 0, escaped: 0 };
+  eliteCount = 0; feverCount = 0;
+  eventState.scoreMul = 1; eventState.starMul = 1; eventState.freeze = false; eventState.fired = 0;
+  stats = { hits: 0, star: 0, wrong: 0, escaped: 0, gentle: 0, lulu: 0, gift: 0, eliteHit: 0, nap: 0, events: 0 };
   scoreEl.textContent = '0'; comboEl.textContent = '0';
   multEl.textContent = '×1'; timeEl.textContent = String(TOTAL_TIME);
   $('#modeName').textContent = M.name;
@@ -1666,6 +1926,7 @@ function startGame(){
   endScreen.classList.add('hidden');
   boardPanel.classList.add('hidden');
   shopPanel.classList.add('hidden');
+  taskPanel.classList.add('hidden');
   gsap.fromTo('#hud .stat, #comboBox', { y: -18, autoAlpha: 0 },
     { y: 0, autoAlpha: 1, duration: RM ? 0.3 : 0, stagger: RM ? 0.05 : 0, ease: 'back.out(1.6)', clearProps: 'transform' });
   if(RM){
@@ -1678,6 +1939,7 @@ function startGame(){
   }
   startClock();
   spawnTO = setTimeout(spawnLoop, 400);
+  scheduleEvents();
   rafId = requestAnimationFrame(tick);
 }
 
@@ -1710,7 +1972,12 @@ function endGame(){
   });
 
   var M = MODES[mode];
-  var finalScore = score + M.bonus;
+  /* 🐣 温柔奖励：放过护崽鼠 ×30 */
+  var gentleBonus = (stats.gentle || 0) * 30;
+  var finalScore = score + M.bonus + gentleBonus;
+  if(gentleBonus > 0){
+    spawnText(window.innerWidth / 2, window.innerHeight * 0.32, '🐣 温柔奖励 +' + gentleBonus, 'good');
+  }
 
   var coins = store.get('coins', 0);
   var bestKey = 'best_' + mode;
@@ -1742,7 +2009,11 @@ function endGame(){
   $('#statLine').innerHTML =
     '命中 <b>' + stats.hits + '</b> 只 · 星星 <b>' + stats.star +
     '</b> · 最高连击 <b>' + bestCombo + '</b> · 误伤 <b>' + stats.wrong +
-    '</b> · 放跑 <b>' + stats.escaped + '</b>';
+    '</b> · 放跑 <b>' + stats.escaped + '</b><br>' +
+    '温柔 <b>' + (stats.gentle || 0) + '</b> · 礼物 <b>' + (stats.gift || 0) +
+    '</b> · 打盹 <b>' + (stats.nap || 0) + '</b> · 精英 <b>' + (stats.eliteHit || 0) +
+    '</b> · 事件 <b>' + (eventState.fired || 0) + '</b>';
+  if(stats.lulu > 0){ $('#statLine').innerHTML += ' · 噜噜 <b>' + stats.lulu + '</b> 次'; }
   $('#bestScore2').textContent = best;
   $('#finalScore').textContent = '0';
   $('#gainCoins').textContent = '+0';
@@ -1763,28 +2034,265 @@ function endGame(){
   countUp($('#gainCoins'), finalScore, 0.9, '+');
 
   if(finalScore >= MODES[mode].rank[1]){ SFX.fanfare(); } else { SFX.sad(); }
+
+  /* ---------- 长线统计 / 成就 / 每日任务 / 稀有度奖励 ---------- */
+  stats.events = eventState.fired || 0;
+  store.set('totalHits', totalHits() + stats.hits);
+  store.set('feverTotal', cumFever() + feverCount);
+  store.set('comboBest', Math.max(store.get('comboBest', 0), bestCombo));
+  store.set('scoreBest', Math.max(store.get('scoreBest', 0), score));
+  store.set('starBest', Math.max(store.get('starBest', 0), stats.star));
+  if(stats.hits > 0 && !(stats.lulu > 0)){ store.set('cleanRuns', store.get('cleanRuns', 0) + 1); }
+  dailyAddRun(stats, finalScore);
+  checkAchievements();
+  checkDaily();
+  checkRarityReward();
+  renderTasks();
   refreshHome();
 }
 
 /* ================= 首页 / 图鉴 / 模式 / 排行榜 / 商城 ================= */
 function currentTool(){ return store.get('equipped', 'hand'); }
 
+/* ================= 成就系统（C5） ================= */
+function totalHits(){ return store.get('totalHits', 0); }
+function cumFever(){ return store.get('feverTotal', 0); }
+function achvDone(){ var a = store.get('achv', []); return Array.isArray(a) ? a : []; }
+var ACHV = [
+  { id:'hits100',  icon:'🔨', name:'初出茅庐',   desc:'累计打中 100 只目标',        reward: 150,
+    test: function(){ return totalHits() >= 100; } },
+  { id:'hits500',  icon:'🔨', name:'田园快手',   desc:'累计打中 500 只目标',        reward: 400,
+    test: function(){ return totalHits() >= 500; } },
+  { id:'hits2000', icon:'⚒️', name:'弹无虚发',   desc:'累计打中 2000 只目标',       reward: 1200,
+    test: function(){ return totalHits() >= 2000; } },
+  { id:'combo10',  icon:'⚡', name:'十连达人',   desc:'单局达成 10 连击',            reward: 250,
+    test: function(){ return store.get('comboBest', 0) >= 10; } },
+  { id:'combo20',  icon:'🌪️', name:'连击风暴',   desc:'单局达成 20 连击',            reward: 600,
+    test: function(){ return store.get('comboBest', 0) >= 20; } },
+  { id:'score1500',icon:'💯', name:'手速惊人',   desc:'单局分数突破 1500',           reward: 300,
+    test: function(){ return store.get('scoreBest', 0) >= 1500; } },
+  { id:'score3000',icon:'👑', name:'菜园之主',   desc:'单局分数突破 3000',           reward: 800,
+    test: function(){ return store.get('scoreBest', 0) >= 3000; } },
+  { id:'nolulu',   icon:'🧡', name:'温柔的手',   desc:'一局内一次都没打到噜噜',      reward: 300,
+    test: function(){ return store.get('cleanRuns', 0) >= 1; } },
+  { id:'star10',   icon:'⭐', name:'摘星之人',   desc:'单局抓到 10 颗星星',          reward: 350,
+    test: function(){ return store.get('starBest', 0) >= 10; } },
+  { id:'fever5',   icon:'🔥', name:'狂热信徒',   desc:'累计触发 5 次狂热时间',        reward: 400,
+    test: function(){ return cumFever() >= 5; } },
+  { id:'collect12',icon:'📚', name:'博物学家',   desc:'集齐全部 12 只目标',         reward: 1500,
+    test: function(){ return seenCount() >= COLLECT_IDS.length; } }
+];
+function achvToast(text){
+  var t = document.createElement('div');
+  t.className = 'achv-toast';
+  t.textContent = text;
+  document.body.appendChild(t);
+  if(!motionOn()){ setTimeout(function(){ t.remove(); }, 2200); return; }
+  gsap.fromTo(t, { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.3, ease: 'back.out(2)' });
+  gsap.to(t, { autoAlpha: 0, duration: 0.3, delay: 2.0, onComplete: function(){ t.remove(); } });
+}
+function checkAchievements(){
+  var done = achvDone(), gain = 0, hits = [];
+  ACHV.forEach(function(a){
+    if(done.indexOf(a.id) >= 0) return;
+    var ok = false;
+    try{ ok = !!a.test(); }catch(e){ ok = false; }
+    if(ok){ done.push(a.id); gain += a.reward; hits.push(a); }
+  });
+  if(!hits.length) return 0;
+  store.set('achv', done);
+  store.set('coins', store.get('coins', 0) + gain);
+  hits.forEach(function(a, i){
+    setTimeout(function(){ achvToast('🏆 成就达成：' + a.icon + ' ' + a.name + '  +' + a.reward); }, i * 900);
+  });
+  SFX.fanfare();
+  return gain;
+}
+
+/* ================= 每日任务（C6） ================= */
+var DAILY_POOL = [
+  { id:'hits30',    icon:'🔨', name:'今日打中 30 只目标',        field:'hits',  goal: 30,   reward: 80 },
+  { id:'star5',     icon:'⭐', name:'今日抓到 5 颗星星',          field:'star',  goal: 5,    reward: 100 },
+  { id:'fever2',    icon:'🔥', name:'今日触发 2 次狂热时间',       field:'fever', goal: 2,    reward: 120 },
+  { id:'combo8',    icon:'⚡', name:'单局达成 8 连击',            field:'combo', goal: 8,    reward: 100 },
+  { id:'score1000', icon:'💯', name:'单局分数突破 1000',          field:'score', goal: 1000, reward: 150 },
+  { id:'clean1',    icon:'🧡', name:'一局内不碰噜噜（需命中≥1）',   field:'clean', goal: 1,    reward: 120 }
+];
+function todayKey(){
+  var d = new Date();
+  var p = function(n){ return n < 10 ? '0' + n : '' + n; };
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+}
+function loadDaily(){
+  var d = store.get('daily', null);
+  if(!d || typeof d !== 'object' || d.date !== todayKey() || !d.items || !d.items.length){
+    var pool = DAILY_POOL.slice();
+    for(var i = pool.length - 1; i > 0; i--){
+      var j = (Math.random() * (i + 1)) | 0;
+      var tp = pool[i]; pool[i] = pool[j]; pool[j] = tp;
+    }
+    d = {
+      date: todayKey(),
+      items: pool.slice(0, 3).map(function(t){ return { id: t.id, done: false }; }),
+      stat: { hits: 0, star: 0, fever: 0, combo: 0, score: 0, clean: 0 }
+    };
+    store.set('daily', d);
+  }
+  if(!d.stat){ d.stat = { hits: 0, star: 0, fever: 0, combo: 0, score: 0, clean: 0 }; }
+  return d;
+}
+var daily = loadDaily();
+function dailyAdd(field, n){
+  if(!n) return;
+  daily.stat[field] = (daily.stat[field] || 0) + n;
+  store.set('daily', daily);
+}
+function dailyMax(field, v){
+  if(!(v > (daily.stat[field] || 0))) return;
+  daily.stat[field] = v;
+  store.set('daily', daily);
+}
+function dailyTpl(id){
+  var got = null;
+  DAILY_POOL.forEach(function(p){ if(p.id === id){ got = p; } });
+  return got;
+}
+function dailyAddRun(s, finalScore){
+  dailyAdd('hits', s.hits || 0);
+  dailyAdd('star', s.star || 0);
+  dailyAdd('fever', feverCount);
+  dailyMax('combo', bestCombo);
+  dailyMax('score', finalScore);
+  if((s.hits || 0) > 0 && !(s.lulu > 0)){ dailyAdd('clean', 1); }
+}
+function checkDaily(){
+  var gain = 0, hits = [];
+  daily.items.forEach(function(it){
+    if(it.done) return;
+    var tpl = dailyTpl(it.id);
+    if(!tpl) return;
+    var cur = daily.stat[tpl.field] || 0;
+    if(cur >= tpl.goal){ it.done = true; gain += tpl.reward; hits.push(tpl); }
+  });
+  if(!hits.length) return 0;
+  store.set('daily', daily);
+  store.set('coins', store.get('coins', 0) + gain);
+  hits.forEach(function(tpl, i){
+    setTimeout(function(){ achvToast('📅 任务完成：' + tpl.icon + ' ' + tpl.name + '  +' + tpl.reward); }, i * 800);
+  });
+  return gain;
+}
+function renderTasks(){
+  if($('#taskCoins')){ $('#taskCoins').textContent = store.get('coins', 0); }
+  var dEl = $('#dailyList');
+  if(dEl){
+    var h1 = '';
+    daily.items.forEach(function(it){
+      var tpl = dailyTpl(it.id);
+      if(!tpl) return;
+      var cur = Math.min(daily.stat[tpl.field] || 0, tpl.goal);
+      h1 += '<div class="ach-row' + (it.done ? ' done' : '') + '">' +
+        '<div class="ach-ico">' + tpl.icon + '</div>' +
+        '<div class="ach-txt">' + tpl.name +
+        '<small>' + (it.done ? '已完成' : ('进度 ' + cur + ' / ' + tpl.goal)) +
+        ' · 每日刷新（' + daily.date + '）</small></div>' +
+        '<div class="ach-reward">' + (it.done ? '✓ +' + tpl.reward : '+' + tpl.reward) + '</div></div>';
+    });
+    dEl.innerHTML = h1;
+  }
+  var aEl = $('#achvList');
+  if(aEl){
+    var done = achvDone(), h2 = '';
+    ACHV.forEach(function(a){
+      var ok = done.indexOf(a.id) >= 0;
+      h2 += '<div class="ach-row' + (ok ? ' done' : '') + '">' +
+        '<div class="ach-ico">' + a.icon + '</div>' +
+        '<div class="ach-txt">' + a.name + '<small>' + a.desc + '</small></div>' +
+        '<div class="ach-reward">' + (ok ? '✓ 已达成' : '+' + a.reward) + '</div></div>';
+    });
+    aEl.innerHTML = h2;
+  }
+}
+
+/* ================= 局内随机事件（C2） ================= */
+function showBanner(text){
+  var b = document.createElement('div');
+  b.className = 'event-banner';
+  b.textContent = text;
+  document.body.appendChild(b);
+  if(!motionOn()){ setTimeout(function(){ b.remove(); }, 1600); SFX.event(); return; }
+  gsap.fromTo(b, { scale: 0.6, autoAlpha: 0, y: -14 },
+    { scale: 1, autoAlpha: 1, y: 0, duration: 0.35, ease: 'back.out(2)' });
+  gsap.to(b, { autoAlpha: 0, y: -14, duration: 0.3, delay: 1.6, onComplete: function(){ b.remove(); } });
+  SFX.event();
+}
+function eventCoinRain(){
+  showBanner('🌧️ 金币雨！8 秒内可打目标分数 ×2');
+  eventState.scoreMul = 2;
+  setTimeout(function(){ if(eventState.scoreMul === 2){ eventState.scoreMul = 1; } }, 8000);
+}
+function eventLucky(){
+  showBanner('🍀 幸运时刻！15 秒内星星权重翻倍');
+  eventState.starMul = 2;
+  setTimeout(function(){ if(eventState.starMul === 2){ eventState.starMul = 1; } }, 15000);
+}
+function eventFreeze(){
+  showBanner('⏱️ 时钟冻结！3 秒内地鼠不缩回');
+  eventState.freeze = true;
+  setTimeout(function(){ eventState.freeze = false; }, 3000);
+}
+function eventCarnival(){
+  showBanner('🎪 狂欢时刻！所有洞口一起刷');
+  var endAt = performance.now() + 3000;
+  (function burst(){
+    if(!running || performance.now() > endAt) return;
+    holes.filter(function(h){ return !h.busy; }).forEach(function(){ spawnOne(); });
+    setTimeout(burst, 430);
+  })();
+}
+function fireEvent(){
+  var pool = ['coin', 'star', 'carnival'];
+  if(elapsed > 15){ pool.push('freeze'); }
+  var k = pool[(Math.random() * pool.length) | 0];
+  eventState.fired++;
+  if(k === 'coin'){ eventCoinRain(); }
+  else if(k === 'star'){ eventLucky(); }
+  else if(k === 'freeze'){ eventFreeze(); }
+  else { eventCarnival(); }
+}
+function scheduleEvents(){
+  var n = 1 + ((Math.random() * 2) | 0);   /* 每局随机 1~2 次 */
+  for(var i = 0; i < n; i++){
+    (function(){
+      var at = 7000 + Math.random() * 38000;
+      setTimeout(function(){ if(running){ fireEvent(); } }, at);
+    })();
+  }
+}
+
 function renderRoster(){
-  var order = ['mushroom','carrot','cucumber','roach','star','orange','peach'];
   var html = '';
-  order.forEach(function(id){
-    var t = TYPES[id];
+  COLLECT_IDS.forEach(function(id){
+    var t = TYPES[id] || {};
     var pts = t.points > 0 ? '+' + t.points : '' + t.points;
     var cls = t.cls || 'bad';
-    html += '<div class="r-cell' + (t.bad ? ' is-bad' : '') + '">' +
-            '<span class="r-icon">' + (MOB_SVG[id] || '') + '</span>' +
-            '<span class="r-name">' + t.name + '</span>' +
+    var R = rarityOf(id);
+    var seen = !!(collect[id] && collect[id].seen > 0);
+    var icon = '<span class="r-glyph">' + emojiOf(id) + '</span>';
+    html += '<div class="r-cell ' + (R.frame || 'r-common') + (t.bad ? ' is-bad' : '') +
+            (seen ? '' : ' locked') + '">' +
+            '<span class="r-badge" style="color:' + R.color + '">' + R.name + '</span>' +
+            '<span class="r-icon">' + icon + '</span>' +
+            '<span class="r-name">' + (seen ? t.name : '？？？') + '</span>' +
             '<span class="r-pts ' + cls + '">' + pts + '</span></div>';
   });
   $('#rosterGrid').innerHTML = html;
+  var n = seenCount();
+  if($('#rosterProg')){ $('#rosterProg').textContent = n + ' / ' + COLLECT_IDS.length; }
+  if($('#rosterBar')){ $('#rosterBar').style.width = (n / COLLECT_IDS.length * 100) + '%'; }
   if(motionOn()){
     gsap.fromTo('#rosterGrid .r-cell', { scale: 0.6, autoAlpha: 0 },
-      { scale: 1, autoAlpha: 1, duration: 0.34, stagger: 0.045, ease: 'back.out(1.8)', clearProps: 'transform' });
+      { scale: 1, autoAlpha: 1, duration: 0.34, stagger: 0.03, ease: 'back.out(1.8)', clearProps: 'transform' });
   }
 }
 
@@ -1794,6 +2302,7 @@ function refreshHome(){
   var tid = currentTool();
   $('#equippedName').textContent = TOOLS[tid] ? TOOLS[tid].name : '小手手';
   cursor.innerHTML = TOOL_SVG[tid] || TOOL_SVG.hand;
+  renderRoster();
   renderModeCards();
 }
 
@@ -1921,13 +2430,21 @@ $('#shopGrid').addEventListener('click', function(e){
 $('#boardBtn').addEventListener('click', function(){
   renderBoard();
   shopPanel.classList.add('hidden');
+  taskPanel.classList.add('hidden');
   openPanel(boardPanel);
 });
 $('#shopBtn').addEventListener('click', function(){
   renderShop();
   $('#shopToast').textContent = '';
   boardPanel.classList.add('hidden');
+  taskPanel.classList.add('hidden');
   openPanel(shopPanel);
+});
+$('#taskBtn').addEventListener('click', function(){
+  renderTasks();
+  boardPanel.classList.add('hidden');
+  shopPanel.classList.add('hidden');
+  openPanel(taskPanel);
 });
 document.querySelectorAll('.panel-close').forEach(function(btn){
   btn.addEventListener('click', function(){
@@ -2026,6 +2543,7 @@ buildField();
 if(store.get('owned', null) === null){ store.set('owned', ['hand']); }
 if(!TOOLS[currentTool()]){ store.set('equipped', 'hand'); }
 renderRoster();
+renderTasks();
 refreshHome();
 homeIntro();
 /* 安全网：入场动画若被环境节流或中断，也不会让元素卡在隐藏状态 */
