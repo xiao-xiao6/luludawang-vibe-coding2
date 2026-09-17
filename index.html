@@ -66,10 +66,10 @@ body{
 .c3::before{width:34px;height:34px;top:-16px;left:12px}
 .c3::after{width:24px;height:24px;top:-10px;left:38px}
 @keyframes cloudDrift{from{transform:translateX(0)}to{transform:translateX(140vw)}}
-.butterfly{position:absolute;font-size:20px;animation:butterflyPath 24s ease-in-out infinite;filter:drop-shadow(0 3px 4px #0002)}
+.butterfly{position:absolute;font-size:30px;opacity:.92;animation:butterflyPath 24s ease-in-out infinite;filter:drop-shadow(0 4px 6px #0003)}
 .butterfly span{display:inline-block;animation:flapWing .3s ease-in-out infinite alternate}
 .b1{top:30%;left:8%;animation-delay:-4s}
-.b2{top:52%;right:10%;animation-delay:-13s;font-size:15px}
+.b2{top:52%;right:10%;animation-delay:-13s;font-size:23px}
 @keyframes flapWing{from{transform:scaleX(1) rotate(-6deg)}to{transform:scaleX(.7) rotate(6deg)}}
 @keyframes butterflyPath{
   0%{transform:translate(0,0) rotate(8deg)}
@@ -101,6 +101,7 @@ body{
 #modeBox b{color:#8a5fd0;font-size:15px}
 #timeBox.urgent{border-color:#ff6b6b;color:#d63b3b;animation:urgent .5s infinite alternate}
 #timeBox.urgent b{color:#d63b3b}
+@media (min-width:721px){#scoreBox b,#timeBox b{font-size:24px}#scoreBox,#timeBox{border-width:3.5px}}
 @keyframes urgent{from{transform:scale(1)}to{transform:scale(1.07)}}
 #comboBox{
   margin-left:auto;background:#fff;border:3px solid #8ed16f;border-radius:999px;
@@ -109,8 +110,15 @@ body{
 }
 #comboBox b{font-size:20px;color:#52a02f;margin:0 3px 0 5px}
 #comboBox .mult{color:#ff8a3d;font-size:13px}
-#comboBarWrap{height:6px;background:#eaf4df;border-radius:3px;margin:0 4px 8px;overflow:hidden;flex:none}
+#comboRow{display:flex;align-items:center;gap:6px;margin:0 4px 8px;flex:none}
+#comboCap{font-size:10px;font-weight:700;color:#3f7a2a;white-space:nowrap}
+#comboBarWrap{flex:1;height:6px;background:#eaf4df;border-radius:3px;overflow:hidden}
 #comboBar{height:100%;width:0%;background:linear-gradient(90deg,#8ed16f,#ff8a3d);border-radius:3px;transition:width .1s linear}
+/* 桌面：四项均匀铺开，去掉「左侧挤一起、右侧顶到边」的中间大空白 */
+@media (min-width:721px){
+  #hud{justify-content:space-between}
+  #comboBox{margin-left:0}
+}
 
 /* ================= 场地 ================= */
 #field{
@@ -152,6 +160,11 @@ body.fever #game{animation:feverPulse .4s ease-in-out infinite alternate}
   box-shadow:0 2px 0 #6db84eaa;
 }
 .slot{position:absolute;inset:0 0 12% 0;z-index:2;clip-path:inset(-40% -40% 0 -40%)}
+/* 洞口的远近层次：靠前一排略放大 + 投影，避免整块草皮「平铺贴纸感」 */
+@media (min-width:721px){
+  .hole:nth-child(n+9){transform:translateY(2px) scale(1.045);transform-origin:50% 100%}
+  .hole:nth-child(n+9) .pit{box-shadow:inset 0 4px 8px #000000aa, 0 5px 8px #00000033}
+}
 
 /* ================= 目标（纯符号 emoji 贴图 · GSAP驱动） ================= */
 .mob{position:absolute;left:50%;bottom:0;width:78%;height:100%;cursor:pointer}
@@ -163,7 +176,7 @@ body.fever #game{animation:feverPulse .4s ease-in-out infinite alternate}
 .ripple{position:fixed;width:72px;height:72px;border:3px solid #fff;border-radius:50%;pointer-events:none;will-change:transform}
 
 .bubble{
-  position:absolute;top:-6%;right:-8%;z-index:5;
+  position:absolute;top:1%;right:1%;z-index:5;
   background:#fff;color:#7a5a3a;font-size:12px;font-weight:bold;
   padding:3px 9px;border-radius:10px;white-space:nowrap;
   box-shadow:0 2px 6px #0002;pointer-events:none;
@@ -184,6 +197,8 @@ body.fever #game{animation:feverPulse .4s ease-in-out infinite alternate}
 .txt.bad{color:#e63946;font-size:22px}
 .txt.feverTxt{font-size:40px;color:#ff9f1c;-webkit-text-stroke:1.5px #fff}
 .txt.comboTxt{color:#ff8a3d;font-size:30px;-webkit-text-stroke:1px #fff}
+/* 中性提示：不扣分的事件（如彩蛋自行溜走）不用红色，避免误读为惩罚 */
+.txt.mute{color:#8d7c60;font-size:20px}
 .txt.eggTxt{color:#fff3b0;font-size:24px;text-shadow:0 0 12px #ff9ad5,0 0 22px #ffd93d,0 3px 0 #b06a00}
 .flash{position:fixed;inset:0;pointer-events:none;z-index:150;opacity:0}
 
@@ -300,11 +315,13 @@ body.playing #game{cursor:none}
 }
 .mc-icon{font-size:30px;line-height:1;margin-bottom:4px;display:inline-block}
 .mc-name{font-size:17px;font-weight:900;color:#fff;text-shadow:0 2px 0 #2d6a1f}
-.mc-desc{font-size:11px;color:#e8ffd0cc;line-height:1.5;margin:5px 0 7px;min-height:33px}
+.mc-desc{font-size:11px;color:#f2ffe4;line-height:1.5;margin:5px 0 7px;min-height:33px}
 .mc-stats{display:flex;flex-direction:column;gap:3px}
 .mc-mult{font-size:12px;font-weight:900;color:#ffd93d}
-.mc-bonus{font-size:11px;color:#b8f0a0}
-.mc-best{font-size:10px;color:#ffffffaa;margin-top:6px}
+.mc-bonus{font-size:11px;color:#ddffc6}
+/* 倍率与通关加成合成一行，减少模式卡里的 10~11px 小字噪声（验收报告四章） */
+.mc-stats-line{font-size:11px;font-weight:900;color:#ffe98a;letter-spacing:.4px}   /* 对比度：实测 4.06:1 → ≈4.6:1 */
+.mc-best{font-size:10px;color:#ffffffdd;margin-top:6px}
 .mode-card .mc-check{
   position:absolute;top:7px;right:8px;font-size:14px;color:#ffd93d;
   opacity:0;transform:scale(.3);transition:all .2s;
@@ -357,12 +374,12 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #d34e1e}
 .r-cell svg{width:34px;height:34px;filter:drop-shadow(0 2px 2px #0003)}
 .r-cell .r-name{color:#fff;font-size:10px;font-weight:bold}
 .r-cell .r-pts{font-size:12px;font-weight:900}
-.r-pts.good{color:#b8f0a0}
-.r-pts.bad{color:#ffb0b0}
-.r-pts.gold{color:#ffe98a}
+.r-pts.good{color:#ddffc6}
+.r-pts.bad{color:#ffd4d4}
+.r-pts.gold{color:#fff4c2}
 .r-cell.is-bad{border-color:#ff8a8a66;background:#ff6b6b1f}
 .r-cell.is-bad .r-pts.bad{color:#ffd6d6}
-.roster-note{color:#ffffffb0;font-size:11px;margin-top:8px;line-height:1.6}
+.roster-note{color:#ffffffe6;font-size:11px;margin-top:8px;line-height:1.6}
 .roster-note b{color:#ffd93d}
 
 .equipped-line{margin-top:10px;color:#e8ffd0;font-size:13px}
@@ -389,7 +406,7 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #d34e1e}
   display:flex;align-items:center;justify-content:center;gap:8px;
   margin-bottom:4px;text-shadow:0 2px 0 #fff;
 }
-.panel-sub{font-size:13px;color:#a08a5a;margin-bottom:10px}
+.panel-sub{font-size:13px;color:#6d5d36;margin-bottom:10px}
 .panel-close{
   position:absolute;top:10px;right:12px;width:38px;height:38px;padding:0;
   font-size:18px;border-radius:50%;
@@ -427,6 +444,9 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #d34e1e}
 .rank-badge{font-size:15px;font-weight:900;color:#e8a20c}
 .rank-date{font-size:11px;color:#b0a080}
 .rank-empty{padding:30px 10px;color:#a08a5a;font-size:15px}
+.rank-filter{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:0 0 8px}
+.rank-filter button{font-size:12px;font-weight:900;padding:5px 12px;border-radius:999px;border:2.5px solid #e8d9b0;background:#fffdf5;color:#8a6a1a}
+.rank-filter button.on{background:linear-gradient(180deg,#ffd93d,#f0a90c);border-color:#f0a90c;color:#7a5200;box-shadow:0 2px 0 #b8860b}
 
 /* ================= 商城 ================= */
 .shop-wallet{
@@ -497,10 +517,31 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #d34e1e}
 
 #muteBtn{
   position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));z-index:300;width:44px;height:44px;padding:0;
-  border-radius:50%;font-size:20px;background:#ffffff55;box-shadow:none;
-  border:2px solid #ffffff88;color:#fff;
+  border-radius:50%;font-size:20px;background:#3c5233cc;box-shadow:0 3px 10px #0005;
+  border:2px solid #ffd93dcc;color:#fff;
 }
 #muteBtn:active{transform:scale(.94)}
+#saveWarn{
+  position:fixed;left:50%;transform:translateX(-50%);
+  bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:260;
+  max-width:min(92vw,560px);text-align:center;
+  background:#ffe9a8;border:3px solid #f0a90c;border-radius:14px;padding:8px 16px;
+  color:#7a5200;font-size:12px;font-weight:900;line-height:1.4;box-shadow:0 8px 20px #0004;
+}
+#saveWarn[hidden]{display:none}
+#pauseBtn{
+  position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:calc(64px + env(safe-area-inset-right,0px));
+  z-index:300;width:44px;height:44px;padding:0;border-radius:50%;font-size:18px;
+  background:#3c5233cc;box-shadow:0 3px 10px #0005;border:2px solid #ffd93dcc;color:#fff;
+}
+#pauseBtn:active{transform:scale(.94)}
+#pauseBtn[disabled]{opacity:.35}
+body.paused #field{filter:grayscale(.35) blur(1.5px)}
+body.paused #game::after{
+  content:'⏸ 已暂停';position:absolute;inset:0;z-index:110;pointer-events:none;
+  display:flex;align-items:center;justify-content:center;
+  font-size:30px;font-weight:900;color:#4d8a35;background:#fffdf588;border-radius:26px;
+}
 
 /* ================= 双端适配（PC / 平板 / 手机） ================= */
 /* 动态视口高度：手机地址栏收展不再跳动 */
@@ -540,7 +581,8 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #d34e1e}
   .stat,#comboBox{font-size:11px;padding:4px 9px;border-width:2.5px}
   .stat b,#comboBox b{font-size:16px}
   #comboBox .mult{font-size:11px}
-  #comboBarWrap{height:5px;margin:0 2px 6px}
+  #comboRow{margin:0 2px 6px}
+#comboBarWrap{height:5px}
   #field{gap:6px;padding:8px;border-radius:14px}
   .pit{border-width:3px}
 
@@ -621,7 +663,7 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #d34e1e}
   .mc-desc{min-height:0}
   #rankLetter{font-size:56px}
   #finalScore{font-size:28px}
-  #hud{gap:6px;padding:2px 52px 5px 2px}
+  #hud{gap:6px;padding:2px 106px 5px 2px}
   .stat,#comboBox{font-size:11px;padding:3px 9px}
   .stat b,#comboBox b{font-size:15px}
   #field{gap:6px;padding:8px}
@@ -633,7 +675,8 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #d34e1e}
   .mc-stats{display:none}
   .mode-card{width:118px;padding:8px 6px 6px}
   .wallet .w-icon{font-size:16px}
-  #comboBarWrap{height:4px;margin-bottom:4px}
+  #comboRow{margin-bottom:4px}
+#comboBarWrap{height:4px}
 }
 
 /* ---- 大屏桌面：整体放大一档 ---- */
@@ -641,9 +684,74 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #d34e1e}
   #wrap{width:min(94vw,980px);height:min(94vh,860px)}
 }
 
+/* ---- v1.2 P0-1：桌面首页排版收口（原先 911px 内容硬塞进 780px 卡片，图鉴第二行被物理裁切） ---- */
+@media (min-width:721px){
+  #wrap{height:min(96vh,880px)}
+  .overlay{padding:10px}
+  .home-slogan{margin:6px 0 10px}
+  .wallet-row{margin-bottom:10px}
+  .wallet{padding:7px 16px}
+  .mode-row{margin-bottom:12px}
+  .menu-row{margin-top:10px}
+  .roster{margin-top:10px;padding:8px 12px 10px}
+  .roster-title{margin-bottom:6px}
+  .roster-note{margin-top:6px;font-size:10.5px;line-height:1.5}
+  .roster-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;justify-items:center}
+}
+/* 矮屏桌面（1366×768 / 1280×800 / 800×900 等）再压一档，保证首页单屏完整放下 12 格图鉴 */
+@media (min-width:721px) and (max-height:900px){
+  .home-title{font-size:clamp(28px,4.8vw,44px)}
+  .home-slogan{margin:4px 0 8px;font-size:13px}
+  .wallet-row{margin-bottom:8px}
+  .mode-row{margin-bottom:10px;gap:10px}
+  .mode-card{padding:10px 8px 8px}
+  .mc-icon{font-size:26px;margin-bottom:2px}
+  .mc-desc{font-size:10.5px;line-height:1.4;min-height:0;margin:3px 0 5px}
+  .big-btn{font-size:20px;padding:12px 48px}
+  .menu-row{margin-top:8px;gap:10px}
+  .menu-btn{font-size:14px;padding:8px 20px}
+  .roster{margin-top:8px}
+  .roster-note{font-size:10px;line-height:1.45}
+  .r-cell{padding:4px 7px 3px}
+  .r-cell svg,.r-cell .r-icon{width:30px;height:30px}
+  .r-cell .r-glyph{font-size:22px}
+  .r-cell .r-name{font-size:9px}
+  .r-cell .r-pts{font-size:11px}
+}
+/* v1.2 P1-1：800～1100px 宽区间 #hud 与右上角固定静音键重叠，给 HUD 让位 */
+@media (min-width:721px) and (max-width:1100px){
+  #hud{padding-right:112px}   /* v1.3：右上角有「暂停 + 静音」两个 44px 固定按钮，一起让位 */
+}
+
+/* v1.2 P0-1b：桌面端复用「目标图鉴」折叠开关。
+   旧实现里矮屏桌面（1366×768 / 1024×768 等）被 max-height:640px 直接 .roster{display:none}，
+   图鉴整块消失且没有任何入口；这里改成默认折叠 + 明确的折叠按钮，保证始终可达、且首页不滚动。 */
+@media (min-width:721px){
+  .roster-toggle{
+    display:none;align-items:center;gap:6px;margin-top:8px;
+    background:#ffffff1f;border:2px solid #ffffff3c;border-radius:999px;
+    color:#fff;font-size:12px;font-weight:bold;padding:6px 18px;
+    cursor:pointer;font-family:inherit;
+  }
+  .roster-toggle:active{transform:scale(.96)}
+  .roster-toggle .rt-icon{transition:transform .2s}
+  .roster-toggle.open .rt-icon{transform:rotate(180deg)}
+}
+@media (min-width:721px) and (max-height:800px){
+  .roster{display:none}
+  .roster-toggle{display:inline-flex}
+  .roster.open{display:block;margin-top:8px;padding:8px 12px 10px;max-width:560px}
+}
+
 /* ---- 减少动态效果偏好：关掉纯装饰动画 ---- */
 @media (prefers-reduced-motion:reduce){
   .cloud,.butterfly,.sun,.float-crop,.mc-icon,.big-btn,.home-title{animation:none!important}
+  #timeBox.urgent{animation:none!important}
+  #comboBox{animation:none!important;transition:none!important}
+  button:active{transform:none!important}
+  #cursor.swing{animation:none!important}
+  #comboBar{transition:none!important}
+  .r-cell:hover,.mode-card:hover{transform:none!important}
 }
 
 /* ================= 图鉴符号图标 / 难度点 ================= */
@@ -654,9 +762,9 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #d34e1e}
   filter:drop-shadow(0 2px 2px #0003);
 }
 .mc-diff{display:flex;align-items:center;gap:3px;margin-top:3px;justify-content:center}
-.mc-diff i{width:7px;height:7px;border-radius:50%;background:#ffffff38;display:block}
+.mc-diff i{width:8px;height:8px;border-radius:50%;background:#ffffff44;display:block}
 .mc-diff i.on{background:#ffd93d;box-shadow:0 0 7px #ffd93d99}
-.mc-diff span{font-size:10px;color:#ffffffb0;margin-left:3px;letter-spacing:1px}
+.mc-diff span{font-size:10.5px;color:#ffffffdd;margin-left:3px;letter-spacing:1px}
 body[data-mode="easy"] #field{background:linear-gradient(180deg,#bfe9a6 0%,#9ed97c 55%,#8acb69 100%)}
 body[data-mode="easy"] #field::before{opacity:.75}
 body[data-mode="normal"] #field{background:linear-gradient(180deg,#9ad877 0%,#7cbe57 55%,#6aad4a 100%)}
@@ -668,7 +776,42 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
 @media (max-width:720px) and (max-aspect-ratio:4/5){
   .r-cell .r-icon{width:28px;height:28px}
   .mc-diff{justify-content:flex-start}
-  #hud{padding-right:58px}   /* 给右上角固定的静音键让位，避免压住连击框 */
+  #hud{padding-right:114px}   /* v1.3：同上，手机档要给两个固定按钮一起让位 */
+}
+/* 极小屏（360×640 一类）：首页高度富余最紧。
+   实测 270px 溢出的元凶是「手机档模式卡竖排 3 张、每张≈90px」，
+   这里把模式卡改横排三连 + 隐去次要说明，其余装饰同收，保证首页单屏放下。 */
+@media (max-width:380px), (max-width:720px) and (max-height:700px){
+  .float-crop,.home-eyebrow{display:none}
+  .home-title{font-size:29px}
+  .home-slogan{margin:4px 0 8px;font-size:12px}
+  .wallet-row{margin-bottom:8px;gap:5px}
+  .wallet{padding:4px 8px;font-size:11px;min-width:74px}
+  .wallet b{font-size:15px}
+  .wallet .w-icon{font-size:15px}
+  .mode-row{flex-direction:row;flex-wrap:nowrap;gap:6px;margin-bottom:8px;width:100%;max-width:none}
+  .mode-card{flex:1 1 0;width:auto;min-width:0;padding:7px 4px 6px;border-width:3px}
+  .mc-icon{font-size:22px;margin-bottom:1px}
+  .mc-name{font-size:14px}
+  .mc-desc{display:none}
+  .mc-stats-line{font-size:10px;letter-spacing:0}
+  .mc-diff{gap:2px;margin-top:2px}
+  .mc-diff i{width:6px;height:6px}
+  .mc-diff span{display:none}
+  .mc-best{font-size:9.5px;margin-top:3px}
+  .big-btn{font-size:19px;padding:10px 30px}
+  .menu-row{margin-top:8px;gap:8px}
+  .menu-btn{font-size:13px;padding:7px 16px}
+  .roster{margin-top:6px;padding:6px 8px 8px}
+  .roster-title{margin-bottom:4px;font-size:11px;letter-spacing:1px}
+  .roster-prog{margin-bottom:5px;font-size:10px}
+  .roster-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+  .r-cell{padding:3px 3px 2px;border-width:2px}
+  .r-cell .r-icon{width:24px;height:24px}
+  .r-cell .r-name{font-size:8.5px}
+  .r-cell .r-pts{font-size:9.5px}
+  .r-cell .r-badge{font-size:8px;padding:0 3px}
+  .roster-note{font-size:9.5px;line-height:1.4;margin-top:4px}
 }
 
 /* ================= v2：符号贴图目标 / 危险示意 / 稀有度 / 收集 / 事件 ================= */
@@ -700,8 +843,8 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
   pointer-events:none;-webkit-user-drag:none;user-select:none;filter:drop-shadow(0 5px 5px #0002);
 }
 .mob-body .mob-img.art-card{
-  left:6%;top:4%;width:88%;height:88%;object-fit:cover;border-radius:22%;
-  border:3px solid #fff;background:#fff;box-shadow:0 0 0 2px #ffd93dcc,0 6px 16px #0005;
+  left:4%;top:2%;width:92%;height:92%;object-fit:contain;
+  filter:drop-shadow(0 5px 6px #0003) drop-shadow(0 0 12px #ffd93dcc) drop-shadow(0 0 4px #fff9);
 }
 @media (prefers-reduced-motion:reduce){
   .mob.egg::before,.mob.egg::after{animation:none!important}
@@ -721,7 +864,7 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
 .r-cell .r-img{width:100%;height:100%;object-fit:contain;display:block;-webkit-user-drag:none;user-select:none;filter:drop-shadow(0 2px 2px #0003)}
 .r-cell .r-img.is-card{object-fit:cover;border-radius:8px;border:1.5px solid #ffffff88;box-shadow:0 0 0 1.5px #ffd93d99}
 .r-cell.locked .r-icon{filter:brightness(0) opacity(.42)}
-.r-cell.locked .r-name{color:#ffffff77}
+.r-cell.locked .r-name{color:#ffffffeb}   /* 9px 小字对比度：实测 3.42:1 → ≈4.6:1（验收报告 P1-4） */
 .roster-prog{display:flex;align-items:center;gap:8px;margin:0 0 8px;color:#ffffffcc;font-size:11px;font-weight:bold}
 .roster-prog b{color:#ffd93d;font-size:13px}
 .roster-prog .bar{flex:1;min-width:60px;height:7px;background:#ffffff22;border-radius:4px;overflow:hidden}
@@ -736,7 +879,8 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
   position:fixed;left:50%;bottom:8%;transform:translateX(-50%);z-index:240;pointer-events:none;
   background:linear-gradient(180deg,#fff8e0,#ffe9a8);border:3px solid #ffd93d;border-radius:16px;
   padding:8px 18px;color:#8a6a1a;font-weight:900;font-size:13px;
-  box-shadow:0 10px 26px #0006;white-space:nowrap;
+  box-shadow:0 10px 26px #0006;
+  max-width:min(92vw,520px);white-space:normal;text-align:center;line-height:1.35;
 }
 .ach-row{
   display:flex;align-items:center;gap:10px;background:#fff;border:2.5px solid #e8d9b0;
@@ -804,15 +948,15 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
     <div id="hud">
       <div class="stat" id="modeBox">🌻<b id="modeName">普通</b></div>
       <div class="stat" id="scoreBox" aria-live="polite" aria-atomic="true">分数<b id="score">0</b></div>
-      <div class="stat" id="timeBox">时间<b id="time">60</b></div>
+      <div class="stat" id="timeBox" aria-live="polite" aria-atomic="true">时间<b id="time">60</b></div>
       <div id="comboBox" aria-live="polite" aria-atomic="true">连击<b id="combo">0</b><span class="mult" id="mult">×1</span></div>
     </div>
-    <div id="comboBarWrap"><div id="comboBar"></div></div>
-    <div id="field"></div>
+    <div id="comboRow"><span id="comboCap">连击窗口</span><div id="comboBarWrap" role="progressbar" aria-label="连击保持时间" aria-valuemin="0" aria-valuemax="100"><div id="comboBar"></div></div></div>
+    <div id="field" role="application" aria-label="打地鼠场地：目标会从洞里钻出，点击或触摸即可击打"></div>
   </div>
 
   <!-- ============ 首页 ============ -->
-  <div id="startScreen" class="overlay">
+  <div id="startScreen" class="overlay" role="dialog" aria-modal="true" aria-label="打地鼠大作战 首页">
     <div class="float-crop fc1">🥕</div>
     <div class="float-crop fc2">🍄</div>
     <div class="float-crop fc3">🥒</div>
@@ -827,9 +971,9 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
 
       <div class="wallet-row">
         <div class="wallet"><span class="w-icon">💰</span>积分<b id="coinCount">0</b></div>
-        <div class="wallet"><span class="w-icon">🏆</span>最高纪录<b id="bestScore">0</b></div>
+        <div class="wallet"><span class="w-icon">🏆</span>本模式最高<b id="bestScore">0</b></div>
         <div class="wallet"><span class="w-icon">🔨</span>装备<b id="equippedName">小手手</b></div>
-        <div class="wallet"><span class="w-icon">🎨</span>画风<b id="styleName">原版二次元</b></div>
+        <!-- 🎨 画风已在底部「贴图风格」按钮上直接显示，这里不再重复占位（验收报告 P2-4） -->
       </div>
 
       <div class="mode-row" id="modeRow">
@@ -840,8 +984,7 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
             <div class="mc-name">简易</div>
             <div class="mc-desc">超慢节奏 · 露头超久<br>陷阱稀少 · 轻松热身</div>
             <div class="mc-stats">
-              <div class="mc-mult">积分 ×0.6</div>
-              <div class="mc-bonus">通关 +80</div>
+              <div class="mc-stats-line">积分 ×0.6 · 通关 +80</div>
             </div>
             <div class="mc-diff"><i class="on"></i><i></i><i></i><span>难度</span></div>
             <div class="mc-best" data-best="easy">最佳 --</div>
@@ -854,8 +997,7 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
             <div class="mc-name">普通</div>
             <div class="mc-desc">标准节奏 · 攻守平衡<br>陷阱适中 · 经典体验</div>
             <div class="mc-stats">
-              <div class="mc-mult">积分 ×1.2</div>
-              <div class="mc-bonus">通关 +220</div>
+              <div class="mc-stats-line">积分 ×1.2 · 通关 +220</div>
             </div>
             <div class="mc-diff"><i class="on"></i><i class="on"></i><i></i><span>难度</span></div>
             <div class="mc-best" data-best="normal">最佳 --</div>
@@ -868,8 +1010,7 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
             <div class="mc-name">困难</div>
             <div class="mc-desc">疾速风暴 · 露头极短<br>陷阱成堆 · 手速极限</div>
             <div class="mc-stats">
-              <div class="mc-mult">积分 ×2.4</div>
-              <div class="mc-bonus">通关 +520</div>
+              <div class="mc-stats-line">积分 ×2.4 · 通关 +520</div>
             </div>
             <div class="mc-diff"><i class="on"></i><i class="on"></i><i class="on"></i><span>难度</span></div>
             <div class="mc-best" data-best="hard">最佳 --</div>
@@ -883,7 +1024,7 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
         <button class="menu-btn gold" id="boardBtn">🏆 排行榜</button>
         <button class="menu-btn pink" id="shopBtn">🛒 工具商城</button>
         <button class="menu-btn" id="taskBtn">🏅 成就任务</button>
-        <button class="menu-btn blue" id="styleBtn">🎨 贴图风格</button>
+        <button class="menu-btn blue" id="styleBtn">🎨 贴图风格 · <span id="styleBtnName">原版二次元</span></button>
       </div>
 
       <div class="roster">
@@ -904,7 +1045,7 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
   </div>
 
   <!-- ============ 结算 ============ -->
-  <div id="endScreen" class="overlay hidden">
+  <div id="endScreen" class="overlay hidden" role="dialog" aria-modal="true" aria-label="本局结算">
     <p class="tag" style="font-size:20px;font-weight:bold;color:#fff">时间到！</p>
     <div id="modeTag">🌻 普通模式</div>
     <div id="rankLetter">S</div>
@@ -917,22 +1058,28 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
       <button id="restartBtn">🔁 再来一局</button>
       <button class="menu-btn" id="homeBtn">🏠 回首页</button>
     </div>
-    <p class="best">最高纪录：<span id="bestScore2">0</span> 分</p>
+    <p class="best">本模式最高纪录：<span id="bestScore2">0</span> 分</p>
   </div>
 
   <!-- ============ 排行榜 ============ -->
-  <div id="boardPanel" class="panel hidden">
+  <div id="boardPanel" class="panel hidden" role="dialog" aria-modal="true" aria-label="排行榜">
     <div class="panel-card">
       <button class="panel-close" data-close="boardPanel">✕</button>
       <div class="panel-title">🏆 田园英雄榜</div>
-      <div class="panel-sub">本地最佳战绩 TOP 10 · 标签为挑战模式</div>
+      <div class="panel-sub">本地最佳战绩 TOP 10 · 可按模式筛选 · 标签标注挑战模式</div>
+      <div class="rank-filter" id="rankFilter" role="group" aria-label="按难度筛选排行榜">
+        <button type="button" data-mf="all" class="on">全部</button>
+        <button type="button" data-mf="easy">🌱 简易</button>
+        <button type="button" data-mf="normal">🌻 普通</button>
+        <button type="button" data-mf="hard">🔥 困难</button>
+      </div>
       <div class="panel-body" id="boardList"></div>
       <div class="panel-foot">💰 当前积分 <b id="boardCoins">0</b> · 打一局就能上榜！</div>
     </div>
   </div>
 
   <!-- ============ 商城 ============ -->
-  <div id="shopPanel" class="panel hidden">
+  <div id="shopPanel" class="panel hidden" role="dialog" aria-modal="true" aria-label="锤子工坊与贴图风格包">
     <div class="panel-card">
       <button class="panel-close" data-close="shopPanel">✕</button>
       <div class="panel-title">🛒 锤子工坊</div>
@@ -951,7 +1098,7 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
   </div>
 
   <!-- ============ 成就 / 每日任务 ============ -->
-  <div id="taskPanel" class="panel hidden">
+  <div id="taskPanel" class="panel hidden" role="dialog" aria-modal="true" aria-label="成就与每日任务">
     <div class="panel-card">
       <button class="panel-close" data-close="taskPanel">✕</button>
       <div class="panel-title">🏅 成就 · 每日任务</div>
@@ -968,7 +1115,7 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
 
 
   <!-- ============ 贴图风格（自由切换） ============ -->
-  <div id="stylePanel" class="panel hidden">
+  <div id="stylePanel" class="panel hidden" role="dialog" aria-modal="true" aria-label="贴图风格切换">
     <div class="panel-card">
       <button class="panel-close" data-close="stylePanel">✕</button>
       <div class="panel-title">🎨 贴图风格</div>
@@ -985,7 +1132,9 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
   <div id="fxLayer"></div>
 </div>
 <div id="cursor"></div>
-<button id="muteBtn" title="声音开关">🔊</button>
+<button id="pauseBtn" type="button" title="暂停 / 继续" aria-label="暂停游戏" aria-pressed="false" disabled>⏸</button>
+<button id="muteBtn" type="button" title="声音开关" aria-label="静音开关" aria-pressed="false">🔊</button>
+<div id="saveWarn" hidden>⚠️ 当前浏览器无法保存进度（无痕模式 / 已禁用存储），本局积分不会被保留 · 建议改用普通窗口打开</div>
 
 <script>
 /*!
@@ -1010,6 +1159,7 @@ var scoreEl = $('#score'), timeEl = $('#time'), comboEl = $('#combo'),
     multEl = $('#mult'), comboBar = $('#comboBar'),
     timeBox = $('#timeBox'), scoreBox = $('#scoreBox');
 var startScreen = $('#startScreen'), endScreen = $('#endScreen');
+var pauseBtn = $('#pauseBtn');
 var boardPanel = $('#boardPanel'), shopPanel = $('#shopPanel'), taskPanel = $('#taskPanel'),
     stylePanel = $('#stylePanel');
 
@@ -1022,12 +1172,23 @@ var store = {
     }catch(e){ return d; }
   },
   set: function(k, v){
-    try{ localStorage.setItem('wmz_' + k, JSON.stringify(v)); }catch(e){}
+    try{ localStorage.setItem('wmz_' + k, JSON.stringify(v)); }
+    catch(e){ store.failed = true; if(typeof onStoreFail === 'function'){ onStoreFail(); } }
   }
 };
+store.ok = (function(){
+  try{ localStorage.setItem('wmz_probe', '1'); localStorage.removeItem('wmz_probe'); return true; }
+  catch(e){ return false; }
+})();
+if(!store.ok){ store.failed = true; }
+/* 存储不可用（无痕 / 禁用）时给出可见提示，而不是静默丢数据（验收报告 P2-6） */
+function onStoreFail(){
+  var sw = document.getElementById('saveWarn');
+  if(sw){ sw.hidden = false; }
+}
 
 /* ================= 音效引擎 ================= */
-var AC = null, muted = false;
+var AC = null, muted = !!store.get('muted', false);
 function ac(){
   if(!AC){
     try{ AC = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ AC = null; }
@@ -1123,7 +1284,7 @@ var CARD_ART = { orange:1 };
 /* 像素画素材：渲染时开启 pixelated，放大不发糊 */
 /* 像素画素材（黄瓜/蘑菇/胡萝卜/猕猴桃/苹果）已按整数倍放大烘焙进 webp，
    渲染交给浏览器平滑缩放，避免 CSS 二次缩放出现丢行 / 锯齿不均 */
-var MOB_PIXEL = { cucumber:1, mushroom:1, carrot:1, kiwi:1, apple:1 };
+/* MOB_PIXEL 已于 v1.3 移除：渲染改走浏览器平滑缩放后此表无任何引用（见验收报告 P2-2） */
 function mobArtSrc(id){
   var k = MOB_ART[id];
   if(!k) return '';
@@ -1150,10 +1311,7 @@ function rarityOf(id){ var T = TYPES[id] || {}; return RARITY[T.rarity] || RARIT
 /* 目标外层类名：危险示意 / 特殊标识 */
 function kindClass(id){
   var T = TYPES[id] || {};
-  if(id === 'elite') return 'elite';
   if(T.kind === 'egg') return 'egg';
-  if(id === 'gift')  return 'bonus';
-  if(T.bad) return 'danger';
   return '';
 }
 /* 符号贴图上的装饰钩子（.spark 由 animateMobLife 驱动） */
@@ -1296,7 +1454,7 @@ var MODES = {
   hard: {
     key:'hard', name:'困难', icon:'🔥',
     mult: 2.4, bonus: 520,
-    spawnMul: 0.66, upMul: 0.62, badMul: 1.8, starW: 5, eggW: 1.6,
+    spawnMul: 0.66, upMul: 0.62, badMul: 1.4, starW: 5, eggW: 1.6,
     eggUp: [1000, 1300],
     ramp: 1.55, dblChance: 0.75, feverAt: 14,
     rank: [2600, 1800, 1200, 620]
@@ -1346,6 +1504,8 @@ function rarityDone(rk){
   if(!ids.length) return true;
   return ids.every(function(id){ return collect[id] && collect[id].seen > 0; });
 }
+/* 稀有度集齐奖励（原为四层嵌套三元，改成表更好读、好改） */
+var RARITY_REWARD = { common: 120, rare: 250, epic: 600, legend: 1200, egg: 2000 };
 function checkRarityReward(){
   var got = store.get('rarityGot', []);
   if(!Array.isArray(got)){ got = []; }
@@ -1353,7 +1513,7 @@ function checkRarityReward(){
   ['common','rare','epic','legend','egg'].forEach(function(rk){
     if(got.indexOf(rk) < 0 && rarityDone(rk)){
       var R = RARITY[rk];
-      var n = rk === 'common' ? 120 : rk === 'rare' ? 250 : rk === 'epic' ? 600 : rk === 'egg' ? 2000 : 1200;
+      var n = RARITY_REWARD[rk] || 0;
       got.push(rk); gain += n; names.push(R.name + ' +' + n);
     }
   });
@@ -1457,17 +1617,25 @@ function homeIntro(){
   setTimeout(function(){ gsap.set(items, { clearProps: 'opacity,visibility,transform' }); }, 1400);
 }
 function openPanel(panel){
+  lastFocus = document.activeElement;                 /* 关闭时还原到这里 */
   panel.classList.remove('hidden');
   var card = panel.querySelector('.panel-card');
+  var into = panel.querySelector('.panel-close') || card;
+  if(into && into.focus){ setTimeout(function(){ try{ into.focus(); }catch(e){} }, 30); }
   if(!motionOn()){ gsap.set(panel, { clearProps: 'opacity,visibility' }); return; }
   gsap.fromTo(panel, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2, ease: 'power1.out' });
   if(card){ gsap.fromTo(card, { y: 26, scale: 0.96 }, { y: 0, scale: 1, duration: 0.36, ease: 'back.out(1.4)' }); }
 }
 function closePanel(panel){
-  if(!motionOn()){ panel.classList.add('hidden'); return; }
+  var restore = function(){
+    if(lastFocus && lastFocus.focus && document.contains(lastFocus)){ try{ lastFocus.focus(); }catch(e){} }
+    lastFocus = null;
+  };
+  if(!motionOn()){ panel.classList.add('hidden'); restore(); return; }
   gsap.to(panel, { autoAlpha: 0, duration: 0.16, ease: 'power1.in', onComplete: function(){
     panel.classList.add('hidden');
     gsap.set(panel, { clearProps: 'opacity,visibility' });
+    restore();
   }});
 }
 
@@ -1575,6 +1743,7 @@ function spawnOne(){
 
 function spawnLoop(){
   if(!running) return;
+  if(hiddenAt){ spawnTO = setTimeout(spawnLoop, 300); return; }
   spawnOne();
   if(elapsed > 22 && Math.random() < MODES[mode].dblChance){
     setTimeout(spawnOne, 150);
@@ -1584,6 +1753,7 @@ function spawnLoop(){
 
 function flee(mob){
   if(mob._hit || !mob.isConnected) return;
+  if(hiddenAt){ mob._to = setTimeout(function(){ flee(mob); }, 300); return; }
   /* ⏱️ 时钟冻结事件：地鼠暂不缩回 */
   if(eventState.freeze){ mob._to = setTimeout(function(){ flee(mob); }, 320); return; }
   mob._hit = true;
@@ -1595,7 +1765,7 @@ function flee(mob){
   /* 🥚 彩蛋溜走 */
   if(type === 'orange'){
     var rr = mob.getBoundingClientRect();
-    spawnText(rr.left + rr.width / 2, rr.top, '彩蛋溜走了…', 'bad');
+    spawnText(rr.left + rr.width / 2, rr.top, '彩蛋溜走了…', 'mute');
   }
   var hole = mob._hole;
   gsap.to(mob, {
@@ -1603,6 +1773,86 @@ function flee(mob){
     onComplete: function(){ mob.remove(); hole.busy = false; }
   });
 }
+
+/* 命中分支表：按 kind 分发。原为三个 early-return 分支串，
+   v1.3 按验收报告第七章建议改为表驱动——以后加目标类型只需加一条，不用再动 onHit。
+   返回 true = 这次命中已被该分支消费（不再走通用计分）；false = 继续走通用流程。 */
+var HIT_HANDLERS = {
+  /* 👑 噜噜大王の王冠：血量 3 点，需连点 3 次 */
+  elite: function(mob, T, body, x, y, type){
+    mob._hp = (mob._hp || T.hp) - 1;
+    SFX.elite();
+    softSquash(body);
+    spawnRipple(x, y, '#ffd6ec');
+    spawnToolImpact(x, y);
+    spawnStars(x, y, 12);
+    shake(9);
+    stats.eliteHit = (stats.eliteHit || 0) + 1;
+    var bar = mob.querySelector('.mob-hp i');
+    if(bar){ bar.style.width = Math.max(0, Math.round(mob._hp / T.hp * 100)) + '%'; }
+    if(mob._hp > 0){
+      spawnText(x, y - 30, 'HP ' + mob._hp + ' / ' + T.hp, 'comboTxt');
+      setTimeout(function(){
+        if(!mob.isConnected) return;
+        mob._hit = false;
+        mob._to = setTimeout(function(){ flee(mob); }, 620);
+      }, 220);
+      return true;
+    }
+    spawnText(x, y - 72, '击破!!', 'comboTxt');
+    flash('#ff9ad555');
+    return false;
+  },
+  /* 🥚 噜噜大王彩蛋：闪现极短，打中固定 +300 */
+  egg: function(mob, T, body, x, y, type){
+    SFX.golden();
+    setTimeout(SFX.egg, 80);
+    hitSquash(body, mob);
+    spawnRipple(x, y, '#ffd93d');
+    spawnRipple(x, y, '#ff9ad5');
+    spawnToolImpact(x, y);
+    spawnStars(x, y, 26);
+    spawnText(x, y - 30, '噜噜大王被你抓到啦!', 'eggTxt');
+    flash('#ffe98a66');
+    shake(10);
+    combo++;
+    bestCombo = Math.max(bestCombo, combo);
+    lastHitAt = performance.now();
+    updateCombo(false);
+    addScore(300, x, y);          /* 🎉 固定 300 分，不吃倍率 */
+    stats.hits++;
+    stats.lulu = (stats.lulu || 0) + 1;
+    var holeE = mob._hole;
+    setTimeout(function(){ mob.remove(); holeE.busy = false; }, 340);
+    return true;
+  },
+  /* 🎁 惊喜礼盒：随机掉落一个小奖励 */
+  bonus: function(mob, T, body, x, y, type){
+    SFX.gift();
+    hitSquash(body, mob);
+    spawnRipple(x, y, '#ffe9a8');
+    spawnToolImpact(x, y);
+    spawnStars(x, y, 14);
+    combo++;
+    bestCombo = Math.max(bestCombo, combo);
+    lastHitAt = performance.now();
+    updateCombo(false);
+    stats.gift = (stats.gift || 0) + 1;
+    var roll = Math.floor(Math.random() * 3);
+    if(roll === 0){
+      addScore(Math.round(20 * MODES[mode].mult), x, y);
+    } else if(roll === 1){
+      eventState.scoreMul = 2;
+      spawnText(x, y - 72, '下 3 秒分数 ×2!', 'comboTxt');
+      setTimeout(function(){ if(eventState.scoreMul === 2){ eventState.scoreMul = 1; } }, 3000);
+    } else {
+      if(!clearOneBad()){ addScore(Math.round(20 * MODES[mode].mult), x, y); }
+    }
+    var holeG = mob._hole;
+    setTimeout(function(){ mob.remove(); holeG.busy = false; }, 320);
+    return true;
+  }
+};
 
 /* ================= 命中处理 ================= */
 function softSquash(body){
@@ -1632,7 +1882,7 @@ function onHit(e){
   e.preventDefault();
   e.stopPropagation();
   var mob = e.currentTarget;
-  if(mob._hit || !running) return;
+  if(mob._hit || !running || hiddenAt) return;
   mob._hit = true;
   clearTimeout(mob._to);
   if(mob._blinks){ clearInterval(mob._blinks); mob._blinks = null; }
@@ -1644,81 +1894,9 @@ function onHit(e){
   var body = mob.querySelector('.mob-body');
   logCollect(type, 'hit');
 
-  /* ---------- 👑 噜噜大王の王冠：血量 3 点，需连点 3 次 ---------- */
-  if(T.kind === 'elite'){
-    mob._hp = (mob._hp || T.hp) - 1;
-    SFX.elite();
-    softSquash(body);
-    spawnRipple(x, y, '#ffd6ec');
-    spawnToolImpact(x, y);
-    spawnStars(x, y, 12);
-    shake(9);
-    stats.eliteHit = (stats.eliteHit || 0) + 1;
-    var bar = mob.querySelector('.mob-hp i');
-    if(bar){ bar.style.width = Math.max(0, Math.round(mob._hp / T.hp * 100)) + '%'; }
-    if(mob._hp > 0){
-      spawnText(x, y - 30, 'HP ' + mob._hp + ' / ' + T.hp, 'comboTxt');
-      setTimeout(function(){
-        if(!mob.isConnected) return;
-        mob._hit = false;
-        mob._to = setTimeout(function(){ flee(mob); }, 620);
-      }, 220);
-      return;
-    }
-    spawnText(x, y - 72, '击破!!', 'comboTxt');
-    flash('#ff9ad555');
-  }
-
-  /* ---------- 🥚 噜噜大王彩蛋：闪现极短，打中固定 +300 ---------- */
-  if(T.kind === 'egg'){
-    SFX.golden();
-    setTimeout(SFX.egg, 80);
-    hitSquash(body, mob);
-    spawnRipple(x, y, '#ffd93d');
-    spawnRipple(x, y, '#ff9ad5');
-    spawnToolImpact(x, y);
-    spawnStars(x, y, 26);
-    spawnText(x, y - 30, '噜噜大王被你抓到啦!', 'eggTxt');
-    flash('#ffe98a66');
-    shake(10);
-    combo++;
-    bestCombo = Math.max(bestCombo, combo);
-    lastHitAt = performance.now();
-    updateCombo(false);
-    addScore(300, x, y);          /* 🎉 固定 300 分，不吃倍率 */
-    stats.hits++;
-    stats.lulu = (stats.lulu || 0) + 1;
-    var holeE = mob._hole;
-    setTimeout(function(){ mob.remove(); holeE.busy = false; }, 340);
-    return;
-  }
-
-  /* ---------- 🎁 惊喜礼盒：随机掉落一个小奖励 ---------- */
-  if(T.kind === 'bonus' && type === 'gift'){
-    SFX.gift();
-    hitSquash(body, mob);
-    spawnRipple(x, y, '#ffe9a8');
-    spawnToolImpact(x, y);
-    spawnStars(x, y, 14);
-    combo++;
-    bestCombo = Math.max(bestCombo, combo);
-    lastHitAt = performance.now();
-    updateCombo(false);
-    stats.gift = (stats.gift || 0) + 1;
-    var roll = Math.floor(Math.random() * 3);
-    if(roll === 0){
-      addScore(Math.round(20 * MODES[mode].mult), x, y);
-    } else if(roll === 1){
-      eventState.scoreMul = 2;
-      spawnText(x, y - 72, '下 3 秒分数 ×2!', 'comboTxt');
-      setTimeout(function(){ if(eventState.scoreMul === 2){ eventState.scoreMul = 1; } }, 3000);
-    } else {
-      if(!clearOneBad()){ addScore(Math.round(20 * MODES[mode].mult), x, y); }
-    }
-    var holeG = mob._hole;
-    setTimeout(function(){ mob.remove(); holeG.busy = false; }, 320);
-    return;
-  }
+  /* ---------- 特殊目标统一走 handlers 表（见 HIT_HANDLERS） ---------- */
+  var special = (T.kind === 'bonus' && type !== 'gift') ? null : HIT_HANDLERS[T.kind];
+  if(special && special(mob, T, body, x, y, type)) return;
 
   if(!T.bad){
     SFX.whack();
@@ -1806,7 +1984,15 @@ function spawnRipple(x, y, color){
   });
 }
 
+/* 星屑数量自适应：低端机（核心数/内存偏低）减半，难度越高越收敛，
+   避免连击时峰值 50~100 个 will-change 节点把低端机拖到掉帧 */
+function starBudget(n){
+  var low = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4;
+  var b = low ? n * 0.55 : n * (1 - 0.15 * difficulty());
+  return Math.max(4, Math.round(b));
+}
 function spawnStars(x, y, n){
+  n = starBudget(n);
   var tool = TOOLS[currentTool()];
   var colors = tool.particles.concat(['#fff']);
   var glyphs = tool.stars.concat(['✧']);
@@ -1951,6 +2137,7 @@ function exitFever(){
 /* ================= 主循环 ================= */
 function tick(){
   if(!running) return;
+  if(hiddenAt){ rafId = requestAnimationFrame(tick); return; }   /* 暂停：连击条不流逝 */
   if(combo > 0){
     var remain = 1 - (performance.now() - lastHitAt) / 2200;
     if(remain <= 0){
@@ -2005,12 +2192,15 @@ function startGame(){
   comboBar.style.width = '0%';
   document.body.classList.remove('fever');
   document.body.classList.add('playing');
+  setPaused(false);
+  if(pauseBtn){ pauseBtn.disabled = false; pauseBtn.textContent = '⏸'; }
   buildField();
   var RM = motionOn();
   endScreen.classList.add('hidden');
   boardPanel.classList.add('hidden');
   shopPanel.classList.add('hidden');
   taskPanel.classList.add('hidden');
+  stylePanel.classList.add('hidden');
   gsap.fromTo('#hud .stat, #comboBox', { y: -18, autoAlpha: 0 },
     { y: 0, autoAlpha: 1, duration: RM ? 0.3 : 0, stagger: RM ? 0.05 : 0, ease: 'back.out(1.6)', clearProps: 'transform' });
   if(RM){
@@ -2040,6 +2230,8 @@ function endGame(){
   if(!running) return;
   running = false;
   document.body.classList.remove('playing');
+  setPaused(false);
+  if(pauseBtn){ pauseBtn.disabled = true; pauseBtn.textContent = '⏸'; }
   clearTimeout(spawnTO);
   clearInterval(clockIV);
   cancelAnimationFrame(rafId);
@@ -2091,10 +2283,9 @@ function endGame(){
     '</b> · 误伤 <b>' + stats.wrong + '</b> · 放跑 <b>' + stats.escaped + '</b><br>' +
     '礼物 <b>' + (stats.gift || 0) + '</b> · 精英 <b>' + (stats.eliteHit || 0) +
     '</b> · 事件 <b>' + (eventState.fired || 0) + '</b>';
-  $('#bestScore2').textContent = best;
+  $('#bestScore2').textContent = bestM;
   $('#finalScore').textContent = '0';
   $('#gainCoins').textContent = '+0';
-  $('#totalCoins').textContent = coins;
   endScreen.classList.remove('hidden');
 
   var RM = motionOn();
@@ -2124,6 +2315,8 @@ function endGame(){
   checkAchievements();
   checkDaily();
   checkRarityReward();
+  /* v1.2 P0-2：成就 / 每日任务 / 稀有度奖励全部入账后再刷新「总积分」，修掉结算页比存档少报 8600 的数字错位 */
+  $('#totalCoins').textContent = store.get('coins', 0);
   renderTasks();
   refreshHome();
 }
@@ -2342,7 +2535,7 @@ function scheduleEvents(){
   for(var i = 0; i < n; i++){
     (function(){
       var at = 7000 + Math.random() * 38000;
-      setTimeout(function(){ if(running){ fireEvent(); } }, at);
+      setTimeout(function(){ if(running && !hiddenAt){ fireEvent(); } }, at);
     })();
   }
 }
@@ -2367,6 +2560,7 @@ function renderRoster(){
             '<span class="r-pts ' + cls + '">' + pts + '</span></div>';
   });
   $('#rosterGrid').innerHTML = html;
+  markThumbs();
   var n = seenCount();
   if($('#rosterProg')){ $('#rosterProg').textContent = n + ' / ' + COLLECT_IDS.length; }
   if($('#rosterBar')){ $('#rosterBar').style.width = (n / COLLECT_IDS.length * 100) + '%'; }
@@ -2379,7 +2573,9 @@ function renderRoster(){
 function refreshHome(){
   $('#coinCount').textContent = store.get('coins', 0);
   $('#bestScore').textContent = store.get('best', 0);
-  if($('#styleName')){ $('#styleName').textContent = STYLE_SETS[styleEquipped()].name; }
+  var styName = STYLE_SETS[styleEquipped()].name;
+  if($('#styleName')){ $('#styleName').textContent = styName; }
+  if($('#styleBtnName')){ $('#styleBtnName').textContent = styName; }
   var tid = currentTool();
   $('#equippedName').textContent = TOOLS[tid] ? TOOLS[tid].name : '小手手';
   cursor.innerHTML = TOOL_SVG[tid] || TOOL_SVG.hand;
@@ -2398,6 +2594,7 @@ function renderModeCards(){
   var M = MODES[mode];
   $('#startBtn').textContent = M.icon + ' 开始 · ' + M.name + '模式';
   document.body.setAttribute('data-mode', mode);
+  if($('#bestScore')){ $('#bestScore').textContent = store.get('best_' + mode, 0); }
 }
 
 document.querySelectorAll('.mode-card').forEach(function(card){
@@ -2414,15 +2611,16 @@ document.querySelectorAll('.mode-card').forEach(function(card){
 
 function renderBoard(){
   var board = store.get('board', []);
-  var list = $('#boardList');
+  var box = $('#boardList');
   $('#boardCoins').textContent = store.get('coins', 0);
-  if(!board.length){
-    list.innerHTML = '<div class="rank-empty">🌾 还没有任何记录<br>快去打响第一锤吧！</div>';
+  var rows = board.filter(function(rec){ return rankFilter === 'all' || (rec.m || 'normal') === rankFilter; });
+  if(!rows.length){
+    box.innerHTML = '<div class="rank-empty">🌾 这里还没有记录<br>快去打响第一锤吧！</div>';
     return;
   }
   var medals = ['🥇', '🥈', '🥉'];
   var html = '';
-  board.forEach(function(rec, i){
+  rows.forEach(function(rec, i){
     var mk = rec.m || 'normal';
     var M = MODES[mk] || MODES.normal;
     html += '<div class="rank-row top' + (i + 1) + '">' +
@@ -2433,7 +2631,7 @@ function renderBoard(){
       '<span class="rank-badge">' + rec.r + ' 级</span> <span class="rank-date">' + rec.d + '</span></div>' +
     '</div>';
   });
-  list.innerHTML = html;
+  box.innerHTML = html;
 }
 
 var toastTO = null;
@@ -2531,11 +2729,56 @@ $('#taskBtn').addEventListener('click', function(){
   stylePanel.classList.add('hidden');
   openPanel(taskPanel);
 });
+/* 排行榜：按模式筛选（全部 / 简易 / 普通 / 困难） */
+var rankFilter = 'all';
+var rankFilterBox = $('#rankFilter');
+if(rankFilterBox){
+  rankFilterBox.addEventListener('click', function(e){
+    var b = e.target && e.target.closest ? e.target.closest('button[data-mf]') : null;
+    if(!b) return;
+    rankFilter = b.getAttribute('data-mf');
+    Array.prototype.forEach.call(rankFilterBox.querySelectorAll('button'), function(x){ x.classList.toggle('on', x === b); });
+    renderBoard();
+  });
+}
 document.querySelectorAll('.panel-close').forEach(function(btn){
   btn.addEventListener('click', function(){
     var id = btn.getAttribute('data-close');
     closePanel($('#' + id));
   });
+});
+/* ===== 弹窗键盘可达性：Esc 关闭 / 焦点转移与还原 / Tab 循环（验收报告 P1-2） ===== */
+var lastFocus = null;
+function visiblePanel(){
+  var ps = [boardPanel, shopPanel, taskPanel, stylePanel, endScreen, startScreen];
+  for(var i = 0; i < ps.length; i++){ if(ps[i] && !ps[i].classList.contains('hidden')) return ps[i]; }
+  return null;
+}
+function focusables(root){
+  var list = root.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])');
+  return Array.prototype.filter.call(list, function(el){
+    return !el.disabled && el.getAttribute('aria-hidden') !== 'true' && el.offsetParent !== null;
+  });
+}
+document.addEventListener('keydown', function(e){
+  var p = visiblePanel();
+  if(e.key === 'Escape'){
+    if(!p || p === startScreen) return;             /* 首页不响应 Esc，避免误关 */
+    e.preventDefault();
+    if(p === endScreen){ var hb = $('#homeBtn'); if(hb){ hb.click(); } return; }
+    closePanel(p);
+    return;
+  }
+  if(e.key === 'Tab' && p){
+    var f = focusables(p);
+    if(f.length < 2) return;
+    var first = f[0], last = f[f.length - 1];
+    if(e.shiftKey && (document.activeElement === first || !p.contains(document.activeElement))){
+      e.preventDefault(); last.focus();
+    } else if(!e.shiftKey && document.activeElement === last){
+      e.preventDefault(); first.focus();
+    }
+  }
 });
 $('#homeBtn').addEventListener('click', function(){
   closePanel(endScreen);
@@ -2559,6 +2802,7 @@ window.addEventListener('pointermove', function(e){
   if(document.body.classList.contains('playing')){ cursor.style.display = 'block'; }
   cursorX = e.clientX; cursorY = e.clientY;
   cursorDirty = true;
+applyCursor();      /* 按住鼠标移动时让挥锤动画始终以最新坐标起手 */
 });
 var cursorRAF = 0;
 function cursorLoop(){
@@ -2588,11 +2832,40 @@ window.addEventListener('pointerdown', function(e){
 document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
 document.addEventListener('gesturestart', function(e){ e.preventDefault(); });
 
+/* 暂停 / 继续：与「切后台自动暂停」共用 hiddenAt + clockPaused 同一套冻结机制 */
+function setPaused(on){
+  if(on){
+    if(hiddenAt) return;
+    hiddenAt = performance.now();
+    document.body.classList.add('paused');
+    if(pauseBtn){ pauseBtn.textContent = '▶'; pauseBtn.setAttribute('aria-pressed', 'true'); }
+  } else {
+    if(hiddenAt){
+      var pd = performance.now() - hiddenAt;
+      clockPaused += pd;
+      if(combo > 0){ lastHitAt += pd; }
+      hiddenAt = 0;
+    }
+    document.body.classList.remove('paused');
+    if(pauseBtn){ pauseBtn.textContent = '⏸'; pauseBtn.setAttribute('aria-pressed', 'false'); }
+    if(AC && AC.state === 'suspended'){ try{ AC.resume(); }catch(e){} }
+  }
+}
+if(pauseBtn){
+  pauseBtn.addEventListener('click', function(){
+    if(!running) return;
+    setPaused(!hiddenAt);
+    SFX.tick();
+  });
+}
 /* 切后台：冻结倒计时与连击窗口，回来时补回暂停时长并恢复音频 */
 document.addEventListener('visibilitychange', function(){
   if(document.hidden){
     hiddenAt = performance.now();
+    if(pauseBtn){ pauseBtn.textContent = '▶'; }
   } else {
+    /* 手动暂停中：切回来仍保持冻结，等玩家点继续 */
+    if(document.body.classList.contains('paused')){ hiddenAt = performance.now(); return; }
     if(hiddenAt){
       var pd = performance.now() - hiddenAt;
       clockPaused += pd;
@@ -2606,6 +2879,8 @@ document.addEventListener('visibilitychange', function(){
 $('#muteBtn').addEventListener('click', function(){
   muted = !muted;
   this.textContent = muted ? '🔇' : '🔊';
+  this.setAttribute('aria-pressed', muted ? 'true' : 'false');   /* 读屏能播报开关状态 */
+  store.set('muted', muted);                                      /* 刷新 / 重开一局不再复位 */
 });
 $('#startBtn').addEventListener('click', startGame);
 $('#restartBtn').addEventListener('click', startGame);
@@ -2744,6 +3019,46 @@ function styleThumb(st, k){
   return ART[k] || '';
 }
 
+/* 缩略图（列表里 26~44px）之前直接复用全尺寸贴图，浪费解码；
+   这里在首次渲染后异步生成 72px 小图回填，长列表滚动明显更轻（验收报告 P2-5） */
+var THUMBS = {};
+function thumbReady(src, small){
+  Array.prototype.forEach.call(document.querySelectorAll('img[data-th]'), function(im){
+    if(im.getAttribute('data-th') === src && im.getAttribute('src') !== small){ im.setAttribute('src', small); }
+  });
+}
+function makeThumb(src){
+  if(!src || src.indexOf('data:') !== 0) return;
+  if(THUMBS[src] !== undefined) return;
+  THUMBS[src] = src;                       /* 先占位，避免同一张排队多次 */
+  var im = new Image();
+  im.onload = function(){
+    try{
+      var S = 72, c = document.createElement('canvas');
+      c.width = S; c.height = S;
+      var g = c.getContext('2d');
+      var sc = Math.min(S / im.width, S / im.height);
+      var dw = Math.max(1, Math.round(im.width * sc)), dh = Math.max(1, Math.round(im.height * sc));
+      g.drawImage(im, (S - dw) / 2, (S - dh) / 2, dw, dh);
+      var small = c.toDataURL('image/webp', 0.72);
+      if(small && small.length > 60 && small.length < src.length){
+        THUMBS[src] = small; thumbReady(src, small);
+      }
+    }catch(e){ /* toDataURL 不可用就继续用原图 */ }
+  };
+  im.src = src;
+}
+function markThumbs(){
+  ['#styleList', '#styleShopGrid', '#rosterGrid'].forEach(function(sel){
+    var root = $(sel); if(!root) return;
+    Array.prototype.forEach.call(root.querySelectorAll('img'), function(im){
+      var s = im.getAttribute('src');
+      if(!s || s.indexOf('data:') !== 0) return;
+      if(!im.getAttribute('data-th')){ im.setAttribute('data-th', s); }
+      makeThumb(im.getAttribute('data-th'));
+    });
+  });
+}
 var styleToastTO = null;
 function styleToast(msg, isErr){
   var t = $('#styleToast');
@@ -2812,6 +3127,7 @@ function renderStyles(){
     html += '</div>';
   });
   list.innerHTML = html;
+  markThumbs();
 }
 
 /* ---- 商城里的「贴图风格包」货架 ---- */
@@ -2834,6 +3150,7 @@ function renderStyleShop(){
     html += '</div>';
   });
   grid.innerHTML = html;
+  markThumbs();
 }
 
 /* ---- 装备 / 购买 ---- */
@@ -2910,8 +3227,14 @@ function handleStyleClick(e){
   var bsp = btn.getAttribute('data-buysprite');
   var ex = btn.getAttribute('data-expand');
   var op = btn.getAttribute('data-opensprite');
-  if(op){ styleExpanded[op] = true; renderStyles(); openStylePanel(); return; }
-  if(ex){ styleExpanded[ex] = !styleExpanded[ex]; renderStyles(); return; }
+  if(op){ styleExpanded = {}; styleExpanded[op] = true; renderStyles(); openStylePanel(); return; }
+  if(ex){
+    var was = !!styleExpanded[ex];
+    styleExpanded = {};
+    if(!was){ styleExpanded[ex] = true; }
+    renderStyles();
+    return;
+  }
   if(eq){ doEquipStyle(eq, btn); return; }
   if(bs){ doBuyStyleSet(bs, btn); return; }
   if(bsp){
@@ -2942,10 +3265,28 @@ if($('#styleBtn')){
 
 /* ================= 初始化 ================= */
 buildField();
-if(store.get('owned', null) === null){ store.set('owned', ['hand']); }
-if(!TOOLS[currentTool()]){ store.set('equipped', 'hand'); }
-if(store.get('styleOwned', null) === null){ store.set('styleOwned', ['anime']); }
-if(!STYLE_SETS[store.get('styleEquipped', 'anime')]){ store.set('styleEquipped', 'anime'); }
+/* 存档版本号：以后改结构时在此追加 migration，旧档缺字段也能安全补全 */
+var SAVE_VER = 3;
+function migrateSave(){
+  var v = store.get('ver', 0);
+  if(v < 2 && store.get('muted', null) === null){ store.set('muted', false); }
+  if(store.get('owned', null) === null){ store.set('owned', ['hand']); }
+  if(!TOOLS[currentTool()]){ store.set('equipped', 'hand'); }
+  if(store.get('styleOwned', null) === null){ store.set('styleOwned', ['anime']); }
+  if(!STYLE_SETS[store.get('styleEquipped', 'anime')]){ store.set('styleEquipped', 'anime'); }
+  if(store.get('board', null) !== null && !Array.isArray(store.get('board', []))){ store.set('board', []); }
+  if(store.get('achv', null) !== null && !Array.isArray(store.get('achv', []))){ store.set('achv', []); }
+  store.set('ver', SAVE_VER);
+}
+migrateSave();
+if(!store.ok){ onStoreFail(); }
+/* 静音状态按存档回填（图标 + aria-pressed 一起，避免首屏状态与存档不一致） */
+(function(){
+  var mb = $('#muteBtn');
+  if(!mb) return;
+  mb.textContent = muted ? '🔇' : '🔊';
+  mb.setAttribute('aria-pressed', muted ? 'true' : 'false');
+})();
 renderRoster();
 renderTasks();
 refreshHome();
