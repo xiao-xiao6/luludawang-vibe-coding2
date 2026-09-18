@@ -27,7 +27,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{
   font-family:'Microsoft YaHei','PingFang SC','Segoe UI',sans-serif;
   background:linear-gradient(180deg,#a8ddf0 0%,#cfeef7 45%,#dff3cf 100%);
@@ -230,6 +230,7 @@ body.playing #game{cursor:none}
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   text-align:center;background:#3c5233ee;backdrop-filter:blur(6px);
   border-radius:26px;padding:14px;overflow-y:auto;
+  overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
 }
 .overlay.hidden{display:none}
 .overlay::-webkit-scrollbar{width:8px}
@@ -412,7 +413,7 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #d34e1e}
   font-size:18px;border-radius:50%;
   background:#ff6b6b;box-shadow:0 3px 0 #c73e3e;color:#fff;
 }
-.panel-body{overflow-y:auto;padding:4px 2px;display:flex;flex-direction:column;gap:8px}
+.panel-body{overflow-y:auto;padding:4px 2px;display:flex;flex-direction:column;gap:8px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .panel-body::-webkit-scrollbar{width:8px}
 .panel-body::-webkit-scrollbar-thumb{background:#d8c9a5;border-radius:4px}
 .panel-foot{padding-top:10px;text-align:center;color:#8a6a1a;font-size:13px}
@@ -575,8 +576,18 @@ body.paused #game::after{
 /* ---- 手机竖屏：全屏沉浸 + 首页纵向重排 ---- */
 @media (max-width:720px) and (max-aspect-ratio:4/5){
   #wrap{width:100%;height:100%}
-  #game{border-radius:0;padding:10px 10px calc(12px + env(safe-area-inset-bottom,0px));box-shadow:inset 0 0 0 3px #ffffffcc}
-  .overlay,.panel{border-radius:0}
+  /* 四边安全区一起内推：刘海屏竖屏时顶部状态栏 / 侧边圆角不再压住内容 */
+  #game{
+    border-radius:0;
+    padding:10px 10px calc(12px + env(safe-area-inset-bottom,0px));
+    padding:calc(10px + env(safe-area-inset-top,0px)) calc(10px + env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) calc(10px + env(safe-area-inset-left,0px));
+    box-shadow:inset 0 0 0 3px #ffffffcc;
+  }
+  .overlay,.panel{
+    border-radius:0;
+    padding:12px;
+    padding:calc(12px + env(safe-area-inset-top,0px)) calc(12px + env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) calc(12px + env(safe-area-inset-left,0px));
+  }
   #hud{gap:6px;padding:2px 2px 6px}
   .stat,#comboBox{font-size:11px;padding:4px 9px;border-width:2.5px}
   .stat b,#comboBox b{font-size:16px}
@@ -629,7 +640,7 @@ body.paused #game::after{
   .r-cell .r-name{font-size:9px}
   .home-inner > *{animation-duration:.4s}
 
-  .panel{padding:10px}
+  .panel{padding:10px;padding:calc(10px + env(safe-area-inset-top,0px)) calc(10px + env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) calc(10px + env(safe-area-inset-left,0px))}
   .panel-card{width:100%;max-width:430px;border-width:3px;padding:12px 10px 10px}
   .panel-title{font-size:19px}
   .panel-sub{font-size:11px}
@@ -663,7 +674,7 @@ body.paused #game::after{
   .mc-desc{min-height:0}
   #rankLetter{font-size:56px}
   #finalScore{font-size:28px}
-  #hud{gap:6px;padding:2px 106px 5px 2px}
+  #hud{gap:6px;padding:2px 106px 5px 2px;padding-right:calc(106px + env(safe-area-inset-right,0px))}
   .stat,#comboBox{font-size:11px;padding:3px 9px}
   .stat b,#comboBox b{font-size:15px}
   #field{gap:6px;padding:8px}
@@ -679,9 +690,10 @@ body.paused #game::after{
 #comboBarWrap{height:4px}
 }
 
-/* ---- 大屏桌面：整体放大一档 ---- */
+/* ---- 大屏桌面：宽度兜底。height 会被下方 min-width:721px 档覆盖，
+   故统一挪到文件末尾「超宽屏 / 大屏桌面」补档里声明，避免这里写了不生效。 ---- */
 @media (min-width:1280px) and (min-height:860px){
-  #wrap{width:min(94vw,980px);height:min(94vh,860px)}
+  #wrap{width:min(94vw,980px)}
 }
 
 /* ---- v1.2 P0-1：桌面首页排版收口（原先 911px 内容硬塞进 780px 卡片，图鉴第二行被物理裁切） ---- */
@@ -720,7 +732,8 @@ body.paused #game::after{
 }
 /* v1.2 P1-1：800～1100px 宽区间 #hud 与右上角固定静音键重叠，给 HUD 让位 */
 @media (min-width:721px) and (max-width:1100px){
-  #hud{padding-right:112px}   /* v1.3：右上角有「暂停 + 静音」两个 44px 固定按钮，一起让位 */
+  /* v1.3：右上角有「暂停 + 静音」两个 44px 固定按钮，一起让位；横屏刘海再加右侧安全区 */
+  #hud{padding-right:112px;padding-right:calc(112px + env(safe-area-inset-right,0px))}
 }
 
 /* v1.2 P0-1b：桌面端复用「目标图鉴」折叠开关。
@@ -776,7 +789,7 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
 @media (max-width:720px) and (max-aspect-ratio:4/5){
   .r-cell .r-icon{width:28px;height:28px}
   .mc-diff{justify-content:flex-start}
-  #hud{padding-right:114px}   /* v1.3：同上，手机档要给两个固定按钮一起让位 */
+  #hud{padding-right:114px;padding-right:calc(114px + env(safe-area-inset-right,0px))}   /* v1.3：同上，手机档要给两个固定按钮一起让位 */
 }
 /* 极小屏（360×640 一类）：首页高度富余最紧。
    实测 270px 溢出的元凶是「手机档模式卡竖排 3 张、每张≈90px」，
@@ -928,6 +941,75 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
   .sc-grid{grid-template-columns:repeat(4,1fr);gap:6px}
   .sc-cell .sci{width:38px;height:38px}
   .sc-strip i{width:26px;height:26px}
+}
+
+/* ================= 双端适配补档 v2（触屏命中区 / 手机横屏 / 超宽屏） ================= */
+
+/* ---- 触屏命中区：把 20~38px 的小控件抬到「点得中」的范围 ----
+   只改最小高度，不动字号与配色，视觉密度保持不变。 */
+@media (pointer:coarse){
+  .panel-close{width:44px;height:44px;font-size:20px}
+  .rank-filter button{min-height:40px;padding:8px 14px}
+  .shop-btn{min-height:38px}
+  .sc-btns .shop-btn,.shop-card .shop-btn{min-height:38px}
+  .sc-cell .shop-btn{min-height:32px;padding:5px 10px}
+}
+
+/* ---- 手机横屏（矮视口 + 触屏）：满屏沉浸 + 收紧留白 ----
+   旧规则只有 max-height 档（为桌面小窗口写的），横屏手机仍留 26px 圆角与 96vw 边距，
+   且右侧安全区没算进 HUD 让位宽度 → 刘海横屏时 HUD 会被「暂停 / 静音」压住。 */
+@media (orientation:landscape) and (max-height:520px) and (pointer:coarse){
+  .sky{display:none}
+  #wrap{width:100%;height:100%}
+  #game{
+    border-radius:0;
+    padding:6px 10px 8px;
+    padding:calc(6px + env(safe-area-inset-top,0px)) calc(10px + env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) calc(10px + env(safe-area-inset-left,0px));
+  }
+  .overlay,.panel{
+    border-radius:0;
+    padding:8px 10px;
+    padding:calc(8px + env(safe-area-inset-top,0px)) calc(10px + env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) calc(10px + env(safe-area-inset-left,0px));
+  }
+  #hud{gap:6px;padding:2px 114px 4px 2px;padding-right:calc(114px + env(safe-area-inset-right,0px))}
+  .stat,#comboBox{font-size:11px;padding:3px 9px}
+  .stat b,#comboBox b{font-size:15px}
+  #comboRow{margin:0 2px 4px}
+  #comboBarWrap{height:4px}
+  #field{gap:6px;padding:8px;border-radius:12px}
+  .panel-card{width:min(96%,640px);max-height:94%;padding:12px 12px 10px}
+  .panel-body{gap:6px}
+  /* 首页收紧：390px 高的横屏视口里，标题 + 模式卡 + 按钮组原本会溢出 48px。
+     这里把标题降一档、模式卡隐去次要说明，保证单屏放完不用滚。 */
+  .home-title{font-size:clamp(22px,3.4vw,30px)}
+  .home-title small{letter-spacing:5px}
+  .home-slogan{margin:3px 0 6px;font-size:12px}
+  .wallet-row{margin-bottom:7px;gap:7px}
+  .wallet{padding:4px 12px;font-size:12px}
+  .wallet b{font-size:16px}
+  .mode-row{margin-bottom:7px;gap:8px}
+  .mode-card{width:126px;padding:7px 6px 6px}
+  .mc-icon{font-size:20px;margin-bottom:1px}
+  .mc-name{font-size:15px}
+  .mc-desc{display:none}
+  .mc-stats-line{font-size:10px}
+  .mc-diff{margin-top:1px}
+  .mc-best{margin-top:2px;font-size:9.5px}
+  .big-btn{font-size:17px;padding:9px 30px}
+  .menu-row{margin-top:7px;gap:8px}
+  .menu-btn{font-size:12px;padding:6px 14px}
+  .roster-toggle{margin-top:5px;padding:5px 15px;font-size:11px}
+}
+
+/* ---- 超宽屏 / 大屏桌面：整体再放大一档 ----
+   放在文件末尾是为了压过前面 @media (min-width:721px){#wrap{height:min(96vh,880px)}}，
+   否则 1280px+ 的高度档会被它覆盖（旧代码里 980×860 的意图实际只生效了宽度）。
+   先写 vh 兜底、再写 dvh，老浏览器只丢后一条声明。 */
+@media (min-width:1280px) and (min-height:860px){
+  #wrap{width:min(94vw,1000px);height:min(94vh,900px);height:min(94dvh,900px)}
+}
+@media (min-width:1500px) and (min-height:900px){
+  #wrap{width:min(92vw,1140px);height:min(92vh,980px);height:min(92dvh,980px)}
 }
 
 </style>
