@@ -1,0 +1,32 @@
+{
+  "name": "打地鼠大作战 · 田园守护战",
+  "short_name": "打地鼠",
+  "description": "万物皆可锤的可爱打地鼠小游戏：三种难度模式、连击狂热、积分商城、排行榜。",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#dff3cf",
+  "theme_color": "#7ec850",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
