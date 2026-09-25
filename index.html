@@ -43,19 +43,143 @@ html,body{height:100%}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{
   font-family:'Microsoft YaHei','PingFang SC','Segoe UI',sans-serif;
-  background:linear-gradient(180deg,#a8ddf0 0%,#cfeef7 45%,#dff3cf 100%);
+  background:var(--ui-page-bg);
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
   overflow:hidden;
   overscroll-behavior:none;
   -webkit-touch-callout:none;
   user-select:none;
   touch-action:manipulation;
   display:flex;align-items:center;justify-content:center;
-  color:#4a3b2a;
+  color:var(--ui-body-ink);
 }
 
-:root{--fixed-w:112px}
+/* ================= P0 视觉 token =================
+   统一色板 / 圆角 / 间距 / 字号 / 阴影 / 动效，供首页、面板、弹窗与组件共用。
+   局内表现层（.stat/.hole/.mob/#field/#hud/#cursor/粒子）刻意不接入 token，避免改变在手感观。 */
+:root{
+  --fixed-w:112px;
+  /* 品牌与语义色 */
+  --c-gold:#ffd93d;--c-gold-deep:#f0a90c;--c-gold-ink:#7a5200;--c-gold-soft:#fff8e0;
+  --c-leaf:#8ed16f;--c-leaf-deep:#5cae3c;--c-leaf-ink:#4d8a35;--c-leaf-soft:#f4ffee;
+  --c-cta:#ffa14d;--c-cta-deep:#ff6b35;--c-cta-ink:#fff6ec;--c-cta-soft:#fff1e4;
+  --c-danger:#ff6b6b;--c-danger-deep:#c73e3e;--c-danger-soft:#ffeaea;
+  --c-ink:#4a3b2a;--c-ink-2:#5a4a2a;--c-ink-3:#8a6a1a;--c-ink-4:#a08a5a;--c-ink-5:#6d5d36;
+  --c-paper:#fffdf5;--c-paper-2:#f4eedd;--c-line:#e8d9b0;--c-line-soft:#f6f2e6;
+  --c-glass:#3c5233ee;--c-glass-line:#ffd93d;
+  --c-on-dark:#fff;--c-on-dark-2:#eaffd8;--c-on-dark-3:#e8ffd0;
+  /* 圆角 6 档 */
+  --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;--r-xl:26px;--r-pill:999px;
+  /* 间距 4 档 */
+  --s-1:4px;--s-2:8px;--s-3:12px;--s-4:18px;
+  /* 字号与字重 */
+  --fs-1:11px;--fs-2:13px;--fs-3:15px;--fs-4:18px;--fs-5:24px;
+  --fw-norm:400;--fw-bold:700;--fw-heavy:900;
+  /* 阴影 3 档 */
+  --sh-1:0 2px 6px #0002;--sh-2:0 5px 0 #00000026;--sh-3:0 20px 50px #0006;
+  /* 动效 */
+  --d-fast:.12s;--d-base:.2s;--d-slow:.36s;--ease-out:cubic-bezier(.22,.61,.36,1);
+  /* 统一 focus ring（仅键盘可见） */
+  --focus-ring:0 0 0 3px #fffdf5,0 0 0 6px var(--c-gold-deep);
+
+  /* ================= UI 主题 token 层（默认值 = 经典田园，逐字对齐原硬编码） =================
+     主题由 body[data-ui-theme] 派生（见 applyUiTheme），只覆盖颜色 / 背景 / 描边 / 圆角 / 阴影，
+     不改尺寸、字体与动效。默认值与改造前的硬编码完全一致，保证经典态零视觉变化。 */
+  /* 面与框架 */
+  --ui-page-bg:linear-gradient(rgba(255,255,255,.5),rgba(255,255,255,.5)),url("art/bg/bg1.webp");
+  --ui-body-ink:#4a3b2a;
+  --ui-game-bg:linear-gradient(180deg,#fffdf5 0%,#f2ecd9 100%);
+  --ui-game-shadow:0 24px 60px #00000055;
+  --ui-game-ring:#ffffffcc;
+  --ui-radius-card:26px;
+  --ui-radius-panel:20px;
+  --ui-radius-field:18px;
+  /* HUD 与连击 */
+  --ui-hud-bg:#fff;
+  --ui-hud-line:#ffab6b;
+  --ui-hud-ink:#b06020;
+  --ui-hud-shadow:#ffe0c2;
+  --ui-hud-accent:#ff6b35;
+  --ui-hud-mode-line:#b99cf0;
+  --ui-hud-mode-ink:#7a5ac0;
+  --ui-hud-mode-num:#8a5fd0;
+  --ui-hud-danger-line:#ff6b6b;
+  --ui-hud-danger-ink:#d63b3b;
+  --ui-combo-line:#8ed16f;
+  --ui-combo-ink:#4d8a35;
+  --ui-combo-shadow:#d7f0c2;
+  --ui-combo-num:#52a02f;
+  --ui-combo-cap:#3f7a2a;
+  --ui-combo-track:#eaf4df;
+  --ui-combo-bar:linear-gradient(90deg,#8ed16f,#ff8a3d);
+  /* 覆盖层 / 面板 */
+  --ui-overlay-bg:#3c5233ee;
+  --ui-scroll-thumb:#ffffff44;
+  --ui-scroll-thumb-panel:#d8c9a5;
+  --ui-panel-bg:linear-gradient(180deg,#fffdf5,#f4eedd);
+  --ui-panel-line:#ffd93d;
+  --ui-panel-ring:#fff;
+  --ui-panel-shadow:0 20px 50px #0006;
+  --ui-panel-title:#4d8a35;
+  --ui-panel-title-shadow:#fff;
+  --ui-panel-sub:#6d5d36;
+  --ui-panel-foot:#8a6a1a;
+  --ui-panel-foot-b:#e8a20c;
+  --ui-paused-bg:#fffdf588;
+  /* 首页 */
+  --ui-eyebrow-ink:#e8ffd0;
+  --ui-eyebrow-bg:#ffffff14;
+  --ui-eyebrow-line:#ffffff2a;
+  --ui-title-grad:linear-gradient(92deg,#ffd93d 0%,#ff8a3d 30%,#ff6b9d 60%,#ffd93d 100%);
+  --ui-title-shadow:drop-shadow(0 3px 0 #2d6a1f) drop-shadow(0 8px 14px #0005);
+  --ui-title-small:#fffbe8;
+  --ui-title-small-shadow:0 0 14px #ffd93daa,0 2px 0 #2d6a1f;
+  --ui-card-bg:#ffffff1f;
+  --ui-card-line:#ffffff38;
+  --ui-card-sel-line:#ffd93d;
+  --ui-card-sel-bg:#ffffff2c;
+  --ui-card-sel-glow:0 0 0 3px #ffd93d55, 0 0 26px #ffd93d66;
+  --ui-card-name-shadow:#2d6a1f;
+  --ui-card-stat:#ffe98a;
+  --ui-card-best:#ffffffdd;
+  --ui-card-check:#ffd93d;
+  /* 按钮 */
+  --ui-cta-grad:linear-gradient(180deg,#ffa14d,#ff6b35);
+  --ui-cta-shadow:#d34e1e;
+  --ui-primary-grad:linear-gradient(180deg,#8ed16f,#5cae3c);
+  --ui-primary-shadow:#3f8a28;
+  --ui-primary-glow:#8ed16f66;
+  --ui-ghost-grad:linear-gradient(180deg,#ffffff26,#ffffff14);
+  --ui-ghost-line:#ffffff3c;
+  --ui-ghost-shadow:0 4px 0 #00000026,0 8px 16px #0003;
+  /* 浮钮与提示条 */
+  --ui-fab-bg:#3c5233cc;
+  --ui-fab-line:#ffd93dcc;
+  --ui-warn-bg:#ffe9a8;
+  --ui-warn-line:#f0a90c;
+  --ui-warn-ink:#7a5200;
+  /* 场地贴图 / 难度与狂热配色（URL token 存完整 url(...)，禁止 url(var())） */
+  --field-grass:url("art/hole_v2/grass.png");
+  --field-hole-back:url("art/hole_v2/hole-back.png");
+  --field-hole-front:url("art/hole_v2/hole-front.png");
+  --field-base:#8acb69;
+  --field-tint-easy:linear-gradient(180deg,#d7f2bbcc 0%,#9ed97c99 100%);
+  --field-tint-normal:linear-gradient(180deg,#9ad87733 0%,#6aad4a33 100%);
+  --field-tint-hard:linear-gradient(180deg,#8ecb6d2e 0%,#518f3757 100%);
+  --field-tint-fever:linear-gradient(180deg,#fff3d0b8 0%,#ffe0abb8 100%);
+  --game-bg-fever:linear-gradient(180deg,#fff8e2 0%,#ffeccb 100%);
+  /* 装饰开关 */
+  --ui-decor-display:block;
+  /* 表单强调色（设置面板滑杆） */
+  --ui-accent:#8ed16f;
+  /* 角色视觉缩放与抬升：只影响贴图本体，点击热区 .mob 不变；所有画风共用同一套值 */
+  --mob-scale:.8;
+  --mob-lift:-14.5%;
+}
 /* ================= 天空装饰 ================= */
-.sky{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.sky{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;display:var(--ui-decor-display)}
 .sun{
   position:absolute;top:6%;right:8%;width:90px;height:90px;border-radius:50%;
   background:radial-gradient(circle,#fff6c9 20%,#ffd93d 60%,#ffca28 100%);
@@ -97,37 +221,37 @@ body{
 #wrap{position:relative;width:min(96vw,880px);height:min(96vh,780px);z-index:1}
 #game{
   position:absolute;inset:0;display:flex;flex-direction:column;
-  background:linear-gradient(180deg,#fffdf5 0%,#f2ecd9 100%);
-  border-radius:26px;padding:14px 16px 18px;
-  box-shadow:0 24px 60px #00000055, inset 0 0 0 4px #ffffffcc;
+  background:var(--ui-game-bg);
+  border-radius:var(--ui-radius-card);padding:14px 16px 18px;
+  box-shadow:var(--ui-game-shadow), inset 0 0 0 4px var(--ui-game-ring);
   overflow:hidden;
 }
 
 /* ================= HUD ================= */
 #hud{display:flex;align-items:center;gap:8px;padding:4px 4px 8px;flex:none;flex-wrap:wrap}
 .stat{
-  background:#fff;border:3px solid #ffab6b;border-radius:999px;
-  padding:5px 14px;font-weight:700;font-size:14px;color:#b06020;
-  box-shadow:0 3px 0 #ffe0c2;white-space:nowrap;
+  background:var(--ui-hud-bg);border:3px solid var(--ui-hud-line);border-radius:999px;
+  padding:5px 14px;font-weight:700;font-size:14px;color:var(--ui-hud-ink);
+  box-shadow:0 3px 0 var(--ui-hud-shadow);white-space:nowrap;
 }
-.stat b{font-size:20px;color:#ff6b35;margin-left:5px}
-#modeBox{border-color:#b99cf0;color:#7a5ac0}
-#modeBox b{color:#8a5fd0;font-size:15px}
-#timeBox.urgent{border-color:#ff6b6b;color:#d63b3b;animation:urgent .5s infinite alternate}
-#timeBox.urgent b{color:#d63b3b}
+.stat b{font-size:20px;color:var(--ui-hud-accent);margin-left:5px}
+#modeBox{border-color:var(--ui-hud-mode-line);color:var(--ui-hud-mode-ink)}
+#modeBox b{color:var(--ui-hud-mode-num);font-size:15px}
+#timeBox.urgent{border-color:var(--ui-hud-danger-line);color:var(--ui-hud-danger-ink);animation:urgent .5s infinite alternate}
+#timeBox.urgent b{color:var(--ui-hud-danger-ink)}
 @media (min-width:721px){#scoreBox b,#timeBox b{font-size:24px}#scoreBox,#timeBox{border-width:3.5px}}
 @keyframes urgent{from{transform:scale(1)}to{transform:scale(1.07)}}
 #comboBox{
-  margin-left:auto;background:#fff;border:3px solid #8ed16f;border-radius:999px;
-  padding:5px 14px;font-weight:700;font-size:14px;color:#4d8a35;
-  box-shadow:0 3px 0 #d7f0c2;white-space:nowrap;
+  margin-left:auto;background:var(--ui-hud-bg);border:3px solid var(--ui-combo-line);border-radius:999px;
+  padding:5px 14px;font-weight:700;font-size:14px;color:var(--ui-combo-ink);
+  box-shadow:0 3px 0 var(--ui-combo-shadow);white-space:nowrap;
 }
-#comboBox b{font-size:20px;color:#52a02f;margin:0 3px 0 5px}
+#comboBox b{font-size:20px;color:var(--ui-combo-num);margin:0 3px 0 5px}
 #comboBox .mult{color:#ff8a3d;font-size:13px}
 #comboRow{display:flex;align-items:center;gap:6px;margin:0 4px 8px;flex:none}
-#comboCap{font-size:11px;font-weight:700;color:#3f7a2a;white-space:nowrap}
-#comboBarWrap{flex:1;height:6px;background:#eaf4df;border-radius:3px;overflow:hidden}
-#comboBar{height:100%;width:0%;background:linear-gradient(90deg,#8ed16f,#ff8a3d);border-radius:3px}
+#comboCap{font-size:11px;font-weight:700;color:var(--ui-combo-cap);white-space:nowrap}
+#comboBarWrap{flex:1;height:6px;background:var(--ui-combo-track);border-radius:3px;overflow:hidden}
+#comboBar{height:100%;width:0%;background:var(--ui-combo-bar);border-radius:3px}
 /* 桌面：四项均匀铺开，去掉「左侧挤一起、右侧顶到边」的中间大空白 */
 @media (min-width:721px){
   #hud{justify-content:space-between}
@@ -135,17 +259,22 @@ body{
 }
 
 /* ================= 场地 ================= */
+/* 例外说明：三个场地贴图 URL（--field-grass / --field-hole-back / --field-hole-front）是
+   上方「局内表现层不接入 token」约定的明确例外——它们只决定背景贴图来源（供画风主题换皮），
+   不参与任何尺寸、间距、手感计算，故允许跨主题覆盖。 */
 #field{
   flex:1;display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:1fr;gap:8px;
   position:relative;
-  background:linear-gradient(180deg,#9ad877 0%,#7cbe57 55%,#6aad4a 100%);
-  border-radius:18px;padding:12px;
+  background-color:var(--field-base);
+  background-image:var(--field-tint,var(--field-tint-normal)),var(--field-grass);
+  background-size:cover,256px 256px;background-repeat:no-repeat,repeat;background-position:center,center;
+  border-radius:var(--ui-radius-field);padding:12px;
   box-shadow:inset 0 4px 14px #00000022;
   touch-action:none;
   overflow:hidden;
 }
 #field::before{
-  content:'';position:absolute;inset:0;border-radius:18px;pointer-events:none;
+  content:'';position:absolute;inset:0;border-radius:var(--ui-radius-field);pointer-events:none;
   background-image:
     repeating-linear-gradient(112deg,#ffffff12 0 3px,transparent 3px 15px),
     radial-gradient(circle,#ffffff55 3px,transparent 4px),
@@ -156,37 +285,47 @@ body{
 body.fever #field{box-shadow:inset 0 0 0 4px #ff9f1c99, inset 0 4px 14px #00000022}
 body.fever #game{animation:feverPulse .4s ease-in-out infinite alternate}
 @keyframes feverPulse{
-  from{box-shadow:0 24px 60px #00000055, inset 0 0 0 4px #ffffffcc}
-  to{box-shadow:0 24px 60px #00000055, inset 0 0 0 4px #ffffffcc, 0 0 46px 8px #ff9f1cbb}
+  from{box-shadow:var(--ui-game-shadow), inset 0 0 0 4px var(--ui-game-ring)}
+  to{box-shadow:var(--ui-game-shadow), inset 0 0 0 4px var(--ui-game-ring), 0 0 46px 8px #ff9f1cbb}
 }
 
 /* ================= 洞 ================= */
 .hole{position:relative}
 .pit{
-  position:absolute;left:6%;right:6%;bottom:2%;height:24%;z-index:1;
-  border-radius:50%;border:4px solid #6db84e;
-  background:radial-gradient(ellipse at 50% 40%, #6b4a30 0%, #452e1c 72%);
-  box-shadow:inset 0 4px 8px #000000aa, 0 2px 0 #ffffff66;
+  position:absolute;inset:0;z-index:1;
+  background:var(--field-hole-back) center bottom/contain no-repeat;
+  pointer-events:none;
+  /* 地洞贴图横向拉宽 10%，高度与锚点不变，保持底部对齐 */
+  transform:scaleX(1.1);transform-origin:50% 100%;
 }
 .lip{
-  position:absolute;left:4.5%;right:4.5%;bottom:1%;height:14%;z-index:3;
-  border-radius:50%;
-  background:linear-gradient(180deg,#8a5a3b,#5e3a24);
-  box-shadow:0 2px 0 #6db84eaa;
+  position:absolute;inset:0;z-index:3;
+  background:var(--field-hole-front) center bottom/contain no-repeat;
+  pointer-events:none;
+  /* 遮罩与地洞同步拉宽 10%，避免洞口边缘露出底色 */
+  transform:scaleX(1.1);transform-origin:50% 100%;
 }
-.slot{position:absolute;inset:0 0 12% 0;z-index:2;clip-path:inset(-40% -40% 0 -40%)}
+/* 底部从 12% 收到 6%：地鼠落点下移，让前景遮罩压住贴图底边，避免洞口背景从脚下漏出 */
+.slot{position:absolute;inset:0 0 6% 0;z-index:2;clip-path:inset(-40% -40% 0 -40%)}
 /* 洞口的远近层次：靠前一排略放大 + 投影，避免整块草皮「平铺贴纸感」 */
 @media (min-width:721px){
   .hole:nth-child(n+9){transform:translateY(2px) scale(1.045);transform-origin:50% 100%}
-  .hole:nth-child(n+9) .pit{box-shadow:inset 0 4px 8px #000000aa, 0 5px 8px #00000033}
+  .hole:nth-child(n+9) .pit{filter:drop-shadow(0 4px 5px #00000030)}
 }
 
 /* ================= 目标（纯符号 emoji 贴图 · GSAP驱动） ================= */
 .mob{position:absolute;left:50%;bottom:0;width:78%;height:100%;cursor:pointer}
 .mob-body{position:absolute;inset:0;transform-origin:50% 100%;will-change:transform}
 .mob-body svg{width:100%;height:100%;display:block}
-.mob-body .glyph-svg{filter:drop-shadow(0 5px 5px #0002)}
-.mob-body .glyph{font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif}
+/* 角色视觉缩到 80% 并整体上抬：静态变换挂在 .mob-art 包裹层上，
+   内部贴图/矢量仍由 GSAP 做呼吸，两者互不覆盖；.mob 点击热区保持原尺寸。
+   缩放值和抬升量由 --mob-scale / --mob-lift 统一控制，所有画风共用。 */
+.mob-art{
+  position:absolute;inset:0;display:block;
+  transform:translateY(var(--mob-lift)) scale(var(--mob-scale));
+  transform-origin:50% 100%;
+}
+.mob-art > img,.mob-art > svg{width:100%;height:100%;display:block;object-fit:contain}
 .fx-star{position:fixed;font-size:18px;font-weight:700}
 .ripple{position:fixed;width:72px;height:72px;border:3px solid #fff;border-radius:50%;pointer-events:none}
 
@@ -243,21 +382,32 @@ body.playing #game{cursor:none}
 .overlay{
   position:absolute;inset:0;z-index:100;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  text-align:center;background:#3c5233ee;backdrop-filter:blur(6px);
-  border-radius:26px;padding:14px;overflow-y:auto;
+  text-align:center;background:var(--ui-overlay-bg);backdrop-filter:blur(6px);
+  border-radius:var(--ui-radius-card);padding:14px;overflow-y:auto;
   overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
 }
 .overlay.hidden{display:none}
 .overlay::-webkit-scrollbar{width:8px}
-.overlay::-webkit-scrollbar-thumb{background:#ffffff44;border-radius:4px}
+.overlay::-webkit-scrollbar-thumb{background:var(--ui-scroll-thumb);border-radius:4px}
 .home-inner{
+  --home-gap:clamp(10px,1.7vh,18px);
   margin:auto;display:flex;flex-direction:column;align-items:center;
+  gap:var(--home-gap);
 }
+/* 纵向节奏统一由 .home-inner 的 gap 控制，避免标题/难度卡/按钮各自 margin 打架。
+   选择器权重高于普通单类规则，媒体查询里的旧 margin 也不会再打断节奏。 */
+.home-inner > .home-eyebrow,
+.home-inner > .home-title,
+.home-inner > .home-slogan,
+.home-inner > .mode-row,
+.home-inner > .big-btn,
+.home-inner > .menu-row{margin-top:0;margin-bottom:0}
 
 /* ---- 首页漂浮作物 ---- */
 .float-crop{
   position:absolute;font-size:30px;opacity:.28;pointer-events:none;
   filter:drop-shadow(0 3px 4px #0003);
+  display:var(--ui-decor-display);
   animation:cropFloat 7s ease-in-out infinite;
 }
 @keyframes cropFloat{
@@ -273,55 +423,43 @@ body.playing #game{cursor:none}
 
 /* ---- 首页标题 ---- */
 .home-eyebrow{
-  color:#e8ffd0;font-size:13px;letter-spacing:6px;font-weight:bold;
-  background:#ffffff14;border:1.5px solid #ffffff2a;border-radius:999px;
+  color:var(--ui-eyebrow-ink);font-size:13px;letter-spacing:6px;font-weight:bold;
+  background:var(--ui-eyebrow-bg);border:1.5px solid var(--ui-eyebrow-line);border-radius:999px;
   padding:4px 18px;margin-bottom:8px;
 }
 .home-title{
   font-size:clamp(34px,7vw,58px);font-weight:900;line-height:1.15;
-  background:linear-gradient(92deg,#ffd93d 0%,#ff8a3d 30%,#ff6b9d 60%,#ffd93d 100%);
+  background:var(--ui-title-grad);
   background-size:260% 100%;
   -webkit-background-clip:text;background-clip:text;color:transparent;
   animation:flowGrad 5s linear infinite;
-  filter:drop-shadow(0 3px 0 #2d6a1f) drop-shadow(0 8px 14px #0005);
+  filter:var(--ui-title-shadow);
 }
 .home-title small{
   display:block;font-size:.42em;letter-spacing:10px;font-weight:900;
-  color:#fffbe8;-webkit-text-fill-color:#fffbe8;
-  text-shadow:0 0 14px #ffd93daa,0 2px 0 #2d6a1f;margin-top:2px;
+  color:var(--ui-title-small);-webkit-text-fill-color:var(--ui-title-small);
+  text-shadow:var(--ui-title-small-shadow);margin-top:2px;
 }
 @keyframes flowGrad{from{background-position:0% 0}to{background-position:260% 0}}
 .home-slogan{
-  color:#e8ffd0;font-size:14px;letter-spacing:3px;margin:8px 0 14px;
+  color:var(--ui-eyebrow-ink);font-size:14px;letter-spacing:3px;margin:8px 0 14px;
   text-shadow:0 2px 4px #0004;
 }
 .home-slogan b{color:#ffd93d}
-
-/* ---- 钱包卡 ---- */
-.wallet-row{display:flex;gap:10px;margin:0 0 14px;flex-wrap:wrap;justify-content:center}
-.wallet{
-  background:linear-gradient(180deg,#ffffff,#fff8e0);
-  border:3px solid #ffd93d;border-radius:18px;
-  padding:8px 18px;font-weight:bold;font-size:13px;color:#8a6a1a;
-  box-shadow:0 5px 0 #ffe9a8,0 10px 18px #0004;
-  display:flex;align-items:center;gap:8px;
-}
-.wallet b{font-size:21px;color:#e8a20c}
-.wallet .w-icon{font-size:22px}
 
 /* ---- 模式选择 ---- */
 .mode-row{display:flex;gap:12px;margin:0 0 16px;flex-wrap:wrap;justify-content:center}
 .mode-card{
   font-family:inherit;cursor:pointer;text-align:center;
-  width:150px;padding:12px 10px 10px;border-radius:18px;
-  background:#ffffff1f;border:2.5px solid #ffffff38;color:#fff;
+  width:150px;padding:12px 10px 10px;border-radius:var(--ui-radius-field);
+  background:var(--ui-card-bg);border:2.5px solid var(--ui-card-line);color:#fff;
   position:relative;overflow:hidden;
   transition:transform .15s, border-color .15s, box-shadow .15s, background .15s;
 }
 .mode-card:hover{transform:translateY(-4px)}
 .mode-card.sel{
-  border-color:#ffd93d;background:#ffffff2c;
-  box-shadow:0 0 0 3px #ffd93d55, 0 0 26px #ffd93d66;
+  border-color:var(--ui-card-sel-line);background:var(--ui-card-sel-bg);
+  box-shadow:var(--ui-card-sel-glow);
   transform:translateY(-4px);
 }
 .mode-card.sel::before{
@@ -330,14 +468,14 @@ body.playing #game{cursor:none}
   background-size:250% 100%;animation:shine 2.2s linear infinite;
 }
 .mc-icon{font-size:30px;line-height:1;margin-bottom:4px;display:inline-block}
-.mc-name{font-size:17px;font-weight:800;color:#fff;text-shadow:0 2px 0 #2d6a1f}
+.mc-name{font-size:17px;font-weight:800;color:#fff;text-shadow:0 2px 0 var(--ui-card-name-shadow)}
 .mc-desc{font-size:11px;color:#f2ffe4;line-height:1.5;margin:5px 0 7px;min-height:33px}
 .mc-stats{display:flex;flex-direction:column;gap:3px}
 /* 倍率与结算加成合成一行，减少模式卡里的 10~11px 小字噪声（验收报告四章） */
-.mc-stats-line{font-size:12px;font-weight:800;color:#ffe98a;letter-spacing:.4px}   /* 对比度：实测 4.06:1 → ≈4.6:1 */
-.mc-best{font-size:11px;color:#ffffffdd;margin-top:6px}
+.mc-stats-line{font-size:12px;font-weight:800;color:var(--ui-card-stat);letter-spacing:.4px}   /* 对比度：实测 4.06:1 → ≈4.6:1 */
+.mc-best{font-size:11px;color:var(--ui-card-best);margin-top:6px}
 .mode-card .mc-check{
-  position:absolute;top:7px;right:8px;font-size:14px;color:#ffd93d;
+  position:absolute;top:7px;right:8px;font-size:14px;color:var(--ui-card-check);
   opacity:0;transform:scale(.3);transition:all .2s;
 }
 .mode-card.sel .mc-check{opacity:1;transform:scale(1)}
@@ -345,99 +483,139 @@ body.playing #game{cursor:none}
 /* ---- 首页按钮 ---- */
 button{
   font-family:inherit;font-size:20px;font-weight:800;color:#fff;
-  background:linear-gradient(180deg,#ffa14d,#ff6b35);
+  background:var(--ui-cta-grad);
   border:none;border-radius:999px;padding:12px 46px;cursor:pointer;
-  box-shadow:0 5px 0 #d34e1e,0 10px 20px #0004;
+  box-shadow:0 5px 0 var(--ui-cta-shadow),0 10px 20px #0004;
   transition:transform .1s;
 }
-button:active{transform:translateY(4px);box-shadow:0 1px 0 #d34e1e}
+button:active{transform:translateY(4px);box-shadow:0 1px 0 var(--ui-cta-shadow)}
+/* ---- 按钮状态基线：disabled / loading(aria-busy) / hover ----
+   hover 统一放进 @media (hover:hover)，触屏不会「粘」在悬停态；
+   loading 期间 pointer-events:none 防连点，spinner 在低动效与减少动效下关闭。 */
+button{position:relative}
+button:disabled,button[disabled]{cursor:default}
+button[aria-busy="true"]{cursor:progress;opacity:.72;pointer-events:none}
+button[aria-busy="true"]::after{
+  content:'';position:absolute;top:50%;right:12px;width:.9em;height:.9em;margin-top:-.45em;
+  border:2px solid #ffffff73;border-top-color:#fff;border-radius:50%;pointer-events:none;
+  animation:btnSpin .72s linear infinite;
+}
+@keyframes btnSpin{to{transform:rotate(360deg)}}
+/* .ico 类按钮（暂停/静音/关闭）没有文字留白，spinner 居中显示 */
+.panel-close[aria-busy="true"]::after,
+#pauseBtn[aria-busy="true"]::after,
+#muteBtn[aria-busy="true"]::after{right:50%;margin-right:-.45em;margin-top:-.45em}
+body.lowfx button[aria-busy="true"]::after{animation:none}
+@media (prefers-reduced-motion:reduce){
+  button[aria-busy="true"]::after{animation:none}
+}
+@media (hover:hover){
+  button:not(:disabled):not([disabled]):not([aria-busy="true"]):hover{filter:brightness(1.07)}
+  .rank-filter button:not(.on):hover{border-color:var(--c-gold);background:var(--c-gold-soft)}
+  .panel-close:not(:disabled):hover{background:#ff8080}
+  #pauseBtn:hover:not(:disabled),#muteBtn:hover,#restartBtn:hover,#quitBtn:hover{filter:brightness(1.16);border-color:var(--c-gold)}
+  .shop-btn:hover:not(:disabled):not(.using){filter:brightness(1.08)}
+}
 .big-btn{
   font-size:23px;padding:15px 62px;
   animation:btnPulse 1.8s ease-in-out infinite;
-  background:linear-gradient(180deg,#8ed16f,#5cae3c);
-  box-shadow:0 6px 0 #3f8a28,0 12px 24px #0005,0 0 30px #8ed16f66;
+  background:var(--ui-primary-grad);
+  box-shadow:0 6px 0 var(--ui-primary-shadow),0 12px 24px #0005,0 0 30px var(--ui-primary-glow);
 }
-.big-btn:active{box-shadow:0 1px 0 #3f8a28}
-@keyframes btnPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
-.menu-row{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap;justify-content:center}
+/* 按下必须看得见下沉：btnPulse 改用 scale 属性，:active 改用 translate 属性。
+   两者与 transform 互不覆盖，入场动画若留下内联 transform 也不会吃掉按下位移。 */
+.big-btn:active{translate:0 4px;box-shadow:0 1px 0 var(--ui-primary-shadow)}
+@keyframes btnPulse{0%,100%{scale:1}50%{scale:1.045}}
+body.lowfx .big-btn{animation:none}
+@media (prefers-reduced-motion:reduce){
+  .big-btn{animation:none}
+}
+/* 首页三键：所有断点保持单行等宽，不允许换行 */
+.menu-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s-2);
+  margin-top:var(--s-3);width:min(100%,520px);
+}
 .menu-btn{
-  font-size:16px;padding:10px 26px;
-  background:linear-gradient(180deg,#8ed16f,#5cae3c);
-  box-shadow:0 5px 0 #3f8a28,0 8px 16px #0003;
+  font-size:var(--fs-3);padding:11px 6px;min-width:0;width:100%;
+  display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  border-radius:var(--r-md);
+  background:var(--ui-ghost-grad);
+  border:2.5px solid var(--ui-ghost-line);color:var(--c-on-dark);
+  box-shadow:var(--ui-ghost-shadow);
+  transition:transform var(--d-fast) var(--ease-out),box-shadow var(--d-fast) var(--ease-out),border-color var(--d-fast) linear,background var(--d-fast) linear;
 }
-.menu-btn:active{box-shadow:0 1px 0 #3f8a28}
-.menu-btn.gold{background:linear-gradient(180deg,#ffd93d,#f0a90c);box-shadow:0 5px 0 #b8860b,0 8px 16px #0003;color:#7a5200}
-.menu-btn.gold:active{box-shadow:0 1px 0 #b8860b}
-.menu-btn.pink{background:linear-gradient(180deg,#ff9ad5,#ef5fa7);box-shadow:0 5px 0 #b83a7d,0 8px 16px #0003}
-.menu-btn.pink:active{box-shadow:0 1px 0 #b83a7d}
+.menu-btn:hover{transform:translateY(-2px);border-color:var(--c-gold);background:linear-gradient(180deg,#ffffff33,#ffffff1f)}
+.menu-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #00000026}
+.menu-btn .ico{margin-right:0;width:1.1em;height:1.1em}
+.menu-btn-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* 结算页「回首页」复用 .menu-btn，保持同一套外观 */
+#endScreen .menu-btn{font-size:var(--fs-3);padding:11px 26px;width:auto;min-width:150px}
 
-/* ---- 图鉴 ---- */
-.roster{
-  display:none;
-  margin-top:16px;background:#ffffff12;border:2px solid #ffffff24;
-  border-radius:16px;padding:10px 14px 12px;max-width:560px;
+/* ---- 目标图鉴（荣誉堂第三个 tab 内，浅底面板） ---- */
+.roster-title{
+  display:flex;align-items:center;gap:5px;
+  color:var(--c-gold-deep);font-size:13px;font-weight:800;letter-spacing:2px;margin-bottom:8px;
 }
-/* 图鉴默认折叠（桌面端也复用折叠开关）：首页只留标题 / 模式 / 开始 / 入口 */
-.roster.open{display:block}
-.roster-toggle{
-  display:inline-flex;align-items:center;gap:6px;margin-top:8px;
-  background:#ffffff1f;border:2px solid #ffffff3c;border-radius:999px;
-  color:#fff;font-size:12px;font-weight:bold;padding:6px 18px;
-  cursor:pointer;font-family:inherit;
-}
-.roster-toggle:active{transform:scale(.96)}
-.roster-toggle .rt-icon{transition:transform .2s}
-.roster-toggle.open .rt-icon{transform:rotate(180deg)}
-.roster-title{color:#ffd93d;font-size:13px;font-weight:800;letter-spacing:2px;margin-bottom:8px}
-.roster-grid{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.roster-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;justify-items:stretch}
 .r-cell{
-  background:#ffffff17;border:1.5px solid #ffffff2a;border-radius:12px;
-  padding:5px 8px 4px;display:flex;flex-direction:column;align-items:center;gap:1px;
+  background:var(--c-paper);border:2px solid var(--c-line);border-radius:12px;
+  padding:4px 4px 3px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
   transition:transform .15s;
+  /* 固定正方形比例：一行格子高矮一致，图片按同一比例缩放 */
+  aspect-ratio:1/1;min-height:0;overflow:hidden;
 }
 .r-cell:hover{transform:translateY(-3px) rotate(-2deg)}
-.r-cell svg{width:34px;height:34px;filter:drop-shadow(0 2px 2px #0003)}
-.r-cell .r-name{color:#fff;font-size:11px;font-weight:700}
-.r-cell .r-pts{font-size:12px;font-weight:800}
-.r-pts.good{color:#ddffc6}
-.r-pts.bad{color:#ffd4d4}
-.r-pts.gold{color:#fff4c2}
-.r-cell.is-bad{border-color:#ff8a8a66;background:#ff6b6b1f}
-.r-cell.is-bad .r-pts.bad{color:#ffd6d6}
+.r-cell svg{width:100%;height:100%}
+.r-cell .r-name{
+  color:var(--c-ink-2);font-size:11px;font-weight:700;
+  max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.r-cell .r-pts{font-size:12px;font-weight:800;white-space:nowrap}
+.r-pts.good{color:#3f8a28}
+.r-pts.bad{color:#c0392b}
+.r-pts.gold{color:#b8860b}
+.r-cell.is-bad{border-color:#e59a9a;background:#fff1f1}
+.r-cell.is-bad .r-pts.bad{color:#c0392b}
 
 
 /* ================= 面板通用 ================= */
 .panel{
   position:absolute;inset:0;z-index:120;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  background:#3c5233ee;backdrop-filter:blur(6px);
-  border-radius:26px;padding:18px;
+  background:var(--ui-overlay-bg);backdrop-filter:blur(6px);
+  border-radius:var(--ui-radius-card);padding:18px;
 }
 .panel.hidden{display:none}
 .panel-card{
-  background:linear-gradient(180deg,#fffdf5,#f4eedd);
-  border-radius:20px;border:4px solid #ffd93d;
-  box-shadow:0 20px 50px #0006, inset 0 0 0 3px #fff;
+  background:var(--ui-panel-bg);
+  border-radius:var(--ui-radius-panel);border:4px solid var(--ui-panel-line);
+  box-shadow:var(--ui-panel-shadow), inset 0 0 0 3px var(--ui-panel-ring);
   width:min(94%,560px);max-height:92%;
   display:flex;flex-direction:column;padding:18px 18px 16px;
   position:relative;
 }
 .panel-title{
-  font-size:24px;font-weight:900;color:#4d8a35;
+  font-size:24px;font-weight:900;color:var(--ui-panel-title);
   display:flex;align-items:center;justify-content:center;gap:8px;
-  margin-bottom:4px;text-shadow:0 2px 0 #fff;
+  margin-bottom:4px;text-shadow:0 2px 0 var(--ui-panel-title-shadow);
 }
-.panel-sub{font-size:13px;color:#6d5d36;margin-bottom:10px}
+.panel-sub{font-size:13px;color:var(--ui-panel-sub);margin-bottom:10px}
 .panel-close{
   position:absolute;top:10px;right:12px;width:38px;height:38px;padding:0;
   font-size:18px;border-radius:50%;
   background:#ff6b6b;box-shadow:0 3px 0 #c73e3e;color:#fff;
+  /* 主题可能给 .panel-title 加 filter（蒸汽高光），filter 会生成层叠上下文并盖住
+     绝对定位但未设 z-index 的关闭键；这里显式抬高层级，保证热区始终可点。 */
+  z-index:5;
 }
+/* 圆形按钮的四个角本来不属于可点区域；向外扩一圈透明热区，触屏点偏也能关闭。 */
+.panel-close::before{content:'';position:absolute;inset:-7px;border-radius:inherit}
 .panel-body{overflow-y:auto;padding:4px 2px;display:flex;flex-direction:column;gap:8px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.panel-body[hidden]{display:none}
 .panel-body::-webkit-scrollbar{width:8px}
-.panel-body::-webkit-scrollbar-thumb{background:#d8c9a5;border-radius:4px}
-.panel-foot{padding-top:10px;text-align:center;color:#8a6a1a;font-size:13px}
-.panel-foot b{color:#e8a20c}
+.panel-body::-webkit-scrollbar-thumb{background:var(--ui-scroll-thumb-panel);border-radius:4px}
+.panel-foot{padding-top:10px;text-align:center;color:var(--ui-panel-foot);font-size:13px}
+.panel-foot b{color:var(--ui-panel-foot-b)}
 
 /* ================= 排行榜 ================= */
 .rank-row{
@@ -490,13 +668,23 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #d34e1e}
 .shop-name{font-weight:700;font-size:14px;color:#5a4a2a}
 .shop-desc{font-size:12px;color:#a08a5a;text-align:center;line-height:1.4;min-height:30px}
 .shop-btn{
-  font-size:13px;padding:6px 18px;border-radius:999px;
+  font-size:13px;padding:7px 18px;border-radius:999px;min-height:34px;
+  display:inline-flex;align-items:center;justify-content:center;gap:4px;
   background:linear-gradient(180deg,#8ed16f,#5cae3c);box-shadow:0 3px 0 #3f8a28;
 }
 .shop-btn:active{box-shadow:0 1px 0 #3f8a28}
 .shop-btn.buy{background:linear-gradient(180deg,#ffd93d,#f0a90c);box-shadow:0 3px 0 #b8860b;color:#7a5200}
 .shop-btn.buy:active{box-shadow:0 1px 0 #b8860b}
-.shop-btn.using{background:linear-gradient(180deg,#c8d6c0,#9fb890);box-shadow:0 3px 0 #7a9a6a;cursor:default}
+/* 使用中 / 禁用：明确的不可用态（灰化 + 去投影 + 内凹），不只靠 cursor */
+.shop-btn.using,.shop-btn[disabled]{
+  background:linear-gradient(180deg,#d3dccd,#a9bf9c);box-shadow:0 3px 0 #7a9a6a;
+  color:#f2f7ec;cursor:default;opacity:.92;
+}
+.shop-btn.using:active,.shop-btn[disabled]:active{transform:none}
+.shop-btn .ico{width:1.05em;height:1.05em;margin-right:0}
+@media (pointer:coarse){
+  .shop-btn{min-height:40px;padding:8px 18px}
+}
 @keyframes shopShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 .shop-btn.shake{animation:shopShake .32s ease}
 .shop-own{position:absolute;top:6px;right:6px;font-size:11px;background:#8ed16f;color:#fff;border-radius:8px;padding:2px 7px;font-weight:bold}
@@ -537,30 +725,39 @@ button:active{transform:translateY(4px);box-shadow:0 1px 0 #d34e1e}
 
 #muteBtn{
   position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));z-index:300;width:44px;height:44px;padding:0;
-  border-radius:50%;font-size:20px;background:#3c5233cc;box-shadow:0 3px 10px #0005;
-  border:2px solid #ffd93dcc;color:#fff;
+  border-radius:50%;font-size:20px;background:var(--ui-fab-bg);box-shadow:0 3px 10px #0005;
+  border:2px solid var(--ui-fab-line);color:#fff;
 }
 #muteBtn:active{transform:scale(.94)}
 #saveWarn{
   position:fixed;left:50%;transform:translateX(-50%);
   bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:260;
   max-width:min(92vw,560px);text-align:center;
-  background:#ffe9a8;border:3px solid #f0a90c;border-radius:14px;padding:8px 16px;
-  color:#7a5200;font-size:12px;font-weight:800;line-height:1.4;box-shadow:0 8px 20px #0004;
+  background:var(--ui-warn-bg);border:3px solid var(--ui-warn-line);border-radius:14px;padding:8px 16px;
+  color:var(--ui-warn-ink);font-size:12px;font-weight:800;line-height:1.4;box-shadow:0 8px 20px #0004;
 }
 #saveWarn[hidden]{display:none}
 #pauseBtn{
   position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:calc(64px + env(safe-area-inset-right,0px));
   z-index:300;width:44px;height:44px;padding:0;border-radius:50%;font-size:18px;
-  background:#3c5233cc;box-shadow:0 3px 10px #0005;border:2px solid #ffd93dcc;color:#fff;
+  background:var(--ui-fab-bg);box-shadow:0 3px 10px #0005;border:2px solid var(--ui-fab-line);color:#fff;
 }
 #pauseBtn:active{transform:scale(.94)}
 #pauseBtn[disabled]{opacity:.35}
+/* 放弃本局：只在局内显示，位置排在暂停键左边 */
+#quitBtn{
+  position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:calc(116px + env(safe-area-inset-right,0px));
+  z-index:300;width:44px;height:44px;padding:0;border-radius:50%;font-size:18px;
+  background:var(--ui-fab-bg);box-shadow:0 3px 10px #0005;border:2px solid var(--ui-fab-line);color:#fff;
+  display:none;
+}
+body.playing #quitBtn{display:block}
+#quitBtn:active{transform:scale(.94)}
 body.paused #field{filter:grayscale(.35) blur(1.5px)}
 body.paused #game::after{
-  content:'⏸ 已暂停';position:absolute;inset:0;z-index:110;pointer-events:none;
+  content:'已暂停';position:absolute;inset:0;z-index:110;pointer-events:none;
   display:flex;align-items:center;justify-content:center;
-  font-size:30px;font-weight:800;color:#4d8a35;background:#fffdf588;border-radius:26px;
+  font-size:30px;font-weight:800;color:var(--ui-panel-title);background:var(--ui-paused-bg);border-radius:var(--ui-radius-card);
 }
 
 /* ================= 双端适配（PC / 平板 / 手机） ================= */
@@ -620,10 +817,6 @@ body.paused #game::after{
   .home-title{font-size:clamp(30px,9vw,44px);margin-bottom:0}
   .home-title small{letter-spacing:5px}
   .home-slogan{font-size:12px;letter-spacing:normal;margin:5px 0 9px;padding:0 12px;line-height:1.6;max-width:100%}
-  .wallet-row{gap:6px;margin-bottom:9px}
-  .wallet{flex:1 1 0;min-width:96px;padding:5px 8px;font-size:11px;border-radius:14px}
-  .wallet b{font-size:17px}
-  .wallet .w-icon{font-size:18px}
 
   .mode-row{flex-direction:column;gap:6px;width:100%;max-width:340px;margin-bottom:9px}
   .mode-card{width:100%;display:flex;align-items:center;text-align:left;gap:10px;padding:6px 11px}
@@ -636,26 +829,16 @@ body.paused #game::after{
   .mc-best{margin-top:2px}
 
   .big-btn{font-size:19px;padding:11px 38px}
-  .menu-row{gap:10px;margin-top:8px}
-  .menu-btn{font-size:14px;padding:8px 20px}
+  .menu-row{margin-top:8px;gap:6px;max-width:340px}
+  .menu-btn{font-size:14px;padding:9px 4px;gap:4px}
 
   .float-crop{font-size:22px;opacity:.2}
   .fc5,.fc6{display:none}
-  .roster{display:none}
-  .roster-toggle{
-    display:inline-flex;align-items:center;gap:6px;margin-top:8px;
-    background:#ffffff1f;border:2px solid #ffffff3c;border-radius:999px;
-    color:#fff;font-size:12px;font-weight:bold;padding:6px 18px;
-    cursor:pointer;font-family:inherit;
-  }
-  .roster-toggle:active{transform:scale(.96)}
-  .roster-toggle .rt-icon{transition:transform .2s}
-  .roster-toggle.open .rt-icon{transform:rotate(180deg)}
-  .roster.open{display:block;padding:8px 10px 10px;max-width:340px;margin-top:6px}
-  .roster-title{margin-bottom:5px;font-size:12px}
-  .roster-grid{gap:5px}
+  /* 图鉴并入荣誉堂后：手机窄面板（约 430px）降为 4 列，格子不至于太挤 */
+  .roster-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
   .r-cell{padding:4px 6px 3px}
   .r-cell .r-name{font-size:10px}
+  .home-inner{--home-gap:clamp(8px,1.35vh,13px)}
   .home-inner > *{animation-duration:.4s}
 
   .panel{padding:10px;padding:calc(10px + env(safe-area-inset-top,0px)) calc(10px + env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) calc(10px + env(safe-area-inset-left,0px))}
@@ -682,11 +865,9 @@ body.paused #game::after{
 /* ---- 矮屏（横屏手机 / 小窗口） ---- */
 @media (max-height:640px){
   .sky{display:none}
+  .home-inner{--home-gap:clamp(7px,1.25vh,11px)}
   .big-btn{font-size:20px;padding:11px 42px}
-  .roster{display:none}
   .home-slogan{margin:4px 0 8px}
-  .wallet-row{margin-bottom:8px}
-  .wallet{padding:6px 12px}
   .mode-row{margin-bottom:8px;gap:10px}
   .mode-card{width:140px;padding:10px 8px 8px}
   .mc-desc{min-height:0}
@@ -698,12 +879,12 @@ body.paused #game::after{
   #field{gap:6px;padding:8px}
 }
 @media (max-height:500px){
+  .home-inner{--home-gap:6px}
   .home-eyebrow{display:none}
   .float-crop{display:none}
   .mc-icon{font-size:24px}
   .mc-stats{display:none}
   .mode-card{width:118px;padding:8px 6px 6px}
-  .wallet .w-icon{font-size:16px}
   #comboRow{margin-bottom:4px}
 #comboBarWrap{height:4px}
 }
@@ -719,29 +900,25 @@ body.paused #game::after{
   #wrap{height:min(96vh,880px)}
   .overlay{padding:10px}
   .home-slogan{margin:6px 0 10px}
-  .wallet-row{margin-bottom:10px}
-  .wallet{padding:7px 16px}
   .mode-row{margin-bottom:12px}
-  .menu-row{margin-top:10px}
-  .roster{margin-top:10px;padding:8px 12px 10px}
+  .menu-row{margin-top:10px;max-width:560px}
   .roster-title{margin-bottom:6px}
-  .roster-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;justify-items:center}
+  .roster-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;justify-items:stretch}
 }
 /* 矮屏桌面（1366×768 / 1280×800 / 800×900 等）再压一档，保证首页单屏完整放下 12 格图鉴 */
 @media (min-width:721px) and (max-height:900px){
+  .home-inner{--home-gap:clamp(8px,1.2vh,13px)}
   .home-title{font-size:clamp(28px,4.8vw,44px)}
   .home-slogan{margin:4px 0 8px;font-size:13px}
-  .wallet-row{margin-bottom:8px}
   .mode-row{margin-bottom:10px;gap:10px}
   .mode-card{padding:10px 8px 8px}
   .mc-icon{font-size:26px;margin-bottom:2px}
   .mc-desc{font-size:11px;line-height:1.4;min-height:0;margin:3px 0 5px}
   .big-btn{font-size:20px;padding:12px 48px}
-  .menu-row{margin-top:8px;gap:10px}
-  .menu-btn{font-size:14px;padding:8px 20px}
-  .roster{margin-top:8px}
+  .menu-row{margin-top:8px;gap:8px;max-width:460px}
+  .menu-btn{font-size:14px;padding:9px 6px}
   .r-cell{padding:4px 7px 3px}
-  .r-cell svg,.r-cell .r-icon{width:30px;height:30px}
+  .r-cell svg,.r-cell .r-icon{width:34px;height:34px}
   .r-cell .r-glyph{font-size:22px}
   .r-cell .r-name{font-size:10px}
   .r-cell .r-pts{font-size:11px}
@@ -750,26 +927,6 @@ body.paused #game::after{
 @media (min-width:721px) and (max-width:1100px){
   /* v1.3：右上角有「暂停 + 静音」两个 44px 固定按钮，一起让位；横屏刘海再加右侧安全区 */
   #hud{padding-right:var(--fixed-w);padding-right:calc(var(--fixed-w) + env(safe-area-inset-right,0px))}
-}
-
-/* v1.2 P0-1b：桌面端复用「目标图鉴」折叠开关。
-   旧实现里矮屏桌面（1366×768 / 1024×768 等）被 max-height:640px 直接 .roster{display:none}，
-   图鉴整块消失且没有任何入口；这里改成默认折叠 + 明确的折叠按钮，保证始终可达、且首页不滚动。 */
-@media (min-width:721px){
-  .roster-toggle{
-    display:inline-flex;align-items:center;gap:6px;margin-top:8px;
-    background:#ffffff1f;border:2px solid #ffffff3c;border-radius:999px;
-    color:#fff;font-size:12px;font-weight:bold;padding:6px 18px;
-    cursor:pointer;font-family:inherit;
-  }
-  .roster-toggle:active{transform:scale(.96)}
-  .roster-toggle .rt-icon{transition:transform .2s}
-  .roster-toggle.open .rt-icon{transform:rotate(180deg)}
-}
-@media (min-width:721px) and (max-height:800px){
-  .roster{display:none}
-  .roster-toggle{display:inline-flex}
-  .roster.open{display:block;margin-top:8px;padding:8px 12px 10px;max-width:560px}
 }
 
 /* ---- 减少动态效果偏好：关掉纯装饰动画 ---- */
@@ -784,26 +941,28 @@ body.paused #game::after{
 }
 
 /* ================= 图鉴符号图标 / 难度点 ================= */
-.r-cell .r-icon{width:34px;height:34px;display:flex;align-items:center;justify-content:center}
+.r-cell .r-icon{
+  width:44%;height:44%;min-width:30px;min-height:30px;max-width:42px;max-height:42px;
+  display:flex;align-items:center;justify-content:center;flex:none;
+}
 .r-cell .r-glyph{
   font-size:26px;line-height:1;
-  font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif;
   filter:drop-shadow(0 2px 2px #0003);
 }
 .mc-diff{display:flex;align-items:center;gap:3px;margin-top:3px;justify-content:center}
 .mc-diff i{width:8px;height:8px;border-radius:50%;background:#ffffff44;display:block}
 .mc-diff i.on{background:#ffd93d;box-shadow:0 0 7px #ffd93d99}
 .mc-diff span{font-size:11px;color:#ffffffdd;margin-left:3px;letter-spacing:1px}
-body[data-mode="easy"] #field{background:linear-gradient(180deg,#bfe9a6 0%,#9ed97c 55%,#8acb69 100%)}
+body[data-mode="easy"]{--field-tint:var(--field-tint-easy)}
 body[data-mode="easy"] #field::before{opacity:.75}
-body[data-mode="normal"] #field{background:linear-gradient(180deg,#9ad877 0%,#7cbe57 55%,#6aad4a 100%)}
-body[data-mode="hard"] #field{background:linear-gradient(180deg,#8ecb6d 0%,#6fae4c 55%,#5c9a3e 100%)}
+body[data-mode="normal"]{--field-tint:var(--field-tint-normal)}
+body[data-mode="hard"]{--field-tint:var(--field-tint-hard)}
 body[data-mode="hard"] #field::before{opacity:.55}
 /* 狂热时间：整屏暖化 + 场地亮化（放在难度规则之后，狂热时覆盖难度配色） */
-body.fever #game{background:linear-gradient(180deg,#fff8e2 0%,#ffeccb 100%)}
-body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b94f 100%)}
+body.fever #game{background:var(--game-bg-fever)}
+body.fever{--field-tint:var(--field-tint-fever)}
 @media (max-width:720px) and (max-aspect-ratio:4/5){
-  .r-cell .r-icon{width:28px;height:28px}
+  .r-cell .r-icon{width:32px;height:32px}
   .mc-diff{justify-content:flex-start}
   #hud{padding-right:var(--fixed-w);padding-right:calc(var(--fixed-w) + env(safe-area-inset-right,0px))}   /* v1.3：同上，手机档要给固定按钮让位 */
 }
@@ -811,13 +970,10 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
    实测 270px 溢出的元凶是「手机档模式卡竖排 3 张、每张≈90px」，
    这里把模式卡改横排三连 + 隐去次要说明，其余装饰同收，保证首页单屏放下。 */
 @media (max-width:380px), (max-width:720px) and (max-height:700px){
+  .home-inner{--home-gap:clamp(6px,1.1vh,10px)}
   .float-crop,.home-eyebrow{display:none}
   .home-title{font-size:29px}
   .home-slogan{margin:4px 0 8px;font-size:12px}
-  .wallet-row{margin-bottom:8px;gap:5px}
-  .wallet{padding:4px 8px;font-size:11px;min-width:74px}
-  .wallet b{font-size:15px}
-  .wallet .w-icon{font-size:15px}
   .mode-row{flex-direction:row;flex-wrap:nowrap;gap:6px;margin-bottom:8px;width:100%;max-width:none}
   .mode-card{flex:1 1 0;width:auto;min-width:0;padding:7px 4px 6px;border-width:3px}
   .mc-icon{font-size:22px;margin-bottom:1px}
@@ -829,17 +985,16 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
   .mc-diff span{display:none}
   .mc-best{font-size:11px;margin-top:3px}
   .big-btn{font-size:19px;padding:10px 30px}
-  .menu-row{margin-top:8px;gap:8px}
-  .menu-btn{font-size:13px;padding:7px 16px}
-  .roster{margin-top:6px;padding:6px 8px 8px}
+  .menu-row{margin-top:8px;gap:6px;max-width:none}
+  .menu-btn{font-size:13px;padding:8px 4px;gap:4px}
   .roster-title{margin-bottom:4px;font-size:11px;letter-spacing:1px}
   .roster-prog{margin-bottom:5px;font-size:11px}
-  .roster-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+  .roster-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
   .r-cell{padding:3px 3px 2px;border-width:2px}
-  .r-cell .r-icon{width:24px;height:24px}
+  .r-cell .r-icon{width:30px;height:30px}
   .r-cell .r-name{font-size:10px}
   .r-cell .r-pts{font-size:11px}
-  .r-cell .r-badge{font-size:11px;padding:0 4px}
+  .r-cell .r-badge{font-size:9px;padding:0 3px}
 }
 
 /* ================= v2：符号贴图目标 / 危险示意 / 稀有度 / 收集 / 事件 ================= */
@@ -873,28 +1028,42 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
   left:4%;top:2%;width:92%;height:92%;object-fit:contain;
   filter:drop-shadow(0 5px 6px #0003) drop-shadow(0 0 12px #ffd93dcc) drop-shadow(0 0 4px #fff9);
 }
+/* 贴图缺失时的文字兜底（mobGlyph）：与位图同规格铺满 .mob-body，居中显示目标中文名 */
+.mob-body .glyph-fallback{
+  position:absolute;left:0;top:0;width:100%;height:100%;display:flex;
+  align-items:center;justify-content:center;text-align:center;
+  font-size:clamp(16px,24%,48px);font-weight:800;color:#7a5a3a;line-height:1.2;
+  padding:0 6%;pointer-events:none;user-select:none;
+  filter:drop-shadow(0 5px 5px #0002);
+}
 @media (prefers-reduced-motion:reduce){
   .mob.egg::before,.mob.egg::after{animation:none!important}
 }
-/* 稀有度卡框 + 收集进度 */
+/* 稀有度卡框 + 收集进度（浅底：保留色相、压深、去发光） */
 .r-cell{position:relative}
 .r-cell .r-badge{
-  position:absolute;top:2px;left:2px;font-size:11px;font-weight:800;
-  border-radius:7px;padding:1px 5px;background:#00000066;color:#fff;
-  border:1.5px solid #ffffff44;letter-spacing:1px;
+  position:absolute;top:2px;left:2px;font-size:10px;font-weight:800;
+  border-radius:7px;padding:1px 5px;background:var(--c-paper);color:var(--c-ink-4);
+  border:1.5px solid var(--c-line);letter-spacing:1px;
 }
-.r-cell.r-common{border-color:#c9d4e0aa}
-.r-cell.r-rare{border-color:#7be0ffcc;background:#7be0ff1a}
-.r-cell.r-epic{border-color:#c9a6ffcc;background:#c9a6ff1a}
-.r-cell.r-legend{border-color:#ffd93dcc;background:#ffd93d1f;box-shadow:0 0 12px #ffd93d55}
-.r-cell.r-egg{border-color:#ff9ad5cc;background:linear-gradient(135deg,#ffd93d22,#ff9ad522,#7be0ff22);box-shadow:0 0 8px #ff9ad555}
-.r-cell .r-img{width:100%;height:100%;object-fit:contain;display:block;-webkit-user-drag:none;user-select:none;filter:drop-shadow(0 2px 2px #0003)}
-.r-cell .r-img.is-card{object-fit:cover;border-radius:8px;border:1.5px solid #ffffff88;box-shadow:0 0 0 1.5px #ffd93d99}
-.r-cell.locked .r-icon{filter:brightness(0) opacity(.42)}
-.r-cell.locked .r-name{color:#ffffffeb}   /* 9px 小字对比度：实测 3.42:1 → ≈4.6:1（验收报告 P1-4） */
-.roster-prog{display:flex;align-items:center;gap:8px;margin:0 0 8px;color:#ffffffcc;font-size:11px;font-weight:bold}
-.roster-prog b{color:#ffd93d;font-size:13px}
-.roster-prog .bar{flex:1;min-width:60px;height:7px;background:#ffffff22;border-radius:4px;overflow:hidden}
+.r-cell.r-common .r-badge{color:#54667a;border-color:#c9d4e0}
+.r-cell.r-rare   .r-badge{color:#1f6b8c;border-color:#7be0ff}
+.r-cell.r-epic   .r-badge{color:#6742a8;border-color:#c9a6ff}
+.r-cell.r-legend .r-badge{color:#8a6a1a;border-color:var(--c-gold)}
+.r-cell.r-egg    .r-badge{color:#b8407f;border-color:#ff9ad5}
+.r-cell.is-bad   .r-badge{color:#b23a3a;border-color:#ff8a8a}
+.r-cell.r-common{border-color:#c9d4e0}
+.r-cell.r-rare{border-color:#7be0ff;background:#eef9ff}
+.r-cell.r-epic{border-color:#c9a6ff;background:#f6f0ff}
+.r-cell.r-legend{border-color:var(--c-gold);background:#fffbe8}
+.r-cell.r-egg{border-color:#ff9ad5;background:linear-gradient(135deg,#fff7d8,#ffeef8,#eaf6ff)}
+.r-cell .r-img{width:100%;height:100%;object-fit:contain;display:block;-webkit-user-drag:none;user-select:none;filter:drop-shadow(0 2px 2px #0002)}
+.r-cell .r-img.is-card{object-fit:cover;border-radius:8px;border:1.5px solid var(--c-line);box-shadow:0 0 0 1.5px var(--c-gold)}
+.r-cell.locked .r-icon{filter:brightness(.62) saturate(.42);opacity:.55}
+.r-cell.locked .r-name{color:var(--c-ink-4)}
+.roster-prog{display:flex;align-items:center;gap:8px;margin:0 0 8px;color:var(--c-ink-4);font-size:11px;font-weight:bold}
+.roster-prog b{color:var(--c-gold-deep);font-size:13px}
+.roster-prog .bar{flex:1;min-width:60px;height:7px;background:var(--c-line-soft);border-radius:4px;overflow:hidden}
 .roster-prog .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#8ed16f,#ffd93d);border-radius:4px;transition:width .3s}
 /* 事件横幅 / 成就吐司 / 任务面板 */
 .event-banner{
@@ -921,8 +1090,6 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
 .ach-row.done .ach-reward{color:#4d8a35}
 
 /* ================= 贴图风格（积分商城 · 风格包） ================= */
-.menu-btn.blue{background:linear-gradient(180deg,#7bc8ff,#3d94e8);box-shadow:0 5px 0 #2b6fae,0 8px 16px #0003}
-.menu-btn.blue:active{box-shadow:0 1px 0 #2b6fae}
 .style-sec{display:flex;flex-direction:column;gap:6px}
 .style-list{display:flex;flex-direction:column;gap:10px}
 .style-card{background:#fff;border:3px solid #e8d9b0;border-radius:16px;padding:9px 10px 10px;transition:border-color .15s,box-shadow .15s}
@@ -999,9 +1166,6 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
   .home-title{font-size:clamp(22px,3.4vw,30px)}
   .home-title small{letter-spacing:5px}
   .home-slogan{margin:3px 0 6px;font-size:12px}
-  .wallet-row{margin-bottom:7px;gap:7px}
-  .wallet{padding:4px 12px;font-size:12px}
-  .wallet b{font-size:16px}
   .mode-row{margin-bottom:7px;gap:8px}
   .mode-card{width:126px;padding:7px 6px 6px}
   .mc-icon{font-size:20px;margin-bottom:1px}
@@ -1011,9 +1175,8 @@ body.fever #field{background:linear-gradient(180deg,#a9e07f 0%,#8ccb5e 55%,#79b9
   .mc-diff{margin-top:1px}
   .mc-best{margin-top:2px;font-size:11px}
   .big-btn{font-size:17px;padding:9px 30px}
-  .menu-row{margin-top:7px;gap:8px}
-  .menu-btn{font-size:12px;padding:6px 14px}
-  .roster-toggle{margin-top:5px;padding:5px 15px;font-size:11px}
+  .menu-row{margin-top:7px;gap:6px;max-width:420px}
+  .menu-btn{font-size:12px;padding:7px 4px;gap:4px}
 }
 
 /* ---- 超宽屏 / 大屏桌面：整体再放大一档 ----
@@ -1044,22 +1207,103 @@ body.playing .home-title,body.playing .big-btn{animation-play-state:paused}
 
 /* ================= v1.4：无障碍 / 键盘 / 设置 / 视觉细节 ================= */
 .sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
-.ico{display:inline-flex;align-items:center;justify-content:center;width:1.15em;height:1.15em;vertical-align:-.18em;margin-right:4px;flex:none}
-.ico svg{width:100%;height:100%;display:block}
+/* ================= P0 组件层：按钮 / tab / 统计条 / 引导 =================
+   统一 focus ring：只对键盘可见焦点生效，鼠标点击不显示。 */
+button:focus-visible,.tab:focus-visible,.rank-filter button:focus-visible,
+input:focus-visible,[tabindex]:focus-visible{outline:none;box-shadow:var(--focus-ring)}
+/* 暂停 / 静音 / 关闭这几个 id 级按钮自带 box-shadow（id 特异性更高），
+   会把上面的焦点环吃掉；这里用 id + :focus-visible 补回，保证键盘焦点始终可见。 */
+#pauseBtn:focus-visible,#muteBtn:focus-visible,#quitBtn:focus-visible,.panel-close:focus-visible,
+.menu-btn:focus-visible,.mode-card:focus-visible,
+.shop-btn:focus-visible,.big-btn:focus-visible{outline:none;box-shadow:var(--focus-ring)}
+.btn{
+  font-family:inherit;cursor:pointer;color:var(--c-on-dark);
+  background:linear-gradient(180deg,var(--c-cta),var(--c-cta-deep));
+  border:none;border-radius:var(--r-pill);font-weight:var(--fw-heavy);
+  box-shadow:0 5px 0 #d34e1e,0 10px 20px #0004;
+  transition:transform var(--d-fast) var(--ease-out),box-shadow var(--d-fast) var(--ease-out),background var(--d-fast) linear;
+}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 #d34e1e}
+.btn.primary{background:linear-gradient(180deg,var(--c-leaf),var(--c-leaf-deep));box-shadow:0 5px 0 #3f8a28,0 10px 20px #0005}
+.btn.primary:active{box-shadow:0 1px 0 #3f8a28}
+.btn.gold{background:linear-gradient(180deg,var(--c-gold),var(--c-gold-deep));box-shadow:0 5px 0 #b8860b,0 10px 20px #0004;color:var(--c-gold-ink)}
+.btn.gold:active{box-shadow:0 1px 0 #b8860b}
+.btn.ghost{background:#ffffff1f;color:var(--c-on-dark);box-shadow:0 3px 0 #ffffff33}
+.btn.ghost:active{box-shadow:0 1px 0 #ffffff33}
+.btn.danger{background:linear-gradient(180deg,var(--c-danger),var(--c-danger-deep));box-shadow:0 5px 0 #a52f2f}
+.btn.danger:active{box-shadow:0 1px 0 #a52f2f}
+.btn[disabled],.btn.is-disabled{opacity:.55;cursor:default;transform:none!important;box-shadow:none}
+.btn.is-selected{border-color:var(--c-gold);background:linear-gradient(180deg,#ffffff2c,#ffffff1f);box-shadow:0 0 0 3px #ffd93d55,0 0 22px #ffd93d66}
+/* ---- tab 组：荣誉堂 / 工坊共用 ---- */
+.tabs{display:flex;gap:var(--s-2);justify-content:center;flex-wrap:wrap;margin:0 0 var(--s-3)}
+.tab{
+  font-family:inherit;cursor:pointer;font-size:var(--fs-2);font-weight:var(--fw-bold);
+  color:var(--c-ink-3);background:var(--c-paper);border:2.5px solid var(--c-line);
+  border-radius:var(--r-pill);padding:6px 16px;min-height:34px;
+  display:inline-flex;align-items:center;gap:5px;
+  transition:background var(--d-fast) linear,border-color var(--d-fast) linear,color var(--d-fast) linear,transform var(--d-fast) var(--ease-out);
+}
+.tab:hover{transform:translateY(-1px)}
+.tab:active{transform:translateY(2px);box-shadow:0 0 0 #b8860b}
+.tab[aria-selected="true"]{background:linear-gradient(180deg,var(--c-gold),var(--c-gold-deep));border-color:var(--c-gold-deep);color:var(--c-gold-ink);box-shadow:0 2px 0 #b8860b}
+.tab[aria-selected="true"]:active{transform:translateY(2px);box-shadow:0 0 0 #b8860b}
+/* ---- 面板顶部统计条：荣誉堂 / 工坊共用 ---- */
+.panel-stat{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s-2);margin-bottom:var(--s-3)}
+.panel-stat.one{grid-template-columns:minmax(0,1fr)}
+.stat-cell{
+  background:var(--c-gold-soft);border:2px solid var(--c-gold);border-radius:var(--r-sm);
+  padding:6px 10px;display:flex;align-items:center;justify-content:center;gap:6px;
+  font-size:var(--fs-2);font-weight:var(--fw-bold);color:var(--c-ink-3);text-align:center;line-height:1.3;
+}
+.stat-cell b{color:var(--c-gold-deep);font-size:var(--fs-4);font-weight:var(--fw-heavy)}
+.stat-cell .ico{width:1.1em;height:1.1em;margin-right:0}
+.stat-cell.wide{grid-column:1 / -1;justify-content:flex-start}
+.stat-cell.wide .stat-tool-ico{width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center}
+.stat-cell.wide .stat-tool-ico svg{width:100%;height:100%;display:block;filter:drop-shadow(0 2px 3px #0002)}
+.stat-cell.wide .stat-names{text-align:left;display:flex;flex-direction:column;gap:2px;min-width:0}
+.stat-cell.wide .stat-names small{color:var(--c-ink-4);font-size:var(--fs-1);font-weight:var(--fw-norm)}
+/* ---- 首次引导 ---- */
+.guide-steps{display:flex;flex-direction:column;gap:var(--s-2);margin:0 0 var(--s-3)}
+.guide-step{
+  display:flex;align-items:flex-start;gap:10px;background:var(--c-paper);
+  border:2.5px solid var(--c-line);border-radius:var(--r-sm);padding:9px 12px;text-align:left;
+}
+.guide-step .guide-no{
+  width:28px;height:28px;border-radius:50%;flex:none;
+  background:linear-gradient(180deg,var(--c-gold),var(--c-gold-deep));color:var(--c-gold-ink);
+  font-weight:var(--fw-heavy);font-size:var(--fs-3);display:flex;align-items:center;justify-content:center;
+}
+.guide-step .guide-txt{flex:1;min-width:0;font-size:var(--fs-2);color:var(--c-ink-2);line-height:1.5}
+.guide-step .guide-txt b{display:block;font-size:var(--fs-3);color:var(--c-leaf-ink);font-weight:var(--fw-heavy)}
+.guide-step .guide-ico{font-size:20px;flex:none;display:flex;align-items:center;justify-content:center;width:24px}
+.guide-foot{text-align:center;color:var(--c-ink-4);font-size:var(--fs-1);line-height:1.5}
+.guide-cta{width:100%;font-size:var(--fs-4);padding:12px 24px;margin-top:var(--s-2)}
+
+.ico{display:inline-flex;align-items:center;justify-content:center;width:1.15em;height:1.15em;vertical-align:-.15em;margin-right:4px;flex:none}
+.ico svg{width:100%;height:100%;display:block;stroke-width:var(--ico-sw,2)}
+/* ================= 图标着色：单色 currentColor =================
+   图标统一走线形 + currentColor，颜色完全由所在容器决定：
+   selected / disabled / 深底 / 浅底都靠容器 color 继承，不再对单个图标打
+   filter 对比度补丁（旧版六条 drop-shadow / brightness hack 已删除）。 */
+/* 名次徽记：形态一致，仅用 color 区分金 / 银 / 铜（浅底上保证 ≥3:1） */
+.ico[data-ico="gold1"]{color:#b8860b}
+.ico[data-ico="gold2"]{color:#7a8a9a}
+.ico[data-ico="gold3"]{color:#a86a3a}
 .end-tag{font-size:20px;font-weight:800;color:#fff}
 .dust{position:fixed;width:30px;height:30px;border-radius:50%;pointer-events:none;z-index:205;background:radial-gradient(circle,#ffffffcc 0%,#ffffff55 45%,#ffffff00 72%)}
 .hole.kbd-focus::after{content:'';position:absolute;inset:-4%;border-radius:14px;border:3px dashed #ffd93d;box-shadow:0 0 14px #ffd93d88;pointer-events:none;z-index:4}
 /* 危险目标不只靠颜色：加形状角标，色盲玩家也能分辨 */
 .mob.trap::before{content:'';position:absolute;top:-2%;left:0;z-index:7;width:18px;height:18px;border-radius:50%;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3.4l9.2 16.4H2.8z' fill='%23ff6b6b' stroke='%23c73e3e' stroke-width='1.7' stroke-linejoin='round'/%3E%3Crect x='11' y='9.4' width='2' height='5.2' rx='1' fill='%23fff'/%3E%3Ccircle cx='12' cy='17' r='1.2' fill='%23fff'/%3E%3C/svg%3E") center/74% no-repeat;border:1.5px solid #ff6b6b;box-shadow:0 2px 4px #0003}
 .r-pts.random{font-size:11px;letter-spacing:-.4px;white-space:nowrap}
-.pill-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:8px}
-.pill{display:inline-flex;align-items:center;gap:5px;background:#ffffff1a;border:1.5px solid #ffffff30;border-radius:999px;padding:3px 10px;color:#eaffd8;font-size:11px;font-weight:700;line-height:1.5}
-.pill b{color:#ffd93d}
+.pill-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:2px 0 4px}
+.pill{display:inline-flex;align-items:center;gap:5px;background:var(--c-gold-soft);border:1.5px solid var(--c-line);border-radius:999px;padding:3px 10px;color:var(--c-ink-3);font-size:11px;font-weight:700;line-height:1.5}
+.pill b{color:var(--c-gold-deep)}
 .pill .ico{width:1.05em;height:1.05em;margin-right:0}
 .set-row{display:flex;align-items:center;gap:10px;background:#fff;border:2.5px solid #e8d9b0;border-radius:14px;padding:9px 12px}
 .set-row .set-label{flex:1;text-align:left;font-size:12px;font-weight:700;color:#5a4a2a}
 .set-row .set-label small{display:block;color:#a08a5a;font-size:11px;font-weight:400}
-.set-row input[type=range]{width:120px;flex:none;accent-color:#8ed16f}
+.set-row input[type=range]{width:120px;flex:none;accent-color:var(--ui-accent)}
 body.lowfx .float-crop,body.lowfx .butterfly,body.lowfx .cloud{display:none}
 @media (max-width:380px),(max-width:720px) and (max-height:700px){
   .r-cell .r-name{font-size:10px}
@@ -1067,10 +1311,811 @@ body.lowfx .float-crop,body.lowfx .butterfly,body.lowfx .cloud{display:none}
 @media (max-width:720px) and (max-aspect-ratio:4/5){
   .r-cell .r-name{font-size:10px}
 }
+/* ================= UI 主题：蒸汽朋克 =================
+   触发条件：拥有「蒸汽画风」整套 + 当前正在使用（见 applyUiTheme / uiThemeFor）。
+   属性落在 body[data-ui-theme="steampunk"]，切回原版即回 classic。
+   本块只声明颜色 / 背景 / 描边 / 圆角 / 阴影 / 滤镜 / 显示——没有任何 padding、margin、
+   font-size、width、height、border-width、animation、transition、grid 声明，
+   故七档视口的零滚动结论、字体、body.playing / body.lowfx / prefers-reduced-motion 行为不变。
+   语义色（简易/普通/困难、稀有度、危险红、金银铜）只换明度不换色相。 */
+body[data-ui-theme="steampunk"]{
+  /* 语义色重映射：黄铜金 / 深棕纸面 / 铜橙 CTA / 深色玻璃 / 亮铜 focus ring */
+  --c-gold:#e8b23a;--c-gold-deep:#b8860b;--c-gold-ink:#1a120b;--c-gold-soft:#3a2c18;
+  --c-leaf:#a8863f;--c-leaf-deep:#7a6226;--c-leaf-ink:#e0c88a;
+  --c-cta:#d98a3a;--c-cta-deep:#a85a1e;
+  --c-danger:#ff8a6b;--c-danger-deep:#a83a2a;
+  --c-ink:#e8d5b0;--c-ink-2:#d5c199;--c-ink-3:#c8a860;--c-ink-4:#a08a5a;
+  --c-paper:#2b2119;--c-line:#6b4f2a;--c-line-soft:#3a2c1c;
+  --c-on-dark:#f6e8cf;
+  /* 面与框架：深棕铁皮底 + 黄铜描边 + 硬角；铆钉用多层 background-image 画在自身背景上
+     （不用 ::before/::after，避免遮挡内容与影响命中区） */
+  --ui-page-bg:linear-gradient(rgba(91,91,91,.5),rgba(91,91,91,.5)),url("art/bg/bg2.webp");
+  --ui-body-ink:#e8d5b0;
+  --ui-game-bg:
+    radial-gradient(circle at 14px 14px,#e8b23a66 2.4px,transparent 3.2px),
+    radial-gradient(circle at calc(100% - 14px) 14px,#e8b23a66 2.4px,transparent 3.2px),
+    radial-gradient(circle at 14px calc(100% - 14px),#e8b23a66 2.4px,transparent 3.2px),
+    radial-gradient(circle at calc(100% - 14px) calc(100% - 14px),#e8b23a66 2.4px,transparent 3.2px),
+    linear-gradient(180deg,#3a2c1c 0%,#2b2119 55%,#241a12 100%);
+  --ui-game-shadow:0 24px 60px #000000aa;
+  --ui-game-ring:#b8860b80;
+  --ui-radius-card:6px;--ui-radius-panel:6px;--ui-radius-field:8px;
+  /* HUD 与连击 */
+  --ui-hud-bg:#241a12;--ui-hud-line:#b8860b;--ui-hud-ink:#e0c88a;
+  --ui-hud-shadow:#120c06;--ui-hud-accent:#e8b23a;
+  --ui-hud-mode-line:#a88ad8;--ui-hud-mode-ink:#d8ccf5;--ui-hud-mode-num:#e6dcff;
+  --ui-hud-danger-line:#ff9a8a;--ui-hud-danger-ink:#ffb3a3;
+  --ui-combo-line:#a8863f;--ui-combo-ink:#e0c88a;--ui-combo-shadow:#120c06;
+  --ui-combo-num:#e8b23a;--ui-combo-cap:#c8a860;--ui-combo-track:#3a2c1c;
+  --ui-combo-bar:linear-gradient(90deg,#b8860b,#e8b23a);
+  /* 覆盖层与面板 */
+  --ui-overlay-bg:#1a120bee;
+  --ui-scroll-thumb:#e8b23a44;--ui-scroll-thumb-panel:#6b4f2a;
+  --ui-panel-bg:
+    radial-gradient(circle at 12px 12px,#e8b23a5c 2.2px,transparent 3px),
+    radial-gradient(circle at calc(100% - 12px) 12px,#e8b23a5c 2.2px,transparent 3px),
+    radial-gradient(circle at 12px calc(100% - 12px),#e8b23a5c 2.2px,transparent 3px),
+    radial-gradient(circle at calc(100% - 12px) calc(100% - 12px),#e8b23a5c 2.2px,transparent 3px),
+    linear-gradient(180deg,#3a2c1c,#2b2119);
+  --ui-panel-line:#b8860b;--ui-panel-ring:#e8b23a38;--ui-panel-shadow:0 20px 50px #000000aa;
+  --ui-panel-title:#e8b23a;--ui-panel-title-shadow:#120c06;--ui-panel-sub:#d5c199;
+  --ui-panel-foot:#c8a860;--ui-panel-foot-b:#e8b23a;
+  --ui-paused-bg:#241a12cc;
+  /* 首页 */
+  --ui-eyebrow-ink:#e0c88a;--ui-eyebrow-bg:#e8b23a1a;--ui-eyebrow-line:#e8b23a44;
+  --ui-title-grad:linear-gradient(92deg,#f0c96a 0%,#d98a3a 30%,#a8863f 60%,#f0c96a 100%);
+  --ui-title-shadow:drop-shadow(0 3px 0 #120c06) drop-shadow(0 8px 14px #0008);
+  --ui-title-small:#f6e8cf;--ui-title-small-shadow:0 0 14px #e8b23a88,0 2px 0 #120c06;
+  --ui-card-bg:#3a2c1ccc;--ui-card-line:#b8860b99;
+  --ui-card-sel-line:#e8b23a;--ui-card-sel-bg:#4a3720dd;
+  --ui-card-sel-glow:0 0 0 3px #e8b23a55, 0 0 26px #e8b23a66;
+  --ui-card-name-shadow:#120c06;--ui-card-stat:#f0c96a;--ui-card-best:#e6d3ac;--ui-card-check:#e8b23a;
+  /* 按钮 */
+  --ui-cta-grad:linear-gradient(180deg,#a85a1e,#7a3f0e);--ui-cta-shadow:#5a2f0e;
+  --ui-primary-grad:linear-gradient(180deg,#e8a94a,#c9761f);--ui-primary-shadow:#5a3f08;--ui-primary-glow:#e8b23a66;
+  --ui-ghost-grad:linear-gradient(180deg,#ffffff1f,#ffffff0f);--ui-ghost-line:#b8860b88;
+  --ui-ghost-shadow:0 4px 0 #120c06,0 8px 16px #0004;
+  /* 浮钮与提示条 */
+  --ui-fab-bg:#241a12dd;--ui-fab-line:#b8860bcc;
+  --ui-warn-bg:#3a2c18;--ui-warn-line:#b8860b;--ui-warn-ink:#f0c96a;
+  /* 场地：换蒸汽朋克三图；难度 tint 深琥珀、狂热暖琥珀（优先级顺序与经典态一致） */
+  --field-grass:url("art/hole_v2/steam/grass.png");
+  --field-hole-back:url("art/hole_v2/steam/hole-back.png");
+  --field-hole-front:url("art/hole_v2/steam/hole-front.png");
+  --field-base:#3a2c18;
+  --field-tint-easy:linear-gradient(180deg,#f0c96a3d 0%,#a8621f55 100%);
+  --field-tint-normal:linear-gradient(180deg,#c98d5a2e 0%,#5a3f0e66 100%);
+  --field-tint-hard:linear-gradient(180deg,#7a3f0e55 0%,#1a120bcc 100%);
+  --field-tint-fever:linear-gradient(180deg,#f0c96a99 0%,#c9761f88 100%);
+  --game-bg-fever:
+    radial-gradient(circle at 14px 14px,#f0c96a88 2.4px,transparent 3.2px),
+    radial-gradient(circle at calc(100% - 14px) 14px,#f0c96a88 2.4px,transparent 3.2px),
+    radial-gradient(circle at 14px calc(100% - 14px),#f0c96a88 2.4px,transparent 3.2px),
+    radial-gradient(circle at calc(100% - 14px) calc(100% - 14px),#f0c96a88 2.4px,transparent 3.2px),
+    linear-gradient(180deg,#4a3720 0%,#3a2410 100%);
+  /* 天空装饰 / 漂浮作物随主题收起（纯装饰，隐藏不影响布局与玩法） */
+  --ui-decor-display:none;
+  --ui-accent:#e8b23a;
+  --focus-ring:0 0 0 3px #120c06,0 0 0 6px #e8b23a;
+}
+/* 药丸型控件收成工业硬边（只改圆角，不改 border-width / 尺寸） */
+body[data-ui-theme="steampunk"] .stat,
+body[data-ui-theme="steampunk"] .tab,
+body[data-ui-theme="steampunk"] .shop-btn,
+body[data-ui-theme="steampunk"] .menu-btn,
+body[data-ui-theme="steampunk"] .rank-filter button,
+body[data-ui-theme="steampunk"] .shop-wallet{border-radius:6px}
+/* 标题：黄铜字 + 顶部高光（filter 只作用于字形渲染，不改变字号与排版） */
+body[data-ui-theme="steampunk"] .panel-title{filter:drop-shadow(0 -1px 0 #f0c96a55) drop-shadow(0 2px 1px #00000077)}
+body[data-ui-theme="steampunk"] .roster-title{filter:drop-shadow(0 -1px 0 #f0c96a44)}
+/* 主 CTA 底色换成黄铜铜牌后，白字对比度不足，改用深棕墨字（8.99:1 / 5.37:1） */
+body[data-ui-theme="steampunk"] .big-btn{color:#1a120b}
+/* 场地叠加的白色高光颗粒在深色铁皮草皮上会像落雪，主题内去掉 */
+body[data-ui-theme="steampunk"] #field::before{background-image:none}
+/* 面板内浅色卡片 → 深棕铁皮 + 黄铜描边 */
+body[data-ui-theme="steampunk"] .rank-row,
+body[data-ui-theme="steampunk"] .shop-card,
+body[data-ui-theme="steampunk"] .ach-row,
+body[data-ui-theme="steampunk"] .style-card,
+body[data-ui-theme="steampunk"] .sc-cell,
+body[data-ui-theme="steampunk"] .set-row{background:#241a12;border-color:#6b4f2a;color:#e8d5b0}
+/* 「已拥有 / 已装备 / 进行中」的浅绿底 → 暗铜绿底，保留语义但不刺眼 */
+body[data-ui-theme="steampunk"] .shop-card.equipped,
+body[data-ui-theme="steampunk"] .ach-row.done,
+body[data-ui-theme="steampunk"] .style-card.cur,
+body[data-ui-theme="steampunk"] .sc-cell.own{background:#2e2a18;border-color:#a8863f;box-shadow:0 3px 0 #5a3f08}
+body[data-ui-theme="steampunk"] .style-card.own{border-color:#b8860b}
+/* 排行榜前三名：保留金 / 银 / 铜描边，只把浅底压深 */
+body[data-ui-theme="steampunk"] .rank-row.top1{background:#33280f;box-shadow:0 3px 0 #4a3a12}
+body[data-ui-theme="steampunk"] .rank-row.top2{background:#1e242b}
+body[data-ui-theme="steampunk"] .rank-row.top3{background:#2b1e14}
+body[data-ui-theme="steampunk"] .rank-no{background:#b8860b;color:#1a120b}
+body[data-ui-theme="steampunk"] .rank-score{color:#f0c96a}
+body[data-ui-theme="steampunk"] .rank-badge{color:#e8b23a}
+/* 面板内文字层级 */
+body[data-ui-theme="steampunk"] .shop-name,
+body[data-ui-theme="steampunk"] .ach-txt,
+body[data-ui-theme="steampunk"] .sc-name,
+body[data-ui-theme="steampunk"] .sc-cell .scn,
+body[data-ui-theme="steampunk"] .set-row .set-label{color:#e8d5b0}
+body[data-ui-theme="steampunk"] .shop-desc,
+body[data-ui-theme="steampunk"] .ach-txt small,
+body[data-ui-theme="steampunk"] .sc-prog,
+body[data-ui-theme="steampunk"] .sc-note,
+body[data-ui-theme="steampunk"] .rank-score small,
+body[data-ui-theme="steampunk"] .rank-empty,
+body[data-ui-theme="steampunk"] .rank-date,
+body[data-ui-theme="steampunk"] .set-row .set-label small{color:#a08a5a}
+body[data-ui-theme="steampunk"] .sc-strip i{background:#241a12;border-color:#6b4f2a}
+body[data-ui-theme="steampunk"] .sc-tag{background:#3a2c1c;color:#c8a860}
+body[data-ui-theme="steampunk"] .sc-cell .scs{color:#c8a860}
+body[data-ui-theme="steampunk"] .shop-wallet{background:#3a2c18;border-color:#b8860b;color:#e0c88a}
+body[data-ui-theme="steampunk"] .shop-wallet b{color:#e8b23a}
+body[data-ui-theme="steampunk"] .ach-reward{color:#e8b23a}
+body[data-ui-theme="steampunk"] .ach-row.done .ach-reward{color:#c8a860}
+/* 图鉴：稀有度只换明度不换色相，深底上重新保证 ≥4.5:1 */
+body[data-ui-theme="steampunk"] .r-pts.good{color:#a8d890}
+body[data-ui-theme="steampunk"] .r-pts.bad,
+body[data-ui-theme="steampunk"] .r-cell.is-bad .r-pts.bad{color:#ff9a8a}
+body[data-ui-theme="steampunk"] .r-pts.gold{color:#e8b23a}
+body[data-ui-theme="steampunk"] .r-cell.is-bad{border-color:#a83a2a;background:#2b1616}
+body[data-ui-theme="steampunk"] .r-cell.r-rare{border-color:#5a8fa8;background:#16232b}
+body[data-ui-theme="steampunk"] .r-cell.r-epic{border-color:#8a6ac8;background:#221a30}
+body[data-ui-theme="steampunk"] .r-cell.r-legend{border-color:#b8860b;background:#33280f}
+body[data-ui-theme="steampunk"] .r-cell.r-egg{border-color:#b8407f;background:linear-gradient(135deg,#2e2614,#2b1a26,#16232b)}
+body[data-ui-theme="steampunk"] .r-cell.r-common .r-badge{color:#a8b8c8;border-color:#54667a}
+body[data-ui-theme="steampunk"] .r-cell.r-rare .r-badge{color:#8fd8ff;border-color:#3d7a94}
+body[data-ui-theme="steampunk"] .r-cell.r-epic .r-badge{color:#c9a6ff;border-color:#6742a8}
+body[data-ui-theme="steampunk"] .r-cell.r-legend .r-badge{color:#e8b23a;border-color:#b8860b}
+body[data-ui-theme="steampunk"] .r-cell.r-egg .r-badge{color:#ff9ad5;border-color:#b8407f}
+body[data-ui-theme="steampunk"] .r-cell.is-bad .r-badge{color:#ff9a8a;border-color:#a83a2a}
+/* 难度标签：紫 / 绿 / 红三档保留色相区分 */
+body[data-ui-theme="steampunk"] .rank-mode{background:#2a2440;border-color:#8a6ac8;color:#d8ccf5}
+body[data-ui-theme="steampunk"] .rank-mode.easy{color:#c8e0a8;background:#1e2a16;border-color:#6b8a4a}
+body[data-ui-theme="steampunk"] .rank-mode.hard{color:#ffb3a3;background:#2b1616;border-color:#a83a2a}
+body[data-ui-theme="steampunk"] .rank-filter button{background:#241a12;border-color:#6b4f2a;color:#c8a860}
+body[data-ui-theme="steampunk"] .rank-filter button.on{background:linear-gradient(180deg,#e8b23a,#b8860b);border-color:#b8860b;color:#1a120b;box-shadow:0 2px 0 #5a3f08}
+/* 商城按钮：铜 / 黄铜 / 灰化三态，均按深底重新配平对比度 */
+body[data-ui-theme="steampunk"] .shop-btn{background:linear-gradient(180deg,#9c5019,#7a3f0e);box-shadow:0 3px 0 #3a1f06;color:#f6e8cf}
+body[data-ui-theme="steampunk"] .shop-btn:active{box-shadow:0 1px 0 #3a1f06}
+body[data-ui-theme="steampunk"] .shop-btn.buy,
+body[data-ui-theme="steampunk"] .sc-cell .shop-btn.buy{background:linear-gradient(180deg,#e8b23a,#b8860b);box-shadow:0 3px 0 #5a3f08;color:#1a120b}
+body[data-ui-theme="steampunk"] .sc-cell .shop-btn.buy{box-shadow:0 2px 0 #5a3f08}
+body[data-ui-theme="steampunk"] .shop-btn.using,
+body[data-ui-theme="steampunk"] .shop-btn[disabled]{background:linear-gradient(180deg,#4a4238,#332c24);box-shadow:0 3px 0 #1a1510;color:#cfc6b4}
+body[data-ui-theme="steampunk"] .sc-btns .shop-btn.ghost,
+body[data-ui-theme="steampunk"] .shop-card .shop-btn.ghost{background:linear-gradient(180deg,#4a3c28,#332a1c);box-shadow:0 3px 0 #1a1510;color:#e0c88a}
+/* 关闭键 / 事件横幅 / 成就吐司 */
+body[data-ui-theme="steampunk"] .panel-close{background:#b83a3a;box-shadow:0 3px 0 #6b1f1f}
+body[data-ui-theme="steampunk"] .event-banner{background:#241a12ee;border-color:#b8860b;color:#f0c96a}
+body[data-ui-theme="steampunk"] .achv-toast{background:linear-gradient(180deg,#3a2c18,#2b2119);border-color:#b8860b;color:#f0c96a}
+
+/* ================= 像素字体：只在「像素可爱风」主题生效 =================
+   文件：art/font/pixel-subset.woff2 —— 由 Fusion Pixel Font（融合像素字体，
+   TakWolf/fusion-pixel-font）12px proportional zh-Hans，2026.09.25 版原始 OTF/CFF 取出，
+   按 index.html 实际用到的字符集（ASCII + 常用标点 + 全部可见中文串）子集化而来。
+   许可证：SIL Open Font License 1.1（OFL-1.1），允许子集化后再分发；
+   该字体未声明 Reserved Font Name，故可保留原字形与名称信息。
+   @font-face 只是「声明」，浏览器仅在该 family 真正参与排版时才下载，
+   经典态 / 蒸汽态 / 水墨态没有任何规则引用 'PixelFont'，因此零额外请求、零渲染差异。
+   来源与许可证见 README「素材与许可」。 */
+@font-face{
+  font-family:'PixelFont';
+  src:url("art/font/pixel-subset.woff2") format("woff2");
+  font-weight:400;
+  font-style:normal;
+  font-display:swap;
+}
+
+/* ================= UI 主题：像素可爱风 =================
+   触发条件：拥有「像素画风」整套 + 当前正在使用（见 applyUiTheme / uiThemeFor）。
+   属性落在 body[data-ui-theme="pixelcute"]，切回原版即回 classic。
+   与蒸汽朋克块完全同构：只声明颜色 / 背景 / 描边 / 圆角 / 阴影 / 滤镜 / 显示，
+   没有任何 padding、margin、font-size、width、height、border-width、animation、transition、grid 声明，
+   故七档视口的零滚动结论、字体、body.playing / body.lowfx / prefers-reduced-motion 行为不变。
+   语义色（简易/普通/困难、稀有度、危险红、金银铜）保持色相区分，只调明度；
+   装饰（天空 / 太阳 / 云 / 蝴蝶 / 漂浮作物）全部保留，像素可爱风不收起任何装饰。 */
+body[data-ui-theme="pixelcute"]{
+  /* 语义色重映射：奶油纸 / 棕描边 / 亮叶绿 / 深棕墨，整体明亮偏暖。
+     偏离任务建议值的地方都是为了 WCAG：cta 往深橙压（白字 ≥3:1）、danger 往深红压、
+     gold-ink 由 #7a5200 压到 #5a3a00（金渐变暗端上仍需 ≥4.5:1）。 */
+  --c-gold:#ffcf4d;--c-gold-deep:#e8a20c;--c-gold-ink:#5a3a00;--c-gold-soft:#fff6d9;
+  --c-leaf:#7ec850;--c-leaf-deep:#4f9b34;--c-leaf-ink:#3f7a2a;--c-leaf-soft:#eaffd8;
+  --c-cta:#e5731f;--c-cta-deep:#c74d0c;--c-cta-ink:#fff6ec;--c-cta-soft:#fff1e4;
+  --c-danger:#e94c4c;--c-danger-deep:#c73e3e;--c-danger-soft:#ffeaea;
+  --c-ink:#5a4326;--c-ink-2:#6b5330;--c-ink-3:#7d5c12;--c-ink-4:#7f6432;--c-ink-5:#6d5d36;
+  --c-paper:#fff6da;--c-paper-2:#ffeec2;--c-line:#d8b577;--c-line-soft:#f6ecd2;
+  --c-glass:#43783aee;--c-glass-line:#ffcf4d;
+  --c-on-dark:#fff;--c-on-dark-2:#eaffd8;--c-on-dark-3:#e8ffd0;
+  /* 面与框架：奶油渐变 + 金描边 + 硬角（26/20/18 → 统一 8px，像素方块感） */
+  --ui-page-bg:linear-gradient(rgba(255,255,255,.5),rgba(255,255,255,.5)),url("art/bg/bg3.webp");
+  --ui-body-ink:#5a4326;
+  --ui-game-bg:linear-gradient(180deg,#fff6da 0%,#ffeec2 100%);
+  --ui-game-shadow:0 24px 60px #6b533055;
+  --ui-game-ring:#fff6d9;
+  --ui-radius-card:0;--ui-radius-panel:0;--ui-radius-field:0;
+  /* 像素方块感：所有通用圆角档位归零（药丸 / 胶囊 / 大圆角一律切直角） */
+  --r-xs:0;--r-sm:0;--r-md:0;--r-lg:0;--r-xl:0;--r-pill:0;
+  /* 像素描边：内嵌硬描边（box-shadow inset，不动 border-width 与盒模型）
+     与硬投影（0 4px 0，无模糊），两者都写进 box-shadow 多段，不影响布局 */
+  --ui-px-inset:inset 0 0 0 2px #c9a15e;
+  --ui-px-inset-dark:inset 0 0 0 2px #a97c3e;
+  --ui-px-inset-green:inset 0 0 0 2px #86bf6a;
+  /* HUD 与连击 */
+  --ui-hud-bg:#fff6da;--ui-hud-line:#b98a4a;--ui-hud-ink:#6b5330;
+  --ui-hud-shadow:#e6cf9e;--ui-hud-accent:#c74a1e;
+  --ui-hud-mode-line:#a88cd8;--ui-hud-mode-ink:#6a45b8;--ui-hud-mode-num:#6a45b8;
+  --ui-hud-danger-line:#e05a5a;--ui-hud-danger-ink:#b32d2d;
+  --ui-combo-line:#8ecf6a;--ui-combo-ink:#3f7a2a;--ui-combo-shadow:#cfe8b4;
+  --ui-combo-num:#3f7a2a;--ui-combo-cap:#3f7a2a;--ui-combo-track:#eaf6dc;
+  --ui-combo-bar:linear-gradient(90deg,#7ec850,#ffb03d);
+  /* 覆盖层与面板 */
+  --ui-overlay-bg:#43783aee;
+  --ui-scroll-thumb:#ffffff55;--ui-scroll-thumb-panel:#cfae6a;
+  --ui-panel-bg:linear-gradient(180deg,#fff6da,#ffeec2);
+  --ui-panel-line:#ffcf4d;--ui-panel-ring:#fffdf5;--ui-panel-shadow:0 20px 50px #6b533055;
+  --ui-panel-title:#3f7a2a;--ui-panel-title-shadow:#fffdf5;--ui-panel-sub:#6d5d36;
+  --ui-panel-foot:#7f6432;--ui-panel-foot-b:#8a5a00;
+  --ui-paused-bg:#fff6dad9;
+  /* 首页 */
+  --ui-eyebrow-ink:#f6ffe6;--ui-eyebrow-bg:#43783a99;--ui-eyebrow-line:#ffcf4d66;
+  --ui-title-grad:linear-gradient(92deg,#ffcf4d 0%,#ffa14d 30%,#ff7ab0 60%,#ffcf4d 100%);
+  --ui-title-shadow:drop-shadow(2px 0 0 #4a3212) drop-shadow(-2px 0 0 #4a3212) drop-shadow(0 2px 0 #4a3212) drop-shadow(0 -2px 0 #4a3212);
+  --ui-title-small:#fffbe8;--ui-title-small-shadow:0 2px 0 #2f5c27,0 0 14px #ffcf4d66;
+  --ui-card-bg:#fff6da;--ui-card-line:#ad7f3a;
+  --ui-card-sel-line:#e8a20c;--ui-card-sel-bg:#ffeec2;
+  --ui-card-sel-glow:0 0 0 3px #ffcf4d66, 0 0 26px #ffcf4d66;
+  --ui-card-name-shadow:#fffdf5;--ui-card-stat:#7f6432;--ui-card-best:#6b5330;--ui-card-check:#a8700f;
+  /* 按钮 */
+  --ui-cta-grad:linear-gradient(180deg,#e5731f,#c74d0c);--ui-cta-shadow:#a03a06;
+  --ui-primary-grad:linear-gradient(180deg,#7ec850,#4f9b34);--ui-primary-shadow:#3f7a2a;--ui-primary-glow:#7ec85066;
+  --ui-ghost-grad:linear-gradient(180deg,#fffdf5,#f4e7c4);--ui-ghost-line:#ad7f3a;
+  --ui-ghost-shadow:0 4px 0 #cfb384,0 8px 16px #6b533033;
+  /* 浮钮与提示条 */
+  --ui-fab-bg:#43783acc;--ui-fab-line:#ffcf4dcc;
+  --ui-warn-bg:#fff1c8;--ui-warn-line:#e8a20c;--ui-warn-ink:#5a3a00;
+  /* 场地：换像素三图；难度 tint 走明亮绿系，狂热仍是暖色（优先级顺序与经典态一致） */
+  --field-grass:url("art/hole_v2/pixel/grass.webp");
+  --field-hole-back:url("art/hole_v2/pixel/hole-back.webp");
+  --field-hole-front:url("art/hole_v2/pixel/hole-front.webp");
+  --field-base:#a9d97f;
+  --field-tint-easy:linear-gradient(180deg,#e8f8c8cc 0%,#d8f0aacc 100%);
+  --field-tint-normal:linear-gradient(180deg,#a8e07a33 0%,#8ecf5a33 100%);
+  --field-tint-hard:linear-gradient(180deg,#7fc65f57 0%,#4f9b3457 100%);
+  --field-tint-fever:linear-gradient(180deg,#fff3d0b8 0%,#ffe0abb8 100%);
+  --game-bg-fever:linear-gradient(180deg,#fff3d0 0%,#ffe4a8 100%);
+  /* 天空装饰 / 漂浮作物保留（像素可爱风不隐藏装饰） */
+  --ui-decor-display:block;
+  --ui-accent:#4f9b34;
+  /* focus ring：白内环 + 棕橙外环，奶油底上 3.51:1 */
+  --focus-ring:0 0 0 3px #fffdf5,0 0 0 6px #b3762a;
+}
+/* 药丸控件收成方块硬角（只改圆角，不改 border-width / 尺寸） */
+body[data-ui-theme="pixelcute"] .stat,
+body[data-ui-theme="pixelcute"] .tab,
+body[data-ui-theme="pixelcute"] .shop-btn,
+body[data-ui-theme="pixelcute"] .menu-btn,
+body[data-ui-theme="pixelcute"] .rank-filter button,
+body[data-ui-theme="pixelcute"] .shop-wallet{border-radius:0}
+/* 标题：像素描边（filter 只作用于字形渲染，不改变字号与排版） */
+body[data-ui-theme="pixelcute"] .panel-title{filter:drop-shadow(0 -1px 0 #fffdf5cc)}
+body[data-ui-theme="pixelcute"] .roster-title{filter:drop-shadow(0 -1px 0 #fffdf5aa)}
+/* 亮叶绿 / 奶油渐变上的白字对比度不足，统一改深墨棕（≥4.9:1） */
+body[data-ui-theme="pixelcute"] .btn.primary,
+body[data-ui-theme="pixelcute"] .big-btn,
+body[data-ui-theme="pixelcute"] .shop-btn{color:#2f2109}
+/* 首页：模式卡原本是半透明白底 + 白字（依赖深色背景图），像素风背景明亮，
+   卡片改成不透奶油 + 棕描边（token 已铺底），这里只补硬编码的白色文本。 */
+body[data-ui-theme="pixelcute"] .mode-card,
+body[data-ui-theme="pixelcute"] .mc-name{color:#5a4326}
+body[data-ui-theme="pixelcute"] .mc-desc{color:#6b5330}
+/* 难度点阵与「难度」小字原本都是白色半透明（依赖深色背景图），奶油卡片上看不见 */
+body[data-ui-theme="pixelcute"] .mc-diff span{color:#6b5330}
+body[data-ui-theme="pixelcute"] .mc-diff i{background:#d8b577}
+body[data-ui-theme="pixelcute"] .mc-diff i.on{background:#ffcf4d;box-shadow:0 0 7px #ffcf4d99}
+/* 连击倍率 ×N 的橙色硬编码在浅 HUD 上只有 2.2:1 */
+body[data-ui-theme="pixelcute"] #comboBox .mult{color:#c04212}
+/* 深绿薄纱上的 slogan 强调字要够亮才够读（暖奶油金 4.88:1） */
+body[data-ui-theme="pixelcute"] .home-slogan b{color:#fffbe8}
+/* ghost 胶囊变成奶油底后，--c-on-dark 白字不可读 */
+body[data-ui-theme="pixelcute"] .menu-btn{color:#5a4326}
+/* 面板内浅色卡片 → 奶油白 + 棕描边 + 像素投影（不用 ::before/::after，不影响命中区） */
+body[data-ui-theme="pixelcute"] .rank-row,
+body[data-ui-theme="pixelcute"] .shop-card,
+body[data-ui-theme="pixelcute"] .ach-row,
+body[data-ui-theme="pixelcute"] .style-card,
+body[data-ui-theme="pixelcute"] .sc-cell,
+body[data-ui-theme="pixelcute"] .set-row,
+body[data-ui-theme="pixelcute"] .guide-step{background:#fffdf5;border-color:#ad7f3a;box-shadow:var(--ui-px-inset),0 4px 0 #c2a06a}
+/* 「已拥有 / 已装备 / 进行中」的浅绿语义保留 */
+body[data-ui-theme="pixelcute"] .shop-card.equipped,
+body[data-ui-theme="pixelcute"] .ach-row.done,
+body[data-ui-theme="pixelcute"] .style-card.cur,
+body[data-ui-theme="pixelcute"] .sc-cell.own{background:#eaffd8;border-color:#4f9b34;box-shadow:var(--ui-px-inset-green),0 4px 0 #7ab55f}
+body[data-ui-theme="pixelcute"] .style-card.own{border-color:#e8a20c}
+/* 排行榜前三名：保留金 / 银 / 铜色相，底色调成奶油系 */
+body[data-ui-theme="pixelcute"] .rank-row.top1{background:#fff6d9;border-color:#e8a20c;box-shadow:var(--ui-px-inset),0 4px 0 #c08a2a}
+body[data-ui-theme="pixelcute"] .rank-row.top2{background:#f2f5f9;border-color:#b9c6d6;box-shadow:var(--ui-px-inset),0 4px 0 #93a4b8}
+body[data-ui-theme="pixelcute"] .rank-row.top3{background:#fdf0e2;border-color:#d8a56a;box-shadow:var(--ui-px-inset),0 4px 0 #b07f45}
+body[data-ui-theme="pixelcute"] .rank-no{background:#7ec850;color:#2f2109}
+body[data-ui-theme="pixelcute"] .rank-score{color:#c74a1e}
+body[data-ui-theme="pixelcute"] .rank-badge{color:#8a5a00}
+/* 面板内文字层级 */
+body[data-ui-theme="pixelcute"] .shop-name,
+body[data-ui-theme="pixelcute"] .ach-txt,
+body[data-ui-theme="pixelcute"] .sc-name,
+body[data-ui-theme="pixelcute"] .sc-cell .scn,
+body[data-ui-theme="pixelcute"] .set-row .set-label{color:#5a4326}
+body[data-ui-theme="pixelcute"] .shop-desc,
+body[data-ui-theme="pixelcute"] .ach-txt small,
+body[data-ui-theme="pixelcute"] .sc-prog,
+body[data-ui-theme="pixelcute"] .sc-note,
+body[data-ui-theme="pixelcute"] .rank-score small,
+body[data-ui-theme="pixelcute"] .rank-empty,
+body[data-ui-theme="pixelcute"] .rank-date,
+body[data-ui-theme="pixelcute"] .set-row .set-label small{color:#7f6432}
+body[data-ui-theme="pixelcute"] .sc-strip i{background:#fffdf5;border-color:#d8b577}
+body[data-ui-theme="pixelcute"] .sc-tag{background:#f2e6c6;color:#6b5330}
+body[data-ui-theme="pixelcute"] .sc-tag.cur{background:#7ec850;color:#2f2109}
+body[data-ui-theme="pixelcute"] .sc-tag.own{background:#ffcf4d;color:#5a3a00}
+body[data-ui-theme="pixelcute"] .sc-cell .scs{color:#3f7a2a}
+body[data-ui-theme="pixelcute"] .shop-wallet{background:#fff6d9;border-color:#e8a20c;color:#7d5c12}
+body[data-ui-theme="pixelcute"] .shop-wallet b{color:#8a5a00}
+body[data-ui-theme="pixelcute"] .shop-own{background:#7ec850;color:#2f2109}
+body[data-ui-theme="pixelcute"] .ach-reward{color:#8a5a00}
+body[data-ui-theme="pixelcute"] .ach-row.done .ach-reward{color:#3f7a2a}
+/* 图鉴：稀有度只换明度不换色相，奶油底上重新保证 ≥4.5:1 */
+body[data-ui-theme="pixelcute"] .r-cell{border-color:#ad7f3a}
+body[data-ui-theme="pixelcute"] .r-pts.good{color:#3f7a2a}
+body[data-ui-theme="pixelcute"] .r-pts.bad,
+body[data-ui-theme="pixelcute"] .r-cell.is-bad .r-pts.bad{color:#c0392b}
+body[data-ui-theme="pixelcute"] .r-pts.gold{color:#8a5a00}
+body[data-ui-theme="pixelcute"] .r-cell.is-bad{border-color:#c73e3e;background:#ffeaea}
+body[data-ui-theme="pixelcute"] .r-cell.r-rare{border-color:#3d7a94;background:#eef9ff}
+body[data-ui-theme="pixelcute"] .r-cell.r-epic{border-color:#6742a8;background:#f6f0ff}
+body[data-ui-theme="pixelcute"] .r-cell.r-legend{border-color:#e8a20c;background:#fff6d9}
+body[data-ui-theme="pixelcute"] .r-cell.r-egg{border-color:#b8407f;background:linear-gradient(135deg,#fff7d8,#ffeef8,#eaf6ff)}
+body[data-ui-theme="pixelcute"] .r-cell.r-common .r-badge{color:#54667a;border-color:#c9d4e0}
+body[data-ui-theme="pixelcute"] .r-cell.r-rare .r-badge{color:#1f6b8c;border-color:#7be0ff}
+body[data-ui-theme="pixelcute"] .r-cell.r-epic .r-badge{color:#6742a8;border-color:#c9a6ff}
+body[data-ui-theme="pixelcute"] .r-cell.r-legend .r-badge{color:#8a5a00;border-color:#e8a20c}
+body[data-ui-theme="pixelcute"] .r-cell.r-egg .r-badge{color:#b8407f;border-color:#ff9ad5}
+body[data-ui-theme="pixelcute"] .r-cell.is-bad .r-badge{color:#a82a2a;border-color:#ff8a8a}
+body[data-ui-theme="pixelcute"] .roster-title,
+body[data-ui-theme="pixelcute"] .roster-prog b,
+body[data-ui-theme="pixelcute"] .stat-cell b,
+body[data-ui-theme="pixelcute"] .pill b{color:#8a5a00}
+/* 难度标签：紫 / 绿 / 红三档保留色相区分 */
+body[data-ui-theme="pixelcute"] .rank-mode{background:#f4ecff;border-color:#a88cd8;color:#6a45b8}
+body[data-ui-theme="pixelcute"] .rank-mode.easy{color:#3f7a2a;background:#eaffd8;border-color:#8ecf6a}
+body[data-ui-theme="pixelcute"] .rank-mode.hard{color:#b32d2d;background:#ffeaea;border-color:#f0a8a8}
+body[data-ui-theme="pixelcute"] .rank-filter button{background:#fffdf5;border-color:#ad7f3a;color:#7d5c12}
+body[data-ui-theme="pixelcute"] .rank-filter button.on{background:linear-gradient(180deg,#ffcf4d,#e8a20c);border-color:#e8a20c;color:#5a3a00;box-shadow:var(--ui-px-inset-dark),0 4px 0 #a2730a}
+/* 商城按钮：叶绿 / 金 / 灰化三态，影子保持像素硬边 */
+body[data-ui-theme="pixelcute"] .shop-btn{background:linear-gradient(180deg,#7ec850,#4f9b34);box-shadow:var(--ui-px-inset-green),0 4px 0 #2f6b1c}
+body[data-ui-theme="pixelcute"] .shop-btn:active{box-shadow:var(--ui-px-inset-green),0 1px 0 #2f6b1c}
+body[data-ui-theme="pixelcute"] .shop-btn.buy,
+body[data-ui-theme="pixelcute"] .sc-cell .shop-btn.buy{background:linear-gradient(180deg,#ffcf4d,#e8a20c);box-shadow:var(--ui-px-inset-dark),0 4px 0 #a2730a;color:#5a3a00}
+body[data-ui-theme="pixelcute"] .sc-cell .shop-btn.buy{box-shadow:var(--ui-px-inset-dark),0 2px 0 #a2730a}
+body[data-ui-theme="pixelcute"] .shop-btn.using,
+body[data-ui-theme="pixelcute"] .shop-btn[disabled]{background:linear-gradient(180deg,#efe6cd,#d6c9a6);box-shadow:inset 0 0 0 2px #b8a87e,0 4px 0 #9a8a63;color:#6b5330}
+body[data-ui-theme="pixelcute"] .sc-btns .shop-btn.ghost,
+body[data-ui-theme="pixelcute"] .shop-card .shop-btn.ghost{background:linear-gradient(180deg,#fffdf5,#f4e7c4);box-shadow:var(--ui-px-inset),0 4px 0 #a98350;color:#5a4326}
+/* 关闭键 / 事件横幅 / 成就吐司：糖果红比 #ff5f6d 略压深，白 × 仍有 ≥3:1 */
+body[data-ui-theme="pixelcute"] .panel-close{background:#e94c4c;box-shadow:inset 0 0 0 2px #8f2020,0 4px 0 #a52a2a}
+body[data-ui-theme="pixelcute"] .event-banner{background:#43783aee;border-color:#ffcf4d;color:#fff;box-shadow:inset 0 0 0 2px #2f5c27,0 4px 0 #26491f}
+body[data-ui-theme="pixelcute"] .achv-toast{background:linear-gradient(180deg,#fff6d9,#ffe9a8);border-color:#ffcf4d;color:#5a3a00;box-shadow:var(--ui-px-inset-dark),0 4px 0 #a2730a}
+
+/* ================= 像素可爱风 · 组件像素感 =================
+   与上面同块（只在本主题生效），额外放宽了 font-family 一项（用户明确要求像素字体），
+   其余仍然不写 padding / margin / width / height / gap / border-width / animation / transition。
+   经典态与蒸汽朋克态不命中任何一条，零变化。 */
+
+/* ---- 1. 像素字体：Fusion Pixel（OFL-1.1）子集，中文与数字都走点阵 ---- */
+body[data-ui-theme="pixelcute"],
+body[data-ui-theme="pixelcute"] *{
+  font-family:'PixelFont','Fusion Pixel 12px','Ark Pixel 12px','Microsoft YaHei','PingFang SC','Segoe UI',sans-serif;
+}
+
+/* ---- 2. 方角：硬编码圆角一律切直角（--r-* / --ui-radius-* 已在 token 里归零） ---- */
+body[data-ui-theme="pixelcute"] .stat,
+body[data-ui-theme="pixelcute"] #comboBox,
+body[data-ui-theme="pixelcute"] #comboBarWrap,
+body[data-ui-theme="pixelcute"] #comboBar,
+body[data-ui-theme="pixelcute"] .home-eyebrow,
+body[data-ui-theme="pixelcute"] button,
+body[data-ui-theme="pixelcute"] .btn,
+body[data-ui-theme="pixelcute"] .panel-close,
+body[data-ui-theme="pixelcute"] .shop-btn,
+body[data-ui-theme="pixelcute"] .sc-cell .shop-btn,
+body[data-ui-theme="pixelcute"] .rank-filter button,
+body[data-ui-theme="pixelcute"] .rank-no,
+body[data-ui-theme="pixelcute"] .rank-mode,
+body[data-ui-theme="pixelcute"] .guide-no,
+body[data-ui-theme="pixelcute"] .shop-own,
+body[data-ui-theme="pixelcute"] .sc-tag,
+body[data-ui-theme="pixelcute"] .sc-strip i,
+body[data-ui-theme="pixelcute"] .sc-cell,
+body[data-ui-theme="pixelcute"] .shop-card,
+body[data-ui-theme="pixelcute"] .style-card,
+body[data-ui-theme="pixelcute"] .ach-row,
+body[data-ui-theme="pixelcute"] .achv-toast,
+body[data-ui-theme="pixelcute"] .event-banner,
+body[data-ui-theme="pixelcute"] .rank-row,
+body[data-ui-theme="pixelcute"] .set-row,
+body[data-ui-theme="pixelcute"] .warn-bar,
+body[data-ui-theme="pixelcute"] .pill,
+body[data-ui-theme="pixelcute"] .r-cell .r-img.is-card,
+body[data-ui-theme="pixelcute"] .r-cell .r-badge,
+body[data-ui-theme="pixelcute"] .roster-prog .bar,
+body[data-ui-theme="pixelcute"] .roster-prog .bar i{border-radius:0}
+
+/* ---- 3. 像素描边 + 硬投影：卡片 / 面板 / HUD / 统计条 / 图鉴格 / 榜单徽记 ---- */
+body[data-ui-theme="pixelcute"] .mode-card,
+body[data-ui-theme="pixelcute"] .stat-cell,
+body[data-ui-theme="pixelcute"] .r-cell,
+body[data-ui-theme="pixelcute"] .sc-strip i,
+body[data-ui-theme="pixelcute"] .shop-wallet,
+body[data-ui-theme="pixelcute"] .rank-mode,
+body[data-ui-theme="pixelcute"] .sc-tag,
+body[data-ui-theme="pixelcute"] .r-cell .r-badge{box-shadow:var(--ui-px-inset)}
+body[data-ui-theme="pixelcute"] #game{box-shadow:var(--ui-px-inset-dark),var(--ui-game-shadow)}
+/* 面板：保留原有白内环，外面再套一圈棕描边 + 8px 硬投影（双层像素框） */
+body[data-ui-theme="pixelcute"] .panel-card{
+  box-shadow:inset 0 0 0 3px var(--ui-panel-ring),inset 0 0 0 5px #c9a15e,0 8px 0 #b8873f;
+}
+body[data-ui-theme="pixelcute"] #pausedScreen{box-shadow:var(--ui-px-inset-dark),0 8px 0 #b8873f}
+body[data-ui-theme="pixelcute"] .warn-bar{box-shadow:var(--ui-px-inset-dark),0 4px 0 #a2730a}
+body[data-ui-theme="pixelcute"] .mode-card.sel{box-shadow:var(--ui-px-inset-dark),var(--ui-card-sel-glow)}
+body[data-ui-theme="pixelcute"] .style-card.cur,
+body[data-ui-theme="pixelcute"] .sc-cell.own{box-shadow:var(--ui-px-inset-green),0 4px 0 #7ab55f}
+/* 按钮：去掉柔和投影，只留硬边 0 4px 0 + 内描边（--ui-cta-shadow 在本主题为 #a03a06）
+   注意逐个类名显式声明，不用 body[...] button 通配——否则会把 ghost 米黄 / primary 叶绿
+   的硬投影统一刷成橙色，颜色语义就丢了。 */
+body[data-ui-theme="pixelcute"] .stat,
+body[data-ui-theme="pixelcute"] #comboBox{box-shadow:var(--ui-px-inset),0 3px 0 var(--ui-hud-shadow)}
+body[data-ui-theme="pixelcute"] #comboBox{box-shadow:var(--ui-px-inset),0 3px 0 var(--ui-combo-shadow)}
+body[data-ui-theme="pixelcute"] .menu-btn,
+body[data-ui-theme="pixelcute"] .tab,
+body[data-ui-theme="pixelcute"] .rank-filter button{box-shadow:var(--ui-px-inset),0 4px 0 #a98350}
+body[data-ui-theme="pixelcute"] .menu-btn:active,
+body[data-ui-theme="pixelcute"] .tab:active,
+body[data-ui-theme="pixelcute"] .rank-filter button:active{box-shadow:var(--ui-px-inset),0 1px 0 #a98350}
+body[data-ui-theme="pixelcute"] .big-btn{box-shadow:var(--ui-px-inset-green),0 4px 0 var(--ui-primary-shadow)}
+body[data-ui-theme="pixelcute"] .big-btn:active{box-shadow:var(--ui-px-inset-green),0 1px 0 var(--ui-primary-shadow)}
+/* 悬浮圆钮（暂停 / 静音 / 结算重开）：id 特异性高于类，必须用同前缀 id 才改得动 */
+body[data-ui-theme="pixelcute"] #pauseBtn,
+body[data-ui-theme="pixelcute"] #muteBtn,
+body[data-ui-theme="pixelcute"] #quitBtn,
+body[data-ui-theme="pixelcute"] #restartBtn{border-radius:0;box-shadow:inset 0 0 0 2px #2f5c27,0 4px 0 #26491f}
+body[data-ui-theme="pixelcute"] #pauseBtn:active,
+body[data-ui-theme="pixelcute"] #muteBtn:active,
+body[data-ui-theme="pixelcute"] #quitBtn:active{box-shadow:inset 0 0 0 2px #2f5c27,0 1px 0 #26491f}
+body[data-ui-theme="pixelcute"] .btn{box-shadow:var(--ui-px-inset-dark),0 4px 0 var(--ui-cta-shadow)}
+body[data-ui-theme="pixelcute"] .btn:active{box-shadow:var(--ui-px-inset-dark),0 1px 0 var(--ui-cta-shadow)}
+body[data-ui-theme="pixelcute"] .btn.primary{box-shadow:var(--ui-px-inset-green),0 4px 0 #2f6b1c}
+body[data-ui-theme="pixelcute"] .btn.primary:active{box-shadow:var(--ui-px-inset-green),0 1px 0 #2f6b1c}
+body[data-ui-theme="pixelcute"] .btn.gold{box-shadow:var(--ui-px-inset-dark),0 4px 0 #a2730a}
+body[data-ui-theme="pixelcute"] .btn.gold:active{box-shadow:var(--ui-px-inset-dark),0 1px 0 #a2730a}
+body[data-ui-theme="pixelcute"] .btn.ghost{box-shadow:var(--ui-px-inset),0 4px 0 #a98350}
+body[data-ui-theme="pixelcute"] .btn.ghost:active{box-shadow:var(--ui-px-inset),0 1px 0 #a98350}
+body[data-ui-theme="pixelcute"] .btn.danger{box-shadow:inset 0 0 0 2px #8f2020,0 4px 0 #a52a2a}
+body[data-ui-theme="pixelcute"] .btn.danger:active{box-shadow:inset 0 0 0 2px #8f2020,0 1px 0 #a52a2a}
+body[data-ui-theme="pixelcute"] .tab[aria-selected="true"]{box-shadow:var(--ui-px-inset-dark),0 4px 0 #a2730a}
+body[data-ui-theme="pixelcute"] .shop-card.equipped{box-shadow:var(--ui-px-inset-green),0 4px 0 #7ab55f}
+
+/* ---- 4. 贴图硬边：像素主题下所有位图走最近邻，保持像素颗粒 ---- */
+body[data-ui-theme="pixelcute"] #field,
+body[data-ui-theme="pixelcute"] .mob-img,
+body[data-ui-theme="pixelcute"] .r-img,
+body[data-ui-theme="pixelcute"] .sc-strip i img,
+body[data-ui-theme="pixelcute"] .sc-cell .sci img{image-rendering:pixelated}
+
+/* ---- 5. 滚动条：方角 + 深棕，奶油底上保持可见 ---- */
+body[data-ui-theme="pixelcute"] .panel-body::-webkit-scrollbar-thumb,
+body[data-ui-theme="pixelcute"] .overlay::-webkit-scrollbar-thumb{background:#a97c3e;border-radius:0}
+body[data-ui-theme="pixelcute"] .panel-body,
+body[data-ui-theme="pixelcute"] .overlay{scrollbar-color:#a97c3e #f6ecd2}
+
+/* ---- 6. focus ring 兜底：内描边与硬阴影不参与焦点表现，
+       这里用 outline（不占布局、不受 inset shadow 覆盖）+ --focus-ring 双保险 ---- */
+body[data-ui-theme="pixelcute"] *:focus-visible{outline:3px solid #b3762a;outline-offset:2px}
+body[data-ui-theme="pixelcute"] .btn:focus-visible,
+body[data-ui-theme="pixelcute"] .big-btn:focus-visible,
+body[data-ui-theme="pixelcute"] .menu-btn:focus-visible,
+body[data-ui-theme="pixelcute"] .shop-btn:focus-visible,
+body[data-ui-theme="pixelcute"] .tab:focus-visible,
+body[data-ui-theme="pixelcute"] .mode-card:focus-visible,
+body[data-ui-theme="pixelcute"] .rank-filter button:focus-visible,
+body[data-ui-theme="pixelcute"] .panel-close:focus-visible,
+body[data-ui-theme="pixelcute"] #pauseBtn:focus-visible,
+body[data-ui-theme="pixelcute"] #muteBtn:focus-visible,
+body[data-ui-theme="pixelcute"] #quitBtn:focus-visible,
+body[data-ui-theme="pixelcute"] input:focus-visible,
+body[data-ui-theme="pixelcute"] [tabindex]:focus-visible{
+  outline:3px solid #b3762a;outline-offset:2px;box-shadow:var(--focus-ring)
+}
+
+/* ================= UI 主题：水墨淡彩 =================
+   触发条件：拥有「水墨画风」整套 + 当前正在使用（见 applyUiTheme / uiThemeFor）。
+   属性落在 body[data-ui-theme="inkwash"]，切回原版即回 classic。
+   与蒸汽 / 像素块同构：只声明 color / background / background-image / border-color /
+   border-radius / box-shadow / filter / display；不写 padding / margin / width / height /
+   gap / grid / border-width / animation / transition。唯一放开的 font-family 由用户明确要求
+   （中文楷体 / 书法系统字体栈，不新增字体文件，离线安全），与像素主题同一处约定。
+   语义色（简易 / 普通 / 困难、稀有度、危险红、金银铜）只换明度不换色相。
+   页面底色使用用户提供的水墨淡彩风景底图 art/bg/bg4.webp，上方叠 30% 宣纸米白遮罩柔化。 */
+body[data-ui-theme="inkwash"]{
+  /* 语义色重映射：宣纸米白 / 淡青绿水墨 / 朱砂红 CTA / 暖灰墨字。
+     偏离任务建议值的地方都是为了 WCAG：gold-deep 压到 #a8791a（描边 ≥3:1）、
+     gold-ink 压到 #553a0c（金渐变上的深墨字 ≥4.5:1）、danger 压到 #b84743、
+     ink-4 压到 #6f675b（宣纸上次要文字 ≥4.5:1）。 */
+  --c-gold:#d9a441;--c-gold-deep:#a8791a;--c-gold-ink:#553a0c;--c-gold-soft:#f6ecd7;
+  --c-leaf:#7fa98d;--c-leaf-deep:#4f7d68;--c-leaf-ink:#3d6350;--c-leaf-soft:#e8f0e6;
+  --c-cta:#cf6a4f;--c-cta-deep:#a8412b;--c-cta-ink:#fff6f0;--c-cta-soft:#f7e3dc;
+  --c-danger:#b84743;--c-danger-deep:#8f3835;--c-danger-soft:#f7e0df;
+  --c-ink:#33302b;--c-ink-2:#4a453d;--c-ink-3:#5f584c;--c-ink-4:#6f675b;--c-ink-5:#4a453d;
+  --c-paper:#faf5e8;--c-paper-2:#f2e8d5;--c-line:#a08a66;--c-line-soft:#e8dfcb;
+  --c-glass:#4a4438cc;--c-glass-line:#d9a441;
+  --c-on-dark:#faf5e8;--c-on-dark-2:#e8f0e6;--c-on-dark-3:#eef4e9;
+  /* 面与框架：水墨淡彩风景底图 + 宣纸米白柔化遮罩；圆角保持柔和 */
+  --ui-page-bg:linear-gradient(rgba(250,245,232,.3),rgba(250,245,232,.3)),url("art/bg/bg4.webp");
+  --ui-body-ink:#33302b;
+  --ui-game-bg:linear-gradient(180deg,#fffdf6 0%,#f3ead8 100%);
+  --ui-game-shadow:0 24px 60px #6b635733;
+  --ui-game-ring:#fffdf6;
+  --ui-radius-card:22px;--ui-radius-panel:18px;--ui-radius-field:16px;
+  /* HUD 与连击：宣纸底 + 淡墨 / 淡青描边，数值用朱砂与墨青 */
+  --ui-hud-bg:#faf5e8;--ui-hud-line:#a8791a;--ui-hud-ink:#6b4a12;
+  --ui-hud-shadow:#e0d5bd;--ui-hud-accent:#a8412b;
+  --ui-hud-mode-line:#8f78c0;--ui-hud-mode-ink:#5f4a92;--ui-hud-mode-num:#5f4a92;
+  --ui-hud-danger-line:#b84743;--ui-hud-danger-ink:#8f3835;
+  --ui-combo-line:#4f7d68;--ui-combo-ink:#3d6350;--ui-combo-shadow:#dbe6dc;
+  --ui-combo-num:#3d6350;--ui-combo-cap:#3d6350;--ui-combo-track:#e8dfcb;
+  --ui-combo-bar:linear-gradient(90deg,#7fa98d,#d9a441);
+  /* 覆盖层与面板：宣纸半透 + 墨线框 + 极柔投影 */
+  --ui-overlay-bg:#f5eddaee;
+  --ui-scroll-thumb:#b7a684;--ui-scroll-thumb-panel:#b7a684;
+  --ui-panel-bg:linear-gradient(180deg,#faf5e8 0%,#f2e8d5 100%);
+  --ui-panel-line:#8a7355;--ui-panel-ring:#fffdf6;--ui-panel-shadow:0 20px 46px #6b635729;
+  --ui-panel-title:#33302b;--ui-panel-title-shadow:#fffdf6;--ui-panel-sub:#6f675b;
+  --ui-panel-foot:#6f675b;--ui-panel-foot-b:#7a5c12;
+  --ui-paused-bg:#f5eddad9;
+  /* 首页 */
+  --ui-eyebrow-ink:#4a453d;--ui-eyebrow-bg:#f2e8d5aa;--ui-eyebrow-line:#8a7355;
+  --ui-title-grad:linear-gradient(92deg,#3d3a33 0%,#6f6a5d 32%,#33302b 62%,#3d3a33 100%);
+  --ui-title-shadow:drop-shadow(0 2px 0 #fffdf6cc) drop-shadow(0 7px 12px #6b635733);
+  --ui-title-small:#4a453d;--ui-title-small-shadow:0 1px 0 #fffdf6,0 0 12px #d9a44144;
+  --ui-card-bg:#faf5e8f2;--ui-card-line:#8a7355;
+  --ui-card-sel-line:#b84743;--ui-card-sel-bg:#f7e3dcf2;
+  --ui-card-sel-glow:0 0 0 3px #b8474333, 0 12px 24px #b8474326;
+  --ui-card-name-shadow:#fffdf6;--ui-card-stat:#6b4a12;--ui-card-best:#5f584c;--ui-card-check:#b84743;
+  /* 按钮：朱砂红 CTA（米白字在亮端 ≥3.7:1，20px 粗体属大字）/ 墨绿 primary / 宣纸 ghost */
+  --ui-cta-grad:linear-gradient(180deg,#c85f45,#a8412b);--ui-cta-shadow:#7e2f1e;
+  --ui-primary-grad:linear-gradient(180deg,#c85f45,#a8412b);--ui-primary-shadow:#7e2f1e;--ui-primary-glow:#b8474344;
+  --ui-ghost-grad:linear-gradient(180deg,#eef4ea,#dbe7dd);--ui-ghost-line:#4f7d68;
+  --ui-ghost-shadow:0 3px 0 #c3d3c6,0 8px 16px #6b635722;
+  /* 浮钮与提示条 */
+  --ui-fab-bg:#f2e8d5ee;--ui-fab-line:#a08a66;
+  --ui-warn-bg:#fdf3dc;--ui-warn-line:#a8791a;--ui-warn-ink:#6b4a12;
+  /* 场地：换水墨三图；难度 tint 淡青 / 淡墨由浅到深，狂热淡朱砂暖色（优先级顺序与经典态一致） */
+  --field-grass:url("art/hole_v2/ink/grass.webp");
+  --field-hole-back:url("art/hole_v2/ink/hole-back.webp");
+  --field-hole-front:url("art/hole_v2/ink/hole-front.webp");
+  --field-base:#cfe0c9;
+  --field-tint-easy:linear-gradient(180deg,#eef6e8b3 0%,#d9ead0a6 100%);
+  --field-tint-normal:linear-gradient(180deg,#b9d6c038 0%,#9cc0a838 100%);
+  --field-tint-hard:linear-gradient(180deg,#8fb3a04d 0%,#5f82705c 100%);
+  --field-tint-fever:linear-gradient(180deg,#f6d9cfb8 0%,#eebdaba8 100%);
+  --game-bg-fever:linear-gradient(180deg,#fbeee2 0%,#f6ded0 100%);
+  /* 天空 / 太阳 / 云 / 蝴蝶 / 漂浮作物全部收起，保持宣纸干净 */
+  --ui-decor-display:none;
+  --ui-accent:#4f7d68;
+  /* focus ring：宣纸内环 + 墨青外环（宣纸底上 ≥3.6:1） */
+  --focus-ring:0 0 0 3px #fffdf6,0 0 0 6px #3d6350;
+}
+/* 中文楷体 / 书法系统字体栈：只在本主题放开 font-family，不新增字体文件 */
+body[data-ui-theme="inkwash"],
+body[data-ui-theme="inkwash"] *{
+  font-family:'STKaiti','Kaiti SC','KaiTi','楷体','Songti SC','SimSun','Microsoft YaHei','PingFang SC',serif;
+}
+/* 标题：宣纸底上不做硬描边，仅一层极柔的米白提亮（filter 不改字号与排版） */
+body[data-ui-theme="inkwash"] .panel-title{filter:drop-shadow(0 1px 0 #fffdf6cc)}
+body[data-ui-theme="inkwash"] .roster-title{filter:drop-shadow(0 1px 0 #fffdf6aa)}
+/* 首页：主 CTA（开始）用朱砂红，深色字不适用，保留米白字；主标题墨色已由 token 给出 */
+body[data-ui-theme="inkwash"] .big-btn{box-shadow:0 6px 0 var(--ui-primary-shadow),0 14px 26px #6b635733,0 0 30px var(--ui-primary-glow)}
+/* 首页：模式卡原本是半透明白底 + 白字（依赖深色背景图），宣纸底上改深墨字 */
+body[data-ui-theme="inkwash"] .mode-card,
+body[data-ui-theme="inkwash"] .mc-name{color:#33302b}
+body[data-ui-theme="inkwash"] .mc-desc{color:#5f584c}
+body[data-ui-theme="inkwash"] .mc-diff span{color:#5f584c}
+body[data-ui-theme="inkwash"] .mc-diff i{background:#cbbfa8}
+body[data-ui-theme="inkwash"] .mc-diff i.on{background:#b84743;box-shadow:0 0 7px #b8474377}
+/* slogan 强调字 / 连击倍率：朱砂红，宣纸底上 ≈4.8:1 */
+body[data-ui-theme="inkwash"] .home-slogan{text-shadow:0 1px 2px #fffdf6cc}
+body[data-ui-theme="inkwash"] .home-slogan b{color:#a8412b}
+body[data-ui-theme="inkwash"] #comboBox .mult{color:#a8412b}
+/* 三键菜单：淡绿宣纸 chip + 墨青字 */
+body[data-ui-theme="inkwash"] .menu-btn{color:#3d6350}
+body[data-ui-theme="inkwash"] .menu-btn:hover{background:linear-gradient(180deg,#e4eee2,#d3e2d7);border-color:#4f7d68}
+body[data-ui-theme="inkwash"] .menu-btn:active{box-shadow:0 1px 0 #c3d3c6}
+/* 面板内浅色卡片 → 宣纸 + 墨线 + 极柔投影（不用 ::before/::after，不影响命中区） */
+body[data-ui-theme="inkwash"] .rank-row,
+body[data-ui-theme="inkwash"] .shop-card,
+body[data-ui-theme="inkwash"] .ach-row,
+body[data-ui-theme="inkwash"] .style-card,
+body[data-ui-theme="inkwash"] .sc-cell,
+body[data-ui-theme="inkwash"] .set-row,
+body[data-ui-theme="inkwash"] .guide-step{background:#faf5e8;border-color:#a08a66;box-shadow:0 2px 6px #6b63571f}
+/* 「已拥有 / 已装备 / 进行中」的浅绿叶语义保留（墨青取代亮绿） */
+body[data-ui-theme="inkwash"] .shop-card.equipped,
+body[data-ui-theme="inkwash"] .ach-row.done,
+body[data-ui-theme="inkwash"] .style-card.cur,
+body[data-ui-theme="inkwash"] .sc-cell.own{background:#eef4ea;border-color:#4f7d68;box-shadow:0 2px 6px #4f7d6826}
+body[data-ui-theme="inkwash"] .style-card.own{border-color:#a8791a}
+/* 排行榜前三名：保留金 / 银 / 铜色相，底色调成宣纸系；描边压深保证 ≥3:1 */
+body[data-ui-theme="inkwash"] .rank-row.top1{background:#f9f1d9;border-color:#a8791a;box-shadow:0 2px 0 #e0cfa0}
+body[data-ui-theme="inkwash"] .rank-row.top2{background:#f2f5f8;border-color:#7d8b9a;box-shadow:0 2px 0 #ccd6e0}
+body[data-ui-theme="inkwash"] .rank-row.top3{background:#f8efe3;border-color:#a06f3c;box-shadow:0 2px 0 #e0c8ac}
+body[data-ui-theme="inkwash"] .rank-no{background:#3d6350;color:#f6fbf7}
+body[data-ui-theme="inkwash"] .rank-score{color:#a8412b}
+body[data-ui-theme="inkwash"] .rank-badge{color:#7a5c12}
+/* 面板内文字层级 */
+body[data-ui-theme="inkwash"] .shop-name,
+body[data-ui-theme="inkwash"] .ach-txt,
+body[data-ui-theme="inkwash"] .sc-name,
+body[data-ui-theme="inkwash"] .sc-cell .scn,
+body[data-ui-theme="inkwash"] .set-row .set-label{color:#33302b}
+body[data-ui-theme="inkwash"] .shop-desc,
+body[data-ui-theme="inkwash"] .ach-txt small,
+body[data-ui-theme="inkwash"] .sc-prog,
+body[data-ui-theme="inkwash"] .sc-note,
+body[data-ui-theme="inkwash"] .rank-score small,
+body[data-ui-theme="inkwash"] .rank-empty,
+body[data-ui-theme="inkwash"] .rank-date,
+body[data-ui-theme="inkwash"] .set-row .set-label small{color:#6f675b}
+body[data-ui-theme="inkwash"] .sc-strip i{background:#f2e8d5;border-color:#a08a66}
+body[data-ui-theme="inkwash"] .sc-tag{background:#e8dfcb;color:#5f584c}
+body[data-ui-theme="inkwash"] .sc-tag.cur{background:#3d6350;color:#f6fbf7}
+body[data-ui-theme="inkwash"] .sc-tag.own{background:#d9a441;color:#553a0c}
+body[data-ui-theme="inkwash"] .sc-cell .scs{color:#3d6350}
+body[data-ui-theme="inkwash"] .shop-wallet{background:#f6ecd7;border-color:#a8791a;color:#6f675b}
+body[data-ui-theme="inkwash"] .shop-wallet b{color:#7a5c12}
+body[data-ui-theme="inkwash"] .shop-own{background:#3d6350;color:#f6fbf7}
+body[data-ui-theme="inkwash"] .shop-toast{color:#b84743}
+body[data-ui-theme="inkwash"] .ach-reward{color:#7a5c12}
+body[data-ui-theme="inkwash"] .ach-row.done .ach-reward{color:#3d6350}
+/* 图鉴：稀有度只换明度不换色相，宣纸底上重新保证 ≥3:1 描边 / ≥4.5:1 文字 */
+body[data-ui-theme="inkwash"] .r-cell{border-color:#a08a66}
+body[data-ui-theme="inkwash"] .r-pts.good{color:#3d6350}
+body[data-ui-theme="inkwash"] .r-pts.bad,
+body[data-ui-theme="inkwash"] .r-cell.is-bad .r-pts.bad{color:#a83a2e}
+body[data-ui-theme="inkwash"] .r-pts.gold{color:#7a5c12}
+body[data-ui-theme="inkwash"] .r-cell.is-bad{border-color:#c0504d;background:#f9e7e6}
+body[data-ui-theme="inkwash"] .r-cell.r-rare{border-color:#5b8fa8;background:#eaf3f7}
+body[data-ui-theme="inkwash"] .r-cell.r-epic{border-color:#7a5fb0;background:#f1ecfa}
+body[data-ui-theme="inkwash"] .r-cell.r-legend{border-color:#a8791a;background:#f7efdc}
+body[data-ui-theme="inkwash"] .r-cell.r-egg{border-color:#a85b8e;background:linear-gradient(135deg,#fbf4e0,#f9eaf2,#eef4f8)}
+body[data-ui-theme="inkwash"] .r-cell.r-common .r-badge{color:#54667a;border-color:#7d8b9a}
+body[data-ui-theme="inkwash"] .r-cell.r-rare .r-badge{color:#1f6b8c;border-color:#3d7a94}
+body[data-ui-theme="inkwash"] .r-cell.r-epic .r-badge{color:#6742a8;border-color:#8a6ac8}
+body[data-ui-theme="inkwash"] .r-cell.r-legend .r-badge{color:#7a5c12;border-color:#a8791a}
+body[data-ui-theme="inkwash"] .r-cell.r-egg .r-badge{color:#a8457f;border-color:#c0639c}
+body[data-ui-theme="inkwash"] .r-cell.is-bad .r-badge{color:#a83a2e;border-color:#c0504d}
+body[data-ui-theme="inkwash"] .r-cell .r-img.is-card{border-color:#a08a66;box-shadow:0 0 0 1.5px #a8791a}
+body[data-ui-theme="inkwash"] .roster-title,
+body[data-ui-theme="inkwash"] .roster-prog b,
+body[data-ui-theme="inkwash"] .stat-cell b,
+body[data-ui-theme="inkwash"] .pill b{color:#7a5c12}
+body[data-ui-theme="inkwash"] .stat-cell{border-color:#a8791a}
+body[data-ui-theme="inkwash"] .roster-prog .bar{background:#e8dfcb}
+body[data-ui-theme="inkwash"] .roster-prog .bar i{background:linear-gradient(90deg,#7fa98d,#d9a441)}
+/* 难度标签：紫 / 绿 / 红三档保留色相区分 */
+body[data-ui-theme="inkwash"] .rank-mode{background:#eee8f6;border-color:#8f78c0;color:#5f4a92}
+body[data-ui-theme="inkwash"] .rank-mode.easy{color:#3d6350;background:#e8f0e6;border-color:#4f7d68}
+body[data-ui-theme="inkwash"] .rank-mode.hard{color:#8f3835;background:#f7e0df;border-color:#c0504d}
+body[data-ui-theme="inkwash"] .rank-filter button{background:#f6ecd7;border-color:#a08a66;color:#7a5c12}
+body[data-ui-theme="inkwash"] .rank-filter button.on{background:linear-gradient(180deg,#e8c778,#d9a441);border-color:#a8791a;color:#553a0c;box-shadow:0 2px 0 #a8791a}
+/* 商城按钮：淡绿叶 / 金 / 宣纸朱砂三态，均按浅底重新配平对比度 */
+body[data-ui-theme="inkwash"] .shop-btn{background:linear-gradient(180deg,#a9c7b3,#7fa98d);box-shadow:0 3px 0 #b9c9b6;color:#2b3a31}
+body[data-ui-theme="inkwash"] .shop-btn:active{box-shadow:0 1px 0 #b9c9b6}
+body[data-ui-theme="inkwash"] .shop-btn.buy,
+body[data-ui-theme="inkwash"] .sc-cell .shop-btn.buy{background:linear-gradient(180deg,#e8c778,#cfa14a);box-shadow:0 3px 0 #b8955a;color:#4a3208}
+body[data-ui-theme="inkwash"] .sc-cell .shop-btn.buy{box-shadow:0 2px 0 #b8955a}
+body[data-ui-theme="inkwash"] .shop-btn.using,
+body[data-ui-theme="inkwash"] .shop-btn[disabled]{background:linear-gradient(180deg,#e6ded0,#cdc3b2);box-shadow:0 3px 0 #b3a894;color:#554e44}
+body[data-ui-theme="inkwash"] .sc-btns .shop-btn.ghost,
+body[data-ui-theme="inkwash"] .shop-card .shop-btn.ghost{background:linear-gradient(180deg,#f6f0e2,#e6dcc8);box-shadow:0 3px 0 #cdc0a6;color:#4a453d}
+/* 关闭键 / 事件横幅 / 成就吐司：朱砂红 + 宣纸底 */
+body[data-ui-theme="inkwash"] .panel-close{background:#b84743;box-shadow:0 3px 0 #7e2f1e}
+body[data-ui-theme="inkwash"] .event-banner{background:#f5eddaee;border-color:#b84743;color:#8f3835}
+body[data-ui-theme="inkwash"] .achv-toast{background:linear-gradient(180deg,#faf5e8,#f0e4cc);border-color:#a8791a;color:#6b4a12}
+/* ---- 通用按钮 / tab / 徽记：浅底上重配阴影色与文字色 ---- */
+body[data-ui-theme="inkwash"] .btn{box-shadow:0 5px 0 #7e2f1e,0 12px 22px #6b635729}
+body[data-ui-theme="inkwash"] .btn:active{box-shadow:0 1px 0 #7e2f1e}
+body[data-ui-theme="inkwash"] .btn.primary{background:linear-gradient(180deg,#3d6350,#2f5040);box-shadow:0 5px 0 #23392e,0 12px 22px #6b635729}
+body[data-ui-theme="inkwash"] .btn.primary:active{box-shadow:0 1px 0 #23392e}
+body[data-ui-theme="inkwash"] .btn.gold{background:linear-gradient(180deg,#e8c778,#d9a441);color:#553a0c;box-shadow:0 5px 0 #8a6a1a,0 12px 22px #6b635729}
+body[data-ui-theme="inkwash"] .btn.gold:active{box-shadow:0 1px 0 #8a6a1a}
+body[data-ui-theme="inkwash"] .btn.ghost{background:linear-gradient(180deg,#f6f0e2,#e6dcc8);color:#4a453d;box-shadow:0 3px 0 #cdc0a6}
+body[data-ui-theme="inkwash"] .btn.ghost:active{box-shadow:0 1px 0 #cdc0a6}
+body[data-ui-theme="inkwash"] .btn.danger{box-shadow:0 5px 0 #6f2a22,0 12px 22px #6b635729}
+body[data-ui-theme="inkwash"] .btn.danger:active{box-shadow:0 1px 0 #6f2a22}
+body[data-ui-theme="inkwash"] .tab[aria-selected="true"]{background:linear-gradient(180deg,#e8c778,#d9a441);border-color:#a8791a;color:#553a0c;box-shadow:0 2px 0 #a8791a}
+body[data-ui-theme="inkwash"] .guide-step .guide-no{background:linear-gradient(180deg,#e8c778,#d9a441);color:#553a0c}
+body[data-ui-theme="inkwash"] .shop-card.equipped{box-shadow:0 2px 6px #4f7d6826}
+/* 悬浮圆钮（暂停 / 静音 / 放弃 / 结算重开）：宣纸底 + 墨字 */
+body[data-ui-theme="inkwash"] #muteBtn,
+body[data-ui-theme="inkwash"] #pauseBtn,
+body[data-ui-theme="inkwash"] #quitBtn{color:#33302b;box-shadow:0 3px 10px #6b635733}
+body[data-ui-theme="inkwash"] .panel-card{box-shadow:var(--ui-panel-shadow), inset 0 0 0 3px var(--ui-panel-ring)}
+/* 结算页：浅色覆盖层上把原本依赖深底的浅色文字改成墨色 / 朱砂 */
+body[data-ui-theme="inkwash"] .end-tag{color:#33302b}
+body[data-ui-theme="inkwash"] #modeTag{background:#f2e8d5;border-color:#8a7355;color:#4a453d}
+body[data-ui-theme="inkwash"] #rankLetter[data-rank="S"]{color:#a8791a}
+body[data-ui-theme="inkwash"] #rankLetter[data-rank="A"]{color:#c2557f}
+body[data-ui-theme="inkwash"] #rankLetter[data-rank="B"]{color:#2f8fb0}
+body[data-ui-theme="inkwash"] #rankLetter[data-rank="C"]{color:#6f5bc8}
+body[data-ui-theme="inkwash"] #rankLetter[data-rank="D"]{color:#6b7686}
+body[data-ui-theme="inkwash"] #rankLetter{text-shadow:0 4px 0 #0000001a}
+body[data-ui-theme="inkwash"] #rankTitle{color:#33302b}
+body[data-ui-theme="inkwash"] #finalScoreBox{color:#4a453d}
+body[data-ui-theme="inkwash"] #finalScore{color:#a8412b;text-shadow:0 0 14px #d9a44166}
+body[data-ui-theme="inkwash"] #bonusLine{background:#f2e8d5;border-color:#a8791a;color:#6b4a12}
+body[data-ui-theme="inkwash"] #bonusLine b{color:#a8412b}
+body[data-ui-theme="inkwash"] #coinGain{background:#f2e8d5;border-color:#a8791a;color:#6b4a12}
+body[data-ui-theme="inkwash"] #coinGain b{color:#a8412b}
+body[data-ui-theme="inkwash"] #statLine{color:#4a453d}
+body[data-ui-theme="inkwash"] #statLine b{color:#a8412b}
+body[data-ui-theme="inkwash"] .best{color:#4a453d}
+/* ---- 滚动条：暖灰墨色，宣纸底上可辨识 ---- */
+body[data-ui-theme="inkwash"] .panel-body::-webkit-scrollbar-thumb,
+body[data-ui-theme="inkwash"] .overlay::-webkit-scrollbar-thumb{background:#b7a684;border-radius:6px}
+body[data-ui-theme="inkwash"] .panel-body,
+body[data-ui-theme="inkwash"] .overlay{scrollbar-color:#b7a684 #f2e8d5}
+/* ---- focus ring 兜底：内阴影不参与焦点表现，用 outline + --focus-ring 双保险 ---- */
+body[data-ui-theme="inkwash"] *:focus-visible{outline:3px solid #3d6350;outline-offset:2px}
+body[data-ui-theme="inkwash"] .btn:focus-visible,
+body[data-ui-theme="inkwash"] .big-btn:focus-visible,
+body[data-ui-theme="inkwash"] .menu-btn:focus-visible,
+body[data-ui-theme="inkwash"] .shop-btn:focus-visible,
+body[data-ui-theme="inkwash"] .tab:focus-visible,
+body[data-ui-theme="inkwash"] .mode-card:focus-visible,
+body[data-ui-theme="inkwash"] .rank-filter button:focus-visible,
+body[data-ui-theme="inkwash"] .panel-close:focus-visible,
+body[data-ui-theme="inkwash"] #pauseBtn:focus-visible,
+body[data-ui-theme="inkwash"] #muteBtn:focus-visible,
+body[data-ui-theme="inkwash"] #quitBtn:focus-visible,
+body[data-ui-theme="inkwash"] input:focus-visible,
+body[data-ui-theme="inkwash"] [tabindex]:focus-visible{
+  outline:3px solid #3d6350;outline-offset:2px;box-shadow:var(--focus-ring)
+}
 
 </style>
 </head>
 <body>
+<script>
+/* 首屏防闪：样式表已就绪、主脚本尚未执行，此刻按存档先把 body[data-ui-theme] 定下来，
+   避免「蒸汽画风 / 像素画风」首帧短暂闪成经典绿。只决定首帧外观，不触碰任何游戏逻辑；任何异常一律回落 classic。
+   判定与 applyUiTheme 同源：equipped 的画风必须是已整套拥有的（styleOwned 含该 key），
+   且 UI_THEME_BY_STYLE 里有映射——映射表与应用脚本里的那份保持一致，改色名单要两处同步。 */
+(function(){
+  try{
+    var THEMES = { steam:'steampunk', pixel:'pixelcute', ink:'inkwash' };
+    var eq = JSON.parse(localStorage.getItem('wmz_styleEquipped'));
+    var owned = JSON.parse(localStorage.getItem('wmz_styleOwned'));
+    var t = 'classic';
+    if(Object.prototype.toString.call(owned) === '[object Array]'){
+      for(var k in THEMES){
+        if(eq === k && owned.indexOf(k) >= 0){ t = THEMES[k]; break; }
+      }
+    }
+    document.body.setAttribute('data-ui-theme', t);
+  }catch(e){
+    document.body.setAttribute('data-ui-theme', 'classic');
+  }
+})();
+</script>
 
 <div class="sky">
   <div class="sun"></div>
@@ -1108,15 +2153,8 @@ body.lowfx .float-crop,body.lowfx .butterfly,body.lowfx .cloud{display:none}
       <h1 class="home-title">打地鼠大作战<small>万物皆可锤</small></h1>
       <p class="home-slogan">淘气鬼钻进菜园啦！<b>60 秒</b>手速大考验 · 攒积分换新锤子</p>
 
-      <div class="wallet-row">
-        <div class="wallet"><span class="w-icon ico" data-ico="coin"></span>积分<b id="coinCount">0</b></div>
-        <div class="wallet"><span class="w-icon ico" data-ico="trophy"></span>本模式最高<b id="bestScore">0</b></div>
-        <div class="wallet"><span class="w-icon ico" data-ico="hammer"></span>装备<b id="equippedName">小手手</b></div>
-        <!-- 画风已在底部「贴图风格」按钮上直接显示，这里不再重复占位（验收报告 P2-4） -->
-      </div>
-
-      <div class="mode-row" id="modeRow">
-        <button class="mode-card" data-mode="easy">
+      <div class="mode-row" id="modeRow" role="radiogroup" aria-label="选择难度模式">
+        <button class="mode-card" type="button" role="radio" aria-checked="false" data-mode="easy">
           <div class="mc-check"><span class="ico" data-ico="check"></span></div>
           <div class="mc-icon"><span class="ico" data-ico="leaf"></span></div>
           <div class="mc-info">
@@ -1129,7 +2167,7 @@ body.lowfx .float-crop,body.lowfx .butterfly,body.lowfx .cloud{display:none}
             <div class="mc-best" data-best="easy">最佳 --</div>
           </div>
         </button>
-        <button class="mode-card" data-mode="normal">
+        <button class="mode-card" type="button" role="radio" aria-checked="true" data-mode="normal">
           <div class="mc-check"><span class="ico" data-ico="check"></span></div>
           <div class="mc-icon"><span class="ico" data-ico="flower"></span></div>
           <div class="mc-info">
@@ -1142,7 +2180,7 @@ body.lowfx .float-crop,body.lowfx .butterfly,body.lowfx .cloud{display:none}
             <div class="mc-best" data-best="normal">最佳 --</div>
           </div>
         </button>
-        <button class="mode-card" data-mode="hard">
+        <button class="mode-card" type="button" role="radio" aria-checked="false" data-mode="hard">
           <div class="mc-check"><span class="ico" data-ico="check"></span></div>
           <div class="mc-icon"><span class="ico" data-ico="fire"></span></div>
           <div class="mc-info">
@@ -1160,30 +2198,10 @@ body.lowfx .float-crop,body.lowfx .butterfly,body.lowfx .cloud{display:none}
       <button class="big-btn" id="startBtn"><span class="ico" data-ico="carrot"></span>开始游戏</button>
 
       <div class="menu-row">
-        <button class="menu-btn gold" id="boardBtn"><span class="ico" data-ico="trophy"></span>排行榜</button>
-        <button class="menu-btn pink" id="shopBtn"><span class="ico" data-ico="cart"></span>工具商城</button>
-        <button class="menu-btn" id="taskBtn"><span class="ico" data-ico="medal"></span>成就任务</button>
-        <button class="menu-btn blue" id="styleBtn"><span class="ico" data-ico="palette"></span>贴图风格 · <span id="styleBtnName">原版二次元</span></button>
-        <button class="menu-btn" id="setBtn"><span class="ico" data-ico="gear"></span>设置</button>
+        <button class="menu-btn" id="honorBtn" type="button"><span class="ico" data-ico="trophy"></span><span class="menu-btn-label">荣誉堂</span></button>
+        <button class="menu-btn" id="workshopBtn" type="button"><span class="ico" data-ico="cart"></span><span class="menu-btn-label">工坊</span></button>
+        <button class="menu-btn" id="setBtn" type="button"><span class="ico" data-ico="gear"></span><span class="menu-btn-label">设置</span></button>
       </div>
-
-      <div class="roster">
-        <div class="roster-title"><span class="ico" data-ico="book"></span>目标图鉴</div>
-        <div class="roster-prog">
-          <span>收集进度</span><b id="rosterProg">0 / 12</b>
-          <span class="bar"><i id="rosterBar"></i></span>
-        </div>
-        <div class="roster-grid" id="rosterGrid"></div>
-        <div class="pill-row">
-          <span class="pill"><span class="ico" data-ico="fire"></span>连击 <b>×2/×3/×5</b> · 触发狂热</span>
-          <span class="pill"><span class="ico" data-ico="star"></span>噜噜大王 <b>+300</b> 彩蛋</span>
-          <span class="pill"><span class="ico" data-ico="warn"></span>桃桃 <b>扣分</b> · 别打</span>
-          <span class="pill"><span class="ico" data-ico="gift"></span>礼盒 <b>随机奖励</b></span>
-          <span class="pill"><span class="ico" data-ico="crown"></span>王冠 <b>敲三下</b></span>
-          <span class="pill"><span class="ico" data-ico="bolt"></span>有一天 <b>敏捷型</b> · 分更高</span>
-        </div>
-      </div>
-      <button class="roster-toggle" id="rosterToggle" type="button"><span class="rt-icon">⌄</span><span class="ico" data-ico="book"></span>目标图鉴</button>
     </div>
   </div>
 
@@ -1204,78 +2222,121 @@ body.lowfx .float-crop,body.lowfx .butterfly,body.lowfx .cloud{display:none}
     <p class="best">本模式最高纪录：<span id="bestScore2">0</span> 分</p>
   </div>
 
-  <!-- ============ 排行榜 ============ -->
-  <div id="boardPanel" class="panel hidden" role="dialog" aria-modal="true" aria-label="排行榜">
+  <!-- ============ 田园荣誉堂（榜单 + 成就任务） ============ -->
+  <div id="honorPanel" class="panel hidden" role="dialog" aria-modal="true" aria-label="田园荣誉堂">
     <div class="panel-card">
-      <button class="panel-close" data-close="boardPanel"><span class="ico" data-ico="close"></span></button>
-      <div class="panel-title"><span class="ico" data-ico="trophy"></span>田园英雄榜</div>
-      <div class="panel-sub">本地最佳战绩 TOP 10 · 可按模式筛选 · 标签标注挑战模式</div>
-      <div class="rank-filter" id="rankFilter" role="group" aria-label="按难度筛选排行榜">
-        <button type="button" data-mf="all" class="on">全部</button>
-        <button type="button" data-mf="easy"><span class="ico" data-ico="leaf"></span>简易</button>
-        <button type="button" data-mf="normal"><span class="ico" data-ico="flower"></span>普通</button>
-        <button type="button" data-mf="hard"><span class="ico" data-ico="fire"></span>困难</button>
+      <button class="panel-close" data-close="honorPanel" aria-label="关闭荣誉堂"><span class="ico" data-ico="close"></span></button>
+      <div class="panel-title"><span class="ico" data-ico="trophy"></span>田园荣誉堂</div>
+      <div class="panel-sub">本地战绩 · 每日任务 · 终身成就</div>
+      <div class="panel-stat">
+        <div class="stat-cell"><span class="ico" data-ico="coin"></span>可用积分 <b id="honorCoins">0</b></div>
+        <div class="stat-cell"><span class="ico" data-ico="star"></span><span id="honorBestMode">普通</span>最佳 <b id="honorBest">0</b></div>
       </div>
-      <div class="panel-body" id="boardList"></div>
-      <div class="panel-foot"><span class="ico" data-ico="coin"></span>当前积分 <b id="boardCoins">0</b> · 打一局就能上榜！</div>
-    </div>
-  </div>
-
-  <!-- ============ 商城 ============ -->
-  <div id="shopPanel" class="panel hidden" role="dialog" aria-modal="true" aria-label="锤子工坊与贴图风格包">
-    <div class="panel-card">
-      <button class="panel-close" data-close="shopPanel"><span class="ico" data-ico="close"></span></button>
-      <div class="panel-title"><span class="ico" data-ico="cart"></span>锤子工坊</div>
-      <div class="panel-sub">纯外观装扮 · 不影响平衡 · 买了就终身拥有</div>
-      <div class="shop-wallet"><span class="ico" data-ico="coin"></span>我的积分：<b id="shopCoins">0</b></div>
-      <div class="panel-body">
-        <div class="shop-grid" id="shopGrid"></div>
-        <div class="style-sec">
-          <div class="panel-title" style="font-size:16px;margin:14px 0 4px"><span class="ico" data-ico="palette"></span>贴图风格包</div>
-          <div class="panel-sub">每套 11 张全新画风 · 整套 <b>16000</b> 积分 · 也可单张 <b>2000</b> 积分购买（不含噜噜大王）</div>
-          <div class="shop-grid" id="styleShopGrid"></div>
+      <div class="tabs" id="honorTabs" role="tablist" aria-label="荣誉堂分类">
+        <button class="tab" type="button" role="tab" id="honorTabBtnBoard" data-tab="board" aria-selected="true" tabindex="0" aria-controls="honorTabBoard"><span class="ico" data-ico="trophy"></span>英雄战绩榜</button>
+        <button class="tab" type="button" role="tab" id="honorTabBtnTask" data-tab="task" aria-selected="false" tabindex="-1" aria-controls="honorTabTask"><span class="ico" data-ico="medal"></span>成就与任务</button>
+        <button class="tab" type="button" role="tab" id="honorTabBtnRoster" data-tab="roster" aria-selected="false" tabindex="-1" aria-controls="honorTabRoster"><span class="ico" data-ico="book"></span>目标图鉴</button>
+      </div>
+      <div class="panel-body" id="honorTabBoard" role="tabpanel" aria-labelledby="honorTabBtnBoard">
+        <div class="panel-sub">本地最佳战绩 TOP 10 · 可按模式筛选 · 标签标注挑战模式</div>
+        <div class="rank-filter" id="rankFilter" role="group" aria-label="按难度筛选排行榜">
+          <button type="button" data-mf="all" class="on">全部</button>
+          <button type="button" data-mf="easy"><span class="ico" data-ico="leaf"></span>简易</button>
+          <button type="button" data-mf="normal"><span class="ico" data-ico="flower"></span>普通</button>
+          <button type="button" data-mf="hard"><span class="ico" data-ico="fire"></span>困难</button>
         </div>
-        <div class="shop-toast" id="shopToast"></div>
+        <div id="boardList"></div>
       </div>
-    </div>
-  </div>
-
-  <!-- ============ 成就 / 每日任务 ============ -->
-  <div id="taskPanel" class="panel hidden" role="dialog" aria-modal="true" aria-label="成就与每日任务">
-    <div class="panel-card">
-      <button class="panel-close" data-close="taskPanel"><span class="ico" data-ico="close"></span></button>
-      <div class="panel-title"><span class="ico" data-ico="medal"></span>成就 · 每日任务</div>
-      <div class="panel-sub">每日任务每天刷新 · 成就为一次性奖励 · 完成后自动发积分</div>
-      <div class="panel-body">
+      <div class="panel-body" id="honorTabTask" role="tabpanel" aria-labelledby="honorTabBtnTask" hidden>
+        <div class="panel-sub">每日任务每天刷新 · 成就为一次性奖励 · 完成后自动发积分</div>
         <div class="panel-title" style="font-size:16px;margin:2px 0 6px"><span class="ico" data-ico="calendar"></span>今日任务</div>
         <div id="dailyList"></div>
         <div class="panel-title" style="font-size:16px;margin:12px 0 6px"><span class="ico" data-ico="trophy"></span>成就</div>
         <div id="achvList"></div>
       </div>
-      <div class="panel-foot"><span class="ico" data-ico="coin"></span>当前积分 <b id="taskCoins">0</b></div>
+      <div class="panel-body" id="honorTabRoster" role="tabpanel" aria-labelledby="honorTabBtnRoster" hidden>
+        <div class="roster-title"><span class="ico" data-ico="book"></span>目标图鉴</div>
+        <div class="roster-prog">
+          <span>收集进度</span><b id="rosterProg">0 / 12</b>
+          <span class="bar"><i id="rosterBar"></i></span>
+        </div>
+        <div class="roster-grid" id="rosterGrid" role="list" aria-label="目标图鉴收集列表"></div>
+        <div class="pill-row">
+          <span class="pill"><span class="ico" data-ico="fire"></span>连击 <b>×2/×3/×5</b> · 触发狂热</span>
+          <span class="pill"><span class="ico" data-ico="star"></span>噜噜大王 <b>+300</b> 彩蛋</span>
+          <span class="pill"><span class="ico" data-ico="warn"></span>桃桃 <b>扣分</b> · 别打</span>
+          <span class="pill"><span class="ico" data-ico="gift"></span>礼盒 <b>随机奖励</b></span>
+          <span class="pill"><span class="ico" data-ico="crown"></span>王冠 <b>敲三下</b></span>
+          <span class="pill"><span class="ico" data-ico="bolt"></span>有一天 <b>敏捷型</b> · 分更高</span>
+        </div>
+      </div>
+      <div class="panel-foot"><span class="ico" data-ico="wheat"></span>打一局就能上榜 · 榜单只存在本机</div>
     </div>
   </div>
 
-
-  <!-- ============ 贴图风格（自由切换） ============ -->
-  <div id="stylePanel" class="panel hidden" role="dialog" aria-modal="true" aria-label="贴图风格切换">
+  <!-- ============ 田园工坊（武器 + 画风） ============ -->
+  <div id="workshopPanel" class="panel hidden" role="dialog" aria-modal="true" aria-label="田园工坊">
     <div class="panel-card">
-      <button class="panel-close" data-close="stylePanel"><span class="ico" data-ico="close"></span></button>
-      <div class="panel-title"><span class="ico" data-ico="palette"></span>贴图风格</div>
-      <div class="panel-sub">买到的画风随时可自由切换 · 未拥有的贴图会以「原版二次元」显示，不会强制覆盖</div>
-      <div class="shop-wallet"><span class="ico" data-ico="coin"></span>我的积分：<b id="styleCoins">0</b></div>
-      <div class="panel-body">
-        <div class="style-list" id="styleList"></div>
-        <div class="shop-toast" id="styleToast"></div>
+      <button class="panel-close" data-close="workshopPanel" aria-label="关闭工坊"><span class="ico" data-ico="close"></span></button>
+      <div class="panel-title"><span class="ico" data-ico="cart"></span>田园工坊</div>
+      <div class="panel-sub">纯外观装扮 · 不影响平衡 · 买了就终身拥有</div>
+      <div class="panel-stat">
+        <div class="stat-cell wide">
+          <span class="stat-tool-ico" id="workshopToolIcon"></span>
+          <span class="stat-names">
+            <span>当前武器 <b id="workshopTool">小手手</b></span>
+            <small>当前画风 <b id="workshopStyle">原版二次元</b></small>
+          </span>
+        </div>
+        <div class="stat-cell"><span class="ico" data-ico="coin"></span>可用积分 <b id="workshopCoins">0</b></div>
       </div>
-      <div class="panel-foot"><span class="ico" data-ico="palette"></span>当前使用：<b id="styleFoot">原版二次元</b></div>
+      <div class="tabs" id="workshopTabs" role="tablist" aria-label="工坊分类">
+        <button class="tab" type="button" role="tab" data-tab="weapon" aria-selected="true" tabindex="0" aria-controls="workshopTabWeapon"><span class="ico" data-ico="hammer"></span>武器装备库</button>
+        <button class="tab" type="button" role="tab" data-tab="style" aria-selected="false" tabindex="-1" aria-controls="workshopTabStyle"><span class="ico" data-ico="palette"></span>贴图画风</button>
+      </div>
+      <div class="panel-body" id="workshopTabWeapon" role="tabpanel">
+        <div class="shop-grid" id="shopGrid"></div>
+      </div>
+      <div class="panel-body" id="workshopTabStyle" role="tabpanel" hidden>
+        <div class="panel-sub">每套 11 张全新画风 · 整套 <b>16000</b> 积分 · 也可单张 <b>2000</b> 积分购买（不含噜噜大王）</div>
+        <div class="style-list" id="styleList"></div>
+      </div>
+      <div class="shop-toast" id="workshopToast" role="status" aria-live="polite" aria-atomic="true"></div>
+    </div>
+  </div>
+
+  <!-- ============ 首次启动引导 ============ -->
+  <div id="guidePanel" class="panel hidden" role="dialog" aria-modal="true" aria-label="操作说明">
+    <div class="panel-card">
+      <button class="panel-close" data-close="guidePanel" aria-label="关闭操作说明"><span class="ico" data-ico="close"></span></button>
+      <div class="panel-title"><span class="ico" data-ico="wheat"></span>田园挖宝指南</div>
+      <div class="panel-sub">三步上手，60 秒一局</div>
+      <div class="guide-steps">
+        <div class="guide-step">
+          <span class="guide-no">1</span>
+          <span class="guide-txt"><b>点它一下</b>点击或触摸冒头的地鼠就能击打，露头越久越好打。</span>
+          <span class="guide-ico"><span class="ico" data-ico="hammer"></span></span>
+        </div>
+        <div class="guide-step">
+          <span class="guide-no">2</span>
+          <span class="guide-txt"><b>也可以用键盘</b>方向键选洞口，空格 / 回车敲下去，桌面端同样顺手。</span>
+          <span class="guide-ico"><span class="ico" data-ico="kbd"></span></span>
+        </div>
+        <div class="guide-step">
+          <span class="guide-no">3</span>
+          <span class="guide-txt"><b>连击换积分</b>连击会触发倍率，积分可在田园工坊兑换锤子和画风。</span>
+          <span class="guide-ico"><span class="ico" data-ico="coin"></span></span>
+        </div>
+      </div>
+      <p class="guide-foot">存档仅保存在本机浏览器 · 清除浏览器数据会一并清空进度</p>
+      <button class="btn primary guide-cta" id="guideStartBtn" type="button">开始挖宝</button>
     </div>
   </div>
 
   <!-- ============ 设置 ============ -->
   <div id="setPanel" class="panel hidden" role="dialog" aria-modal="true" aria-label="设置">
     <div class="panel-card">
-      <button class="panel-close" data-close="setPanel"><span class="ico" data-ico="close"></span></button>
+      <button class="panel-close" data-close="setPanel" aria-label="关闭设置"><span class="ico" data-ico="close"></span></button>
       <div class="panel-title"><span class="ico" data-ico="gear"></span>设置</div>
       <div class="panel-sub">音量 / 动效 / 键盘操作 / 存档</div>
       <div class="panel-body">
@@ -1304,7 +2365,8 @@ body.lowfx .float-crop,body.lowfx .butterfly,body.lowfx .cloud{display:none}
 </div>
 <div id="cursor"></div>
 <button id="pauseBtn" type="button" title="暂停 / 继续" aria-label="暂停游戏" aria-pressed="false" disabled><span class="ico" data-ico="pause"></span></button>
-<button id="muteBtn" type="button" title="声音开关" aria-label="静音开关" aria-pressed="false"><span class="ico" data-ico="soundOn"></span></button>
+<button id="muteBtn" type="button" title="静音开关" aria-label="静音开关" aria-pressed="false"><span class="ico" data-ico="soundOn"></span></button>
+<button id="quitBtn" type="button" title="放弃本局" aria-label="放弃本局并回到首页"><span class="ico" data-ico="home"></span></button>
 <div id="saveWarn" hidden><span class="ico" data-ico="warn"></span>当前浏览器无法保存进度（无痕模式 / 已禁用存储），本局积分不会被保留 · 建议改用普通窗口打开</div>
 
 <script>
@@ -1331,8 +2393,10 @@ var scoreEl = $('#score'), timeEl = $('#time'), comboEl = $('#combo'),
     timeBox = $('#timeBox'), scoreBox = $('#scoreBox');
 var startScreen = $('#startScreen'), endScreen = $('#endScreen');
 var pauseBtn = $('#pauseBtn');
-var boardPanel = $('#boardPanel'), shopPanel = $('#shopPanel'), taskPanel = $('#taskPanel'),
-    stylePanel = $('#stylePanel'), setPanel = $('#setPanel');
+var honorPanel = $('#honorPanel'), workshopPanel = $('#workshopPanel'),
+    guidePanel = $('#guidePanel'), setPanel = $('#setPanel');
+/* 统一可见性仲裁列表：guidePanel 放在最前（首次引导优先命中），startScreen 靠后。 */
+var ALL_PANELS = [guidePanel, honorPanel, workshopPanel, setPanel, endScreen, startScreen];
 
 /* ================= 本地存档（Netlify 友好） ================= */
 var store = {
@@ -1437,21 +2501,12 @@ var SFX = {
   event: function(){ var c = ac(); if(!c) return; var t = c.currentTime; [660, 880, 1100, 1320].forEach(function(f, i){ tone('triangle', f, null, t + i * 0.08, 0.18, 0.16); }); }
 };
 
-/* ================= v3 目标贴图：符号 emoji + 内联位图 ================= */
+/* ================= v3 目标贴图：全内联位图（emoji 字符兜底已移除） ================= */
 var LULU_NAME = '噜噜大王';
-var MOB_EMOJI = {
-  mushroom: '🍄', carrot: '🥕', cucumber: '🥒', roach: '🪳',
-  bun: '🥟', kiwi: '🥝', apple: '🍎',
-  star: '⭐', orange: '🥚', peach: '🍑',
-  gift: '🎁', elite: '👑'
-};
-function emojiOf(id){ return MOB_EMOJI[id] || '⭐'; }
-/* 内联 SVG <text> 承载 emoji：随洞口尺寸自动缩放，零位图依赖 */
-function mobGlyph(id, cls){
-  return '<svg class="glyph-svg' + (cls ? ' ' + cls : '') + '" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
-           '<text class="glyph" x="50" y="53" text-anchor="middle" dominant-baseline="central" font-size="82">' +
-             emojiOf(id) +
-           '</text></svg>';
+/* 贴图缺失时的兜底：用目标中文名，不再回退 emoji（跨平台字形不一致 / 走形） */
+function mobGlyph(id){
+  var t = TYPES[id] || {};
+  return '<span class="mob-art"><span class="glyph-fallback">' + (t.name || '？') + '</span></span>';
 }
 /*  位图素材（base64 内联，单文件部署 / 离线也能跑） */
 var ART = {
@@ -1486,8 +2541,8 @@ function mobArtSrc(id){
 function mobArt(id){
   var src = mobArtSrc(id);
   if(!src) return mobGlyph(id);
-  return '<img class="mob-img' + (CARD_ART[id] ? ' art-card' : '') +
-         '" src="' + src + '" alt="" draggable="false" decoding="async">';
+  return '<span class="mob-art"><img class="mob-img' + (CARD_ART[id] ? ' art-card' : '') +
+         '" src="' + src + '" alt="" draggable="false" decoding="async"></span>';
 }
 /* 稀有度：只决定图鉴卡框与展示色。
    出场权重请改 pickType()（那里的数字才是真实概率），这里的 w 曾是死数据，已删除。 */
@@ -1515,60 +2570,63 @@ function decoFor(id){
 }
 
 /* ================= UI 图标（内联 SVG，替代跨平台走形的 emoji） ================= */
+/* 图标来源：Lucide（https://lucide.dev），ISC 许可。
+   ISC License — Copyright (c) 2022 Lucide Contributors；部分版权归 Cole Bemis 2013-2022（Feather，MIT）。
+   按项目 24×24 线框规范内联，未改动图形路径。
+   统一模板：fill=none / stroke=currentColor / stroke-width=2（线宽可由 CSS 变量 --ico-sw 覆盖）。
+   hundred / peach / gold1 / gold2 / gold3 为项目自绘，同样遵循单色线形规范。 */
+function lucide(d){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
+}
 var ICON = {
-  coin:   '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.4" fill="#ffd93d" stroke="#d9a520" stroke-width="1.6"/><circle cx="12" cy="12" r="5.6" fill="#ffe98a"/><path d="M12 8.4l1.2 2.5 2.7.4-2 1.9.5 2.7-2.4-1.3-2.4 1.3.5-2.7-2-1.9 2.7-.4z" fill="#e8a20c"/></svg>',
-  trophy: '<svg viewBox="0 0 24 24"><path d="M7 3h10v5.5a5 5 0 0 1-10 0z" fill="#ffd93d" stroke="#d9a520" stroke-width="1.4"/><path d="M7 5H4.4A2.4 2.4 0 0 0 4 9.8h3M17 5h2.6A2.4 2.4 0 0 1 20 9.8h-3" fill="none" stroke="#d9a520" stroke-width="1.4"/><rect x="10.6" y="13" width="2.8" height="4" fill="#e8b820"/><rect x="7.4" y="17" width="9.2" height="3.2" rx="1.2" fill="#e8862a"/></svg>',
-  hammer: '<svg viewBox="0 0 24 24"><rect x="11" y="10" width="2.4" height="11" rx="1.2" fill="#c98d5a" stroke="#a06a35" stroke-width="1.1"/><rect x="3.6" y="3" width="16.8" height="8" rx="2.6" fill="#ffb36b" stroke="#e8862a" stroke-width="1.3"/><rect x="3.6" y="3" width="16.8" height="3.2" rx="1.6" fill="#ffcf9e"/></svg>',
-  cart:   '<svg viewBox="0 0 24 24"><path d="M2.6 4h2.6l2.6 10.4h10.1L20.6 7H6.2" fill="none" stroke="#ef5fa7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9.2" cy="19.4" r="1.8" fill="#ef5fa7"/><circle cx="17" cy="19.4" r="1.8" fill="#ef5fa7"/></svg>',
-  medal:  '<svg viewBox="0 0 24 24"><path d="M8 2l2.4 6h-4z" fill="#7be0ff"/><path d="M16 2l-2.4 6h4z" fill="#8ed16f"/><circle cx="12" cy="15" r="6.4" fill="#ffd93d" stroke="#d9a520" stroke-width="1.4"/><path d="M12 11.4l1.3 2.7 2.9.4-2.1 2 .5 2.9-2.6-1.4-2.6 1.4.5-2.9-2.1-2 2.9-.4z" fill="#fff3b0"/></svg>',
-  palette:'<svg viewBox="0 0 24 24"><path d="M12 2.6c-5.4 0-9.6 3.9-9.6 8.8 0 4.6 3.6 7.6 7.4 7.6 1.6 0 2.2-.9 2.2-1.9 0-.9-.7-1.3-.7-2 0-.9.8-1.5 1.9-1.5h1.7c2.5 0 4.5-1.9 4.5-4.4C19.4 5.4 16.1 2.6 12 2.6z" fill="#fffdf5" stroke="#8a6a1a" stroke-width="1.4"/><circle cx="7.6" cy="10" r="1.7" fill="#ff6b35"/><circle cx="12" cy="7.4" r="1.7" fill="#8ed16f"/><circle cx="16.2" cy="10" r="1.7" fill="#7be0ff"/></svg>',
-  carrot: '<svg viewBox="0 0 24 24"><path d="M12 21.4c-3.4-1.6-5.4-5-5.4-8.6 0-2 .7-3.6 1.8-4.8h7.2c1.1 1.2 1.8 2.8 1.8 4.8 0 3.6-2 7-5.4 8.6z" fill="#ff8a3d" stroke="#d96a1e" stroke-width="1.3"/><path d="M9.4 8l1-3.4 1.6 2.6L12 3l1.6 4.2L15.2 4.6 16 8z" fill="#5cae3c"/></svg>',
-  leaf:   '<svg viewBox="0 0 24 24"><path d="M20 4C10.6 4.4 5 8.4 5 14.2c0 2.2.8 4 2.2 5.2C9.6 12 14.2 8.8 19.4 8" fill="none" stroke="#5cae3c" stroke-width="1.8" stroke-linecap="round"/><path d="M19.6 4.2C19.6 9 15 12.6 8.2 12.6c-.9 0-1.8-.1-2.6-.3C7.6 6.6 12.4 4.4 19.6 4.2z" fill="#8ed16f" stroke="#5cae3c" stroke-width="1.2"/></svg>',
-  flower: '<svg viewBox="0 0 24 24"><g fill="#ffd93d" stroke="#d9a520" stroke-width="1"><circle cx="12" cy="5.6" r="3.4"/><circle cx="12" cy="18.4" r="3.4"/><circle cx="5.6" cy="12" r="3.4"/><circle cx="18.4" cy="12" r="3.4"/></g><circle cx="12" cy="12" r="3.6" fill="#ff8a3d" stroke="#d96a1e" stroke-width="1.1"/></svg>',
-  fire:   '<svg viewBox="0 0 24 24"><path d="M12 2.2c3.6 4 5.8 6.6 5.8 10.2A5.8 5.8 0 0 1 12 18.2a5.8 5.8 0 0 1-5.8-5.8c0-1.6.6-3 1.8-4.6.3 1.2 1 2 2 2.4-.4-3.4.6-6 4-8z" fill="#ff6b35" stroke="#d34e1e" stroke-width="1.2"/><path d="M12 18.2a2.6 2.6 0 0 1-2.6-2.6c0-1 .5-1.8 1.4-2.6.3.7.8 1.1 1.4 1.3-.2-1.6.3-2.8 1.8-3.8 1 1.6 1.6 3 1.6 5.1a2.6 2.6 0 0 1-2.6 2.6z" fill="#ffd93d"/></svg>',
-  star:   '<svg viewBox="0 0 24 24"><path d="M12 2.4l2.9 6.1 6.6.9-4.8 4.6 1.2 6.6L12 17.4l-5.9 3.2 1.2-6.6-4.8-4.6 6.6-.9z" fill="#ffd23f" stroke="#e8a020" stroke-width="1.3" stroke-linejoin="round"/></svg>',
-  gift:   '<svg viewBox="0 0 24 24"><rect x="3.4" y="9" width="17.2" height="11.4" rx="1.8" fill="#ff9ad5" stroke="#ef5fa7" stroke-width="1.3"/><rect x="2.6" y="5.6" width="18.8" height="4.2" rx="1.6" fill="#ffd93d" stroke="#d9a520" stroke-width="1.3"/><rect x="10.6" y="5.6" width="2.8" height="14.8" fill="#ef5fa7"/><path d="M12 5.4C10.4 2.8 7 3 7 5.4c0 1 .8 1.6 2 1.6h3zM12 5.4c1.6-2.6 5-2.4 5 0 0 1-.8 1.6-2 1.6h-3z" fill="#ffd93d" stroke="#d9a520" stroke-width="1"/></svg>',
-  crown:  '<svg viewBox="0 0 24 24"><path d="M3 8l4 3.4L12 4l5 7.4L21 8l-1.6 11H4.6z" fill="#ffd93d" stroke="#d9a520" stroke-width="1.4" stroke-linejoin="round"/><circle cx="12" cy="13.6" r="1.5" fill="#ef5fa7"/></svg>',
-  warn:   '<svg viewBox="0 0 24 24"><path d="M12 3.4l9.2 16.4H2.8z" fill="#ffd93d" stroke="#d9a520" stroke-width="1.5" stroke-linejoin="round"/><rect x="11" y="9.2" width="2" height="5.4" rx="1" fill="#7a5200"/><circle cx="12" cy="17" r="1.2" fill="#7a5200"/></svg>',
-  bolt:   '<svg viewBox="0 0 24 24"><path d="M13.4 2.4L5.6 13.4h5l-1.4 8.2 8.2-11.4h-5.2z" fill="#ffd93d" stroke="#d9a520" stroke-width="1.3" stroke-linejoin="round"/></svg>',
-  gear:   '<svg viewBox="0 0 24 24"><path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6zm9 3.8c0 .7-.1 1.4-.2 2l2 1.5-2 3.4-2.4-.9c-1 .8-2.2 1.5-3.4 1.9l-.4 2.5h-4l-.4-2.5c-1.3-.4-2.4-1.1-3.4-1.9l-2.4.9-2-3.4 2-1.5a9 9 0 0 1 0-4l-2-1.5 2-3.4 2.4.9c1-.8 2.1-1.5 3.4-1.9L10.6 2h4l.4 2.5c1.3.4 2.4 1.1 3.4 1.9l2.4-.9 2 3.4-2 1.5c.1.6.2 1.3.2 2z" fill="#8ed16f" stroke="#3f8a28" stroke-width="1.1"/></svg>',
-  calendar:'<svg viewBox="0 0 24 24"><rect x="3" y="5.4" width="18" height="16" rx="2.4" fill="#fffdf5" stroke="#8a6a1a" stroke-width="1.5"/><rect x="3" y="5.4" width="18" height="4.6" rx="2.4" fill="#ff8a3d"/><rect x="7" y="2.6" width="2.4" height="4.4" rx="1.2" fill="#8a6a1a"/><rect x="14.6" y="2.6" width="2.4" height="4.4" rx="1.2" fill="#8a6a1a"/><rect x="6.6" y="12.4" width="4" height="3.4" rx="1" fill="#8ed16f"/><rect x="13.4" y="12.4" width="4" height="3.4" rx="1" fill="#ffd93d"/></svg>',
-  soundOn:'<svg viewBox="0 0 24 24"><path d="M4 9.4h3.4L12 5.2v13.6L7.4 14.6H4z" fill="#ffd93d" stroke="#d9a520" stroke-width="1.3" stroke-linejoin="round"/><path d="M15 9a4.6 4.6 0 0 1 0 6M17.6 6.4a8.2 8.2 0 0 1 0 11.2" fill="none" stroke="#8ed16f" stroke-width="1.8" stroke-linecap="round"/></svg>',
-  soundOff:'<svg viewBox="0 0 24 24"><path d="M4 9.4h3.4L12 5.2v13.6L7.4 14.6H4z" fill="#c8d6c0" stroke="#7a9a6a" stroke-width="1.3" stroke-linejoin="round"/><path d="M15.4 9.4l5.2 5.2M20.6 9.4l-5.2 5.2" fill="none" stroke="#e63946" stroke-width="1.8" stroke-linecap="round"/></svg>',
-  pause:  '<svg viewBox="0 0 24 24"><rect x="6.4" y="4.4" width="4.2" height="15.2" rx="1.6" fill="#ffd93d" stroke="#d9a520" stroke-width="1.2"/><rect x="13.4" y="4.4" width="4.2" height="15.2" rx="1.6" fill="#ffd93d" stroke="#d9a520" stroke-width="1.2"/></svg>',
-  play:   '<svg viewBox="0 0 24 24"><path d="M7 4.6l12 7.4-12 7.4z" fill="#8ed16f" stroke="#3f8a28" stroke-width="1.4" stroke-linejoin="round"/></svg>',
-  /* v1.5 新增：把 UI 上残留的 emoji 也换成同族 SVG */
-  home:   '<svg viewBox="0 0 24 24"><path d="M12 3.2l9 7.4h-2.4v9.4h-4.8v-6h-3.6v6H5.4V10.6H3z" fill="#ffd93d" stroke="#d9a520" stroke-width="1.4" stroke-linejoin="round"/><rect x="10.6" y="15.6" width="2.8" height="4.4" rx="1" fill="#c98d5a"/></svg>',
-  refresh:'<svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7" fill="none" stroke="#ffd93d" stroke-width="2.2" stroke-linecap="round"/><path d="M20.4 2.6v5.2h-5.2z" fill="#ffd93d" stroke="#d9a520" stroke-width="1"/></svg>',
-  book:   '<svg viewBox="0 0 24 24"><path d="M4 4.4h6.2c1 0 1.8.8 1.8 1.8v13.4H5.8A1.8 1.8 0 0 1 4 17.8z" fill="#fffdf5" stroke="#8a6a1a" stroke-width="1.4"/><path d="M20 4.4h-6.2c-1 0-1.8.8-1.8 1.8v13.4h6.2a1.8 1.8 0 0 0 1.8-1.8z" fill="#ffe9a8" stroke="#8a6a1a" stroke-width="1.4"/><path d="M12 6.2v13.4" stroke="#8a6a1a" stroke-width="1.2"/></svg>',
-  egg:    '<svg viewBox="0 0 24 24"><ellipse cx="12" cy="13.6" rx="6.4" ry="8" fill="#fffdf5" stroke="#d9a520" stroke-width="1.4"/><path d="M7 12.4c1.6-1 3.4-1.4 5-1.4s3.4.4 5 1.4" fill="none" stroke="#7be0ff" stroke-width="1.6" stroke-linecap="round"/><path d="M8 16.6c1.2-.7 2.6-1 4-1s2.8.3 4 1" fill="none" stroke="#ff9ad5" stroke-width="1.6" stroke-linecap="round"/></svg>',
-  hundred:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.4" fill="#ff6b6b" stroke="#c73e3e" stroke-width="1.5"/><path d="M6.6 9.2l2.4-1.8v9" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 8.2c2 0 3 1.6 3 4.2s-1 4.2-3 4.2-3-1.6-3-4.2 1-4.2 3-4.2z" fill="none" stroke="#fff" stroke-width="1.9"/><path d="M17.4 8.4l1.8-1.2v8.8" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round"/></svg>'
+  coin:    lucide('<circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/>'),
+  trophy:  lucide('<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>'),
+  hammer:  lucide('<path d="m15 12-8.373 8.373a1 1 0 1 1-3-3L12 9"/><path d="m18 15 4-4"/><path d="m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172V7l-2.26-2.26a6 6 0 0 0-4.202-1.756L9 2.96l.92.82A6.18 6.18 0 0 1 12 8.4V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5"/>'),
+  cart:    lucide('<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>'),
+  medal:   lucide('<path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15"/><path d="M11 12 5.12 2.2"/><path d="m13 12 5.88-9.8"/><path d="M8 7h8"/><circle cx="12" cy="17" r="5"/><path d="M12 18v-2h-.5"/>'),
+  palette: lucide('<circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>'),
+  carrot:  lucide('<path d="M2.27 21.7s9.87-3.5 12.73-6.36a4.5 4.5 0 0 0-6.36-6.37C5.77 11.84 2.27 21.7 2.27 21.7zM8.64 14l-2.05-2.04M15.34 15.46l-2.22-2.22"/><path d="M22 9s-1.33-2-3.5-2C16.86 7 15 9 15 9s1.33 2 3.5 2S22 9 22 9z"/><path d="M15 2s-2 1.33-2 3.5S15 9 15 9s2-1.84 2-3.5C17 3.33 15 2 15 2z"/>'),
+  leaf:    lucide('<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>'),
+  flower:  lucide('<path d="M12 5a3 3 0 1 1 3 3m-3-3a3 3 0 1 0-3 3m3-3v1M9 8a3 3 0 1 0 3 3M9 8h1m5 0a3 3 0 1 1-3 3m3-3h-1m-2 3v-1"/><circle cx="12" cy="8" r="2"/><path d="M12 10v12"/><path d="M12 22c4.2 0 7-1.667 7-5-4.2 0-7 1.667-7 5Z"/><path d="M12 22c-4.2 0-7-1.667-7-5 4.2 0 7 1.667 7 5Z"/>'),
+  fire:    lucide('<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>'),
+  star:    lucide('<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>'),
+  gift:    lucide('<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/>'),
+  crown:   lucide('<path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/><path d="M5 21h14"/>'),
+  warn:    lucide('<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>'),
+  bolt:    lucide('<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>'),
+  gear:    lucide('<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>'),
+  calendar: lucide('<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>'),
+  soundOn: lucide('<path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/>'),
+  soundOff: lucide('<path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><line x1="22" x2="16" y1="9" y2="15"/><line x1="16" x2="22" y1="9" y2="15"/>'),
+  pause:   lucide('<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>'),
+  play:    lucide('<path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/>'),
+  home:    lucide('<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>'),
+  refresh: lucide('<path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>'),
+  book:    lucide('<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/>'),
+  egg:     lucide('<path d="M12 22c-4.97 0-9-4.03-9-9 0-4.5 4-12 9-12s9 7.5 9 12c0 4.97-4.03 9-9 9Z"/>'),
+  hundred: lucide('<circle cx="12" cy="12" r="9.4"/><path d="M6.6 9.2l2.4-1.8v9"/><path d="M13 8.2c2 0 3 1.6 3 4.2s-1 4.2-3 4.2-3-1.6-3-4.2 1-4.2 3-4.2z"/><path d="M17.4 8.4l1.8-1.2v8.8"/>'),
+  chevDown: lucide('<path d="m6 9 6 6 6-6"/>'),
+  chevUp:  lucide('<path d="m18 15-6-6-6 6"/>'),
+  kbd:     lucide('<path d="M10 8h.01"/><path d="M12 12h.01"/><path d="M14 8h.01"/><path d="M16 12h.01"/><path d="M18 8h.01"/><path d="M6 8h.01"/><path d="M7 16h10"/><path d="M8 12h.01"/><rect width="20" height="16" x="2" y="4" rx="2"/>'),
+  rain:    lucide('<path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/>'),
+  clover:  lucide('<path d="M16.17 7.83 2 22"/><path d="M4.02 12a2.827 2.827 0 1 1 1.81-4.17A2.827 2.827 0 1 1 12 4.02a2.827 2.827 0 1 1 4.17 1.81A2.827 2.827 0 1 1 19.98 12a2.827 2.827 0 1 1-1.81 4.17A2.827 2.827 0 1 1 12 19.98a2.827 2.827 0 1 1-4.17-1.81A2.827 2.827 0 1 1 4.02 12"/>'),
+  clock:   lucide('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>'),
+  party:   lucide('<path d="M5.8 11.3 2 22l10.7-3.79"/><path d="M4 3h.01"/><path d="M22 8h.01"/><path d="M15 2h.01"/><path d="M22 20h.01"/><path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10"/><path d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11c-.11.7-.72 1.22-1.43 1.22H17"/><path d="m11 2 .33.82c.34.86-.2 1.82-1.11 1.98C9.52 4.9 9 5.52 9 6.23V7"/><path d="M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z"/>'),
+  sparkle: lucide('<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/>'),
+  drop:    lucide('<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>'),
+  peach:   lucide('<path d="M12 5.4c3.8-2 8 .6 8 4.6 0 4.4-4 9.6-8 9.6s-8-5.2-8-9.6c0-4 4.2-6.6 8-4.6z"/><path d="M12 5.4V3"/><path d="M12 4l3.2-1.4"/><path d="M12 4.2c2-1.6 4.6-1.4 5.6-.2-1 1.4-3.6 1.6-5.6.2z"/>'),
+  wheat:   lucide('<path d="M2 22 16 8"/><path d="M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/><path d="M7.47 8.53 9 7l1.53 1.53a3.5 3.5 0 0 1 0 4.94L9 15l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/><path d="M11.47 4.53 13 3l1.53 1.53a3.5 3.5 0 0 1 0 4.94L13 11l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/><path d="M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z"/><path d="M11.47 17.47 13 19l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L5 19l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/><path d="M15.47 13.47 17 15l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L9 15l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/><path d="M19.47 9.47 21 11l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L13 11l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/>'),
+  check:   lucide('<path d="M20 6 9 17l-5-5"/>'),
+  storm:   lucide('<path d="M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973"/><path d="m13 12-3 5h4l-3 5"/>'),
+  close:   lucide('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>'),
+  gold1:   lucide('<path d="M8 2.4l1.6 5.4h4.8L16 2.4"/><circle cx="12" cy="14.6" r="6.2"/><path d="M12 11.4l1 2.3 2.5.3-1.8 1.7.5 2.5-2.2-1.3-2.2 1.3.5-2.5-1.8-1.7 2.5-.3z"/>'),
+  gold2:   lucide('<path d="M8 2.4l1.6 5.4h4.8L16 2.4"/><circle cx="12" cy="14.6" r="6.2"/><path d="M12 11.4l1 2.3 2.5.3-1.8 1.7.5 2.5-2.2-1.3-2.2 1.3.5-2.5-1.8-1.7 2.5-.3z"/>'),
+  gold3:   lucide('<path d="M8 2.4l1.6 5.4h4.8L16 2.4"/><circle cx="12" cy="14.6" r="6.2"/><path d="M12 11.4l1 2.3 2.5.3-1.8 1.7.5 2.5-2.2-1.3-2.2 1.3.5-2.5-1.8-1.7 2.5-.3z"/>')
 };
-/* emoji → 内联 SVG 的映射：成就 / 每日任务里残留的 emoji 走这张表统一渲染 */
-ICON.rain   = '<svg viewBox="0 0 24 24"><path d="M6.4 12.6a4 4 0 0 1 .5-8 5.4 5.4 0 0 1 10.2 1.2 3.6 3.6 0 0 1-.6 7.1z" fill="#cfe8ff" stroke="#7aa8d8" stroke-width="1.3"/><path d="M8 15.6l-1 3.2M12 15.6l-1 3.2M16 15.6l-1 3.2" stroke="#5aa9e6" stroke-width="1.8" stroke-linecap="round"/></svg>';
-ICON.clover = '<svg viewBox="0 0 24 24"><g fill="#8ed16f" stroke="#4d8a35" stroke-width="1.1"><circle cx="12" cy="7.6" r="3.4"/><circle cx="12" cy="16.4" r="3.4"/><circle cx="7.6" cy="12" r="3.4"/><circle cx="16.4" cy="12" r="3.4"/></g><circle cx="12" cy="12" r="1.8" fill="#ffd93d"/></svg>';
-ICON.clock  = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#fffdf5" stroke="#8a6a1a" stroke-width="1.6"/><path d="M12 6.6V12l3.6 2.4" fill="none" stroke="#ff8a3d" stroke-width="2" stroke-linecap="round"/></svg>';
-ICON.party  = '<svg viewBox="0 0 24 24"><path d="M4 20l5.6-13.6L16.6 12z" fill="#ff9ad5" stroke="#ef5fa7" stroke-width="1.3" stroke-linejoin="round"/><circle cx="18" cy="5.4" r="1.7" fill="#ffd93d"/><circle cx="20.4" cy="10.6" r="1.3" fill="#7be0ff"/><circle cx="14.6" cy="3.4" r="1.3" fill="#8ed16f"/></svg>';
-ICON.sparkle = '<svg viewBox="0 0 24 24"><path d="M12 2.4l2.2 6.2 6.2 2.2-6.2 2.2L12 19.2l-2.2-6.2L3.6 10.8l6.2-2.2z" fill="#fff8c0" stroke="#ffd93d" stroke-width="1.2" stroke-linejoin="round"/></svg>';
-ICON.drop = '<svg viewBox="0 0 24 24"><path d="M12 2.6c3.4 4.6 6 8.2 6 11.2a6 6 0 0 1-12 0c0-3 2.6-6.6 6-11.2z" fill="#7be0ff" stroke="#3d94e8" stroke-width="1.3"/><path d="M9.6 14.2a2.6 2.6 0 0 0 2.6 2.6" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></svg>';
-ICON.peach = '<svg viewBox="0 0 24 24"><path d="M12 5.4c3.8-2 8 .6 8 4.6 0 4.4-4 9.6-8 9.6s-8-5.2-8-9.6c0-4 4.2-6.6 8-4.6z" fill="#ffb0c0" stroke="#e87a95" stroke-width="1.3"/><path d="M12 5.4V3M12 4l3.2-1.4" stroke="#4d8a35" stroke-width="1.4" stroke-linecap="round"/><path d="M12 4.2c2-1.6 4.6-1.4 5.6-.2-1 1.4-3.6 1.6-5.6.2z" fill="#8ed16f" stroke="#4d8a35" stroke-width="1.1"/></svg>';
-ICON.wheat = '<svg viewBox="0 0 24 24"><path d="M12 21.4V8" stroke="#d9a520" stroke-width="1.6" stroke-linecap="round"/><path d="M12 9.6c-1.8-.6-3-2.2-3-4 1.8 0 3 .8 3 2.2zM12 9.6c1.8-.6 3-2.2 3-4-1.8 0-3 .8-3 2.2zM12 13.6c-1.8-.6-3-2.2-3-4 1.8 0 3 .8 3 2.2zM12 13.6c1.8-.6 3-2.2 3-4-1.8 0-3 .8-3 2.2zM12 17.6c-1.8-.6-3-2.2-3-4 1.8 0 3 .8 3 2.2zM12 17.6c1.8-.6 3-2.2 3-4-1.8 0-3 .8-3 2.2z" fill="#ffd93d" stroke="#d9a520" stroke-width="1"/></svg>';
-ICON.check = '<svg viewBox="0 0 24 24"><path d="M5 12.6l4.6 4.6L19 7.4" fill="none" stroke="#ffd93d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-ICON.storm = '<svg viewBox="0 0 24 24"><path d="M4 6.4h13a3 3 0 1 0-3-3" fill="none" stroke="#7be0ff" stroke-width="2.1" stroke-linecap="round"/><path d="M5.6 11.2h12a3 3 0 1 1-3 3" fill="none" stroke="#c9a6ff" stroke-width="2.1" stroke-linecap="round"/><path d="M7 16h7.4" fill="none" stroke="#8ed16f" stroke-width="2.1" stroke-linecap="round"/></svg>';
-ICON.close = '<svg viewBox="0 0 24 24"><path d="M6.6 6.6l10.8 10.8M17.4 6.6L6.6 17.4" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/></svg>';
-ICON.gold1 = '<svg viewBox="0 0 24 24"><path d="M8 2.4l1.6 5.4h4.8L16 2.4" fill="#ffd93d" stroke="#b8860b" stroke-width="1.2"/><circle cx="12" cy="14.6" r="6.2" fill="#ffd93d" stroke="#b8860b" stroke-width="1.5"/><path d="M12 11.4l1 2.3 2.5.3-1.8 1.7.5 2.5-2.2-1.3-2.2 1.3.5-2.5-1.8-1.7 2.5-.3z" fill="#fff8c0"/></svg>';
-ICON.gold2 = '<svg viewBox="0 0 24 24"><path d="M8 2.4l1.6 5.4h4.8L16 2.4" fill="#dfe6ee" stroke="#9aa8b8" stroke-width="1.2"/><circle cx="12" cy="14.6" r="6.2" fill="#dfe6ee" stroke="#9aa8b8" stroke-width="1.5"/><path d="M12 11.4l1 2.3 2.5.3-1.8 1.7.5 2.5-2.2-1.3-2.2 1.3.5-2.5-1.8-1.7 2.5-.3z" fill="#fff8c0"/></svg>';
-ICON.gold3 = '<svg viewBox="0 0 24 24"><path d="M8 2.4l1.6 5.4h4.8L16 2.4" fill="#e8b48a" stroke="#b8794a" stroke-width="1.2"/><circle cx="12" cy="14.6" r="6.2" fill="#e8b48a" stroke="#b8794a" stroke-width="1.5"/><path d="M12 11.4l1 2.3 2.5.3-1.8 1.7.5 2.5-2.2-1.3-2.2 1.3.5-2.5-1.8-1.7 2.5-.3z" fill="#fff8c0"/></svg>';
-var EMOJI_ICO = {
-  '\uD83D\uDD28':'hammer', '\u2692\uFE0F':'hammer', '\u26A1':'bolt', '\uD83C\uDF2A\uFE0F':'fire',
-  '\uD83D\uDCAF':'hundred', '\uD83D\uDC51':'crown', '\uD83E\uDD5A':'egg',
-  '\u2B50':'star', '\uD83D\uDD25':'fire', '\uD83D\uDCDA':'book',
-  '\uD83C\uDF31':'leaf', '\uD83C\uDF3B':'flower', '\uD83D\uDCCB':'book'
-};
+/* 图标插槽：只输出空的 .ico 占位，真正的 SVG 由 paintIcons() 统一注入。
+   命中不到 ICON 时给空占位（绝不再回退成 emoji 字符）。 */
 function icoHtml(e){
-  if(ICON[e]){ return '<span class="ico" data-ico="' + e + '"></span>'; }
-  var k = EMOJI_ICO[e];
-  return k ? '<span class="ico" data-ico="' + k + '"></span>' : e;
+  return ICON[e] ? '<span class="ico" data-ico="' + e + '"></span>' : '<span class="ico" aria-hidden="true"></span>';
 }
 var ICON_KEY = { easy:'leaf', normal:'flower', hard:'fire' };
 function paintIcons(root){
@@ -1583,8 +2641,11 @@ function paintIcons(root){
 }
 function setBtnIcon(btn, key){
   if(!btn || !ICON[key]) return;
-  btn.innerHTML = '<span class="ico" data-ico="' + key + '"></span>' + ICON[key].replace(/^<svg[^>]*>/, '');
-  btn.setAttribute('data-painted', key);
+  /* 只放一个空的 .ico 占位 + 交给 paintIcons 渲染，避免手写剥 SVG 开标签导致的空图标。
+     data-painted 只打在 .ico 上，button 自身不再带这个属性，与 paintIcons 的缓存语义一致。 */
+  btn.innerHTML = '<span class="ico" aria-hidden="true" data-ico="' + key + '"></span>';
+  btn.removeAttribute('data-painted');
+  paintIcons(btn);
 }
 
 /* ================= 工具图鉴（SVG 锤子皮肤） ================= */
@@ -1762,6 +2823,7 @@ function logCollect(id, field, n){
   collect[id][field] = (collect[id][field] || 0) + (n || 1);
   if(collect[id].seen === 0){ collect[id].seen = 1; }
   saveCollect();
+  markRosterDirty();   /* 图鉴数据变化：置脏，可见时立即重绘 */
 }
 function rarityDone(rk){
   var ids = COLLECT_IDS.filter(function(id){
@@ -1837,8 +2899,10 @@ function animateMobLife(mob, type){
   /* 符号贴图的“呼吸”律动，代替原来的眨眼动画 */
   var glyphEl = mob.querySelector('.mob-body .glyph-svg, .mob-body .mob-img');
   if(glyphEl){
-    mob._tweens.push(gsap.to(glyphEl, {
-      scale: 1.08, transformOrigin: '50% 84%', duration: 0.92,
+    /* 只负责呼吸：外层 .mob-art 已经统一做 80% 缩放与上抬（CSS 变量控制，所有画风共用），
+       这里用相对自身的 1.0~1.08 呼吸，不会覆盖外层变换，也不会改变点击热区 */
+    mob._tweens.push(gsap.fromTo(glyphEl, { scale: 1, transformOrigin: '50% 100%' }, {
+      scale: 1.08, transformOrigin: '50% 100%', duration: 0.92,
       ease: 'sine.inOut', yoyo: true, repeat: -1
     }));
   }
@@ -1864,24 +2928,36 @@ function hitSquash(body, mob){
     .to(body, { scaleX: 0.72, scaleY: 0.74, autoAlpha: 0, duration: 0.14, ease: 'power2.in' });
 }
 function homeIntro(){
-  var items = document.querySelectorAll('#startScreen .home-eyebrow, #startScreen .home-title, #startScreen .home-slogan, #startScreen .mode-card, #startScreen .big-btn, #startScreen .menu-row, #startScreen .roster-toggle');
+  var items = document.querySelectorAll('#startScreen .home-eyebrow, #startScreen .home-title, #startScreen .home-slogan, #startScreen .mode-card, #startScreen .big-btn, #startScreen .menu-row .menu-btn');
   if(!items.length) return;
   if(!motionOn()){ gsap.set(items, { clearProps: 'opacity,visibility,transform' }); return; }
   gsap.fromTo(items, { y: 20, autoAlpha: 0 },
     { y: 0, autoAlpha: 1, duration: 0.42, stagger: 0.055, ease: 'back.out(1.5)', clearProps: 'all' });
   setTimeout(function(){ gsap.set(items, { clearProps: 'opacity,visibility,transform' }); }, 1400);
 }
-function openPanel(panel){
+/* 统一可见性仲裁：同一时刻只允许一个 overlay 可见；传 null 视为回到首页。 */
+function showOnlyPanel(panel){
+  ALL_PANELS.forEach(function(p){
+    if(!p || p === panel) return;
+    p.classList.add('hidden');
+    try{ gsap.set(p, { clearProps: 'opacity,visibility' }); }catch(e){}
+  });
+  if(panel) panel.classList.remove('hidden');
+  return panel;
+}
+function openPanel(panel, initialFocus){
+  if(!panel) return;
   lastFocus = document.activeElement;                 /* 关闭时还原到这里 */
-  panel.classList.remove('hidden');
+  showOnlyPanel(panel);
   var card = panel.querySelector('.panel-card');
-  var into = panel.querySelector('.panel-close') || card;
+  var into = initialFocus || panel.querySelector('.panel-close') || card;
   if(into && into.focus){ setTimeout(function(){ try{ into.focus(); }catch(e){} }, 30); }
   if(!motionOn()){ gsap.set(panel, { clearProps: 'opacity,visibility' }); return; }
   gsap.fromTo(panel, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2, ease: 'power1.out' });
   if(card){ gsap.fromTo(card, { y: 26, scale: 0.96 }, { y: 0, scale: 1, duration: 0.36, ease: 'back.out(1.4)' }); }
 }
 function closePanel(panel){
+  if(!panel) return;
   var restore = function(){
     if(lastFocus && lastFocus.focus && document.contains(lastFocus)){ try{ lastFocus.focus(); }catch(e){} }
     lastFocus = null;
@@ -2485,15 +3561,10 @@ function startGame(){
   document.body.classList.remove('fever');
   document.body.classList.add('playing');
   setPaused(false);
-  if(pauseBtn){ pauseBtn.disabled = false; setBtnIcon(pauseBtn, 'pause'); }
+  if(pauseBtn){ pauseBtn.disabled = false; setBtnIcon(pauseBtn, 'pause'); pauseBtn.setAttribute('aria-pressed', 'false'); }
   buildField();
   var RM = motionOn();
-  endScreen.classList.add('hidden');
-  boardPanel.classList.add('hidden');
-  shopPanel.classList.add('hidden');
-  taskPanel.classList.add('hidden');
-  stylePanel.classList.add('hidden');
-  setPanel.classList.add('hidden');
+  showOnlyPanel(null);
   gsap.fromTo('#hud .stat, #comboBox', { y: -18, autoAlpha: 0 },
     { y: 0, autoAlpha: 1, duration: RM ? 0.3 : 0, stagger: RM ? 0.05 : 0, ease: 'back.out(1.6)', clearProps: 'transform' });
   if(RM){
@@ -2524,7 +3595,7 @@ function endGame(){
   running = false;
   document.body.classList.remove('playing');
   setPaused(false);
-  if(pauseBtn){ pauseBtn.disabled = true; setBtnIcon(pauseBtn, 'pause'); }
+  if(pauseBtn){ pauseBtn.disabled = true; setBtnIcon(pauseBtn, 'pause'); pauseBtn.setAttribute('aria-pressed', 'false'); }
   clearTimeout(spawnTO);
   clearInterval(clockIV);
   cancelAnimationFrame(rafId);
@@ -2580,7 +3651,8 @@ function endGame(){
   $('#bestScore2').textContent = bestM;
   $('#finalScore').textContent = '0';
   $('#gainCoins').textContent = '+0';
-  endScreen.classList.remove('hidden');
+  showOnlyPanel(endScreen);
+  updateHonorStat();
 
   var RM = motionOn();
   if(RM){
@@ -2616,6 +3688,33 @@ function endGame(){
   $('#totalCoins').textContent = store.get('coins', 0);
   renderTasks();
   refreshHome();
+}
+
+/* 放弃本局：只做清理，不结算分数、不写排行榜，直接回首页 */
+function quitGame(){
+  if(!running) return;
+  if(!window.confirm('确定放弃本局吗？本局成绩和进度不会保存。')) return;
+  running = false;
+  document.body.classList.remove('playing');
+  setPaused(false);
+  if(pauseBtn){ pauseBtn.disabled = true; setBtnIcon(pauseBtn, 'pause'); pauseBtn.setAttribute('aria-pressed', 'false'); }
+  clearTimeout(spawnTO);
+  clearInterval(clockIV);
+  cancelAnimationFrame(rafId);
+  exitFever();
+  comboBar.style.width = '0%';
+  stopCursorLoop();
+  cursor.style.display = 'none';
+  clearFx();
+  holes.forEach(function(h){
+    h.busy = false;
+    var old = h.slot.querySelector('.mob');
+    if(old){ killMobTweens(old); gsap.killTweensOf(old); }
+    h.slot.innerHTML = '';
+  });
+  showHome();
+  refreshHome();
+  announce('已放弃本局，回到首页');
 }
 
 /* ================= 首页 / 图鉴 / 模式 / 排行榜 / 商城 ================= */
@@ -2769,7 +3868,6 @@ function checkDaily(){
   return gain;
 }
 function renderTasks(){
-  if($('#taskCoins')){ $('#taskCoins').textContent = store.get('coins', 0); }
   var dEl = $('#dailyList');
   if(dEl){
     var h1 = '';
@@ -2859,10 +3957,23 @@ function scheduleEvents(){
   }
 }
 
+/* 图鉴并入荣誉堂第三个 tab 后，重绘改为「脏标记 + 可见时才画」：
+   collect 变化 / 购买后只置脏，真正渲染在切到 roster tab 时发生，避免首页空转重绘。 */
+var rosterDirty = true;
+function markRosterDirty(){ rosterDirty = true; renderRosterIfVisible(); }
+function renderRosterIfVisible(){
+  if(!rosterDirty) return;
+  var host = $('#honorTabRoster');
+  if(!host || host.hidden) return;   /* 面板不可见：保持脏标记，等切到该 tab 再画 */
+  renderRoster();
+}
 function renderRoster(){
   var html = '';
+  /* 图鉴卡片专用短名：只影响图鉴显示，不改动游戏内提示与成就文案 */
+  var SHORT_NAME = { elite: '王冠' };
   COLLECT_IDS.forEach(function(id){
     var t = TYPES[id] || {};
+    var nm = SHORT_NAME[id] || t.name || '？';
     var pts, cls = t.cls || 'bad';
     if(t.kind === 'bonus'){ pts = '随机奖励'; cls = 'gold random'; }   /* 礼盒是随机奖励，不再显示 +0（验收报告八章） */
     else { pts = t.points > 0 ? '+' + t.points : '' + t.points; }
@@ -2871,48 +3982,57 @@ function renderRoster(){
     var src = mobArtSrc(id);
     var icon = src
       ? '<img class="r-img' + (CARD_ART[id] ? ' is-card' : '') + '" src="' + src + '" alt="" decoding="async">'
-      : '<span class="r-glyph">' + emojiOf(id) + '</span>';
+      : '<span class="r-glyph">' + ((TYPES[id] || {}).name || '？') + '</span>';
+    /* 无障碍：格子是 role=listitem，完整信息放 aria-label，内部可见元素对读屏隐藏；
+       未解锁额外给 sr-only 文案，避免只念出「？？？」。 */
+    var label = seen ? (nm + '，' + R.name + '，' + pts)
+                     : ('未解锁，' + R.name);
     html += '<div class="r-cell ' + (R.frame || 'r-common') + (t.bad ? ' is-bad' : '') +
-            (seen ? '' : ' locked') + '">' +
-            '<span class="r-badge" style="color:' + R.color + '">' + R.name + '</span>' +
-            '<span class="r-icon">' + icon + '</span>' +
-            '<span class="r-name">' + (seen ? t.name : '？？？') + '</span>' +
-            '<span class="r-pts ' + cls + '">' + pts + '</span></div>';
+            (seen ? '' : ' locked') + '" role="listitem" aria-label="' + label + '">' +
+            '<span class="r-badge" aria-hidden="true">' + R.name + '</span>' +
+            '<span class="r-icon" aria-hidden="true">' + icon + '</span>' +
+            '<span class="r-name" aria-hidden="true">' + (seen ? nm : '？？？') + '</span>' +
+            '<span class="r-pts ' + cls + '" aria-hidden="true">' + pts + '</span>' +
+            (seen ? '' : '<span class="sr-only">未解锁</span>') + '</div>';
   });
   $('#rosterGrid').innerHTML = html;
   markThumbs();
   var n = seenCount();
   if($('#rosterProg')){ $('#rosterProg').textContent = n + ' / ' + COLLECT_IDS.length; }
   if($('#rosterBar')){ $('#rosterBar').style.width = (n / COLLECT_IDS.length * 100) + '%'; }
-  if(motionOn()){
+  var host = $('#honorTabRoster');
+  if(motionOn() && host && !host.hidden){
     gsap.fromTo('#rosterGrid .r-cell', { scale: 0.6, autoAlpha: 0 },
-      { scale: 1, autoAlpha: 1, duration: 0.34, stagger: 0.03, ease: 'back.out(1.8)', clearProps: 'transform' });
+      { scale: 1, autoAlpha: 1, duration: 0.34, stagger: 0.03, ease: 'back.out(1.8)',
+        clearProps: 'transform,opacity,visibility' });
   }
+  rosterDirty = false;
 }
 
 function refreshHome(){
-  $('#coinCount').textContent = store.get('coins', 0);
-  var styName = STYLE_SETS[styleEquipped()].name;
-  if($('#styleBtnName')){ $('#styleBtnName').textContent = styName; }
+  applyUiTheme();   /* 首页是唯一的运行时刷新锚点：装备 / 购买整套 / 单张集齐 / 结算 / 初始化都会经过这里 */
   var tid = currentTool();
-  $('#equippedName').textContent = TOOLS[tid] ? TOOLS[tid].name : '小手手';
   cursor.innerHTML = TOOL_SVG[tid] || TOOL_SVG.hand;
-  renderRoster();
+  markRosterDirty();   /* 只置脏，图鉴在切到荣誉堂 roster tab 时才真正重绘 */
   renderModeCards();
+  updateHonorStat();
 }
 
 function renderModeCards(){
   var cards = document.querySelectorAll('.mode-card');
   cards.forEach(function(card){
     var m = card.getAttribute('data-mode');
-    card.classList.toggle('sel', m === mode);
+    var sel = (m === mode);
+    card.classList.toggle('sel', sel);
+    /* 难度卡是 radiogroup：视觉 .sel 与语义 aria-checked 必须同源 */
+    card.setAttribute('aria-checked', sel ? 'true' : 'false');
+    card.tabIndex = sel ? 0 : -1;
     var best = store.get('best_' + m, 0);
     card.querySelector('.mc-best').textContent = best > 0 ? '最佳 ' + best : '最佳 --';
   });
   var M = MODES[mode];
   $('#startBtn').innerHTML = '<span class="ico" data-ico="' + (ICON_KEY[mode] || 'flower') + '"></span>开始 · ' + M.name + '模式';
   document.body.setAttribute('data-mode', mode);
-  if($('#bestScore')){ $('#bestScore').textContent = store.get('best_' + mode, 0); }
   var mi = $('#modeIco');
   if(mi){ mi.setAttribute('data-ico', ICON_KEY[mode] || 'flower'); }
   paintIcons(document);
@@ -2929,14 +4049,34 @@ document.querySelectorAll('.mode-card').forEach(function(card){
     }
   });
 });
+/* 难度卡键盘可达：roving tabindex + ←/→/↑/↓/Home/End 直接切换（radiogroup 标准行为） */
+(function(){
+  var row = $('#modeRow');
+  if(!row) return;
+  row.addEventListener('keydown', function(e){
+    var cards = Array.prototype.slice.call(row.querySelectorAll('.mode-card'));
+    var i = cards.indexOf(document.activeElement);
+    if(i < 0) return;
+    var n = cards.length, next = -1;
+    if(e.key === 'ArrowRight' || e.key === 'ArrowDown'){ next = (i + 1) % n; }
+    else if(e.key === 'ArrowLeft' || e.key === 'ArrowUp'){ next = (i - 1 + n) % n; }
+    else if(e.key === 'Home'){ next = 0; }
+    else if(e.key === 'End'){ next = n - 1; }
+    if(next < 0 || next === i) return;
+    e.preventDefault();
+    cards[next].focus();
+    cards[next].click();
+  });
+})();
 
 function renderBoard(){
   var board = store.get('board', []);
   var box = $('#boardList');
-  $('#boardCoins').textContent = store.get('coins', 0);
+  if(!box) return;
   var rows = board.filter(function(rec){ return rankFilter === 'all' || (rec.m || 'normal') === rankFilter; });
   if(!rows.length){
     box.innerHTML = '<div class="rank-empty"><span class="ico" data-ico="wheat"></span>这里还没有记录<br>快去打响第一锤吧！</div>';
+    paintIcons(box);          /* 空列表分支也要补画，否则 wheat 图标是空占位 */
     return;
   }
   var medals = ['<span class="ico" data-ico="gold1"></span>', '<span class="ico" data-ico="gold2"></span>', '<span class="ico" data-ico="gold3"></span>'];
@@ -2958,19 +4098,46 @@ function renderBoard(){
 
 var toastTO = null;
 function shopToast(msg, isErr){
-  var t = $('#shopToast');
+  var t = $('#workshopToast');
+  if(!t) return;
   t.innerHTML = msg;
   paintIcons(t);
-  t.style.color = isErr ? '#c73e3e' : '#3f8a28';
+  t.style.color = isErr ? 'var(--c-danger-deep)' : 'var(--c-leaf-ink)';
   clearTimeout(toastTO);
-  toastTO = setTimeout(function(){ t.textContent = ''; }, 2200);
+  toastTO = setTimeout(function(){ t.textContent = ''; }, 2400);
 }
 
-function renderShop(){
+/* 列表整体重建后把焦点还原到「等价位置」：先按 data-* 键精确匹配，
+   匹配不到（如按钮已变成禁用的「使用中」）就退回同序号的可点按钮。
+   避免键盘用户在购买/装备/展开后被丢回 body。 */
+function restoreListFocus(list, render){
+  var act = document.activeElement;
+  var attr = null, val = null, idx = -1;
+  if(list && act && act.tagName === 'BUTTON' && list.contains(act)){
+    ['data-buy','data-equip','data-equipst','data-buyset','data-buysprite','data-expand'].forEach(function(a){
+      if(!attr && act.hasAttribute(a)){ attr = a; val = act.getAttribute(a); }
+    });
+    idx = Array.prototype.indexOf.call(list.querySelectorAll('button'), act);
+  }
+  render();
+  if(!list || idx < 0) return;
+  var next = null;
+  if(attr){ next = list.querySelector('button[' + attr + '="' + val + '"]'); }
+  if((!next || next.disabled)){
+    var pool = Array.prototype.filter.call(list.querySelectorAll('button'), function(b){ return !b.disabled; });
+    if(pool.length){ next = pool[Math.min(idx, pool.length - 1)]; }
+  }
+  if(next && next.focus && !next.disabled){ try{ next.focus(); }catch(e){} }
+}
+function buildShop(){
   var coins = store.get('coins', 0);
   var owned = store.get('owned', ['hand']);
   var eq = currentTool();
-  $('#shopCoins').textContent = coins;
+  if($('#workshopCoins')){ $('#workshopCoins').textContent = coins; }
+  if($('#workshopTool')){ $('#workshopTool').textContent = TOOLS[eq] ? TOOLS[eq].name : '小手手'; }
+  if($('#workshopStyle')){ $('#workshopStyle').textContent = STYLE_SETS[styleEquipped()].name; }
+  var tip = $('#workshopToolIcon');
+  if(tip){ tip.innerHTML = TOOL_SVG[eq] || TOOL_SVG.hand; }
   var html = '';
   TOOL_ORDER.forEach(function(id){
     var t = TOOLS[id];
@@ -2982,7 +4149,8 @@ function renderShop(){
     } else if(isOwned){
       btn = '<button class="shop-btn" data-equip="' + id + '">装备</button>';
     } else {
-      btn = '<button class="shop-btn buy" data-buy="' + id + '">' + ICON.coin + ' ' + t.price + '</button>';
+      /* 走 .ico 体系（不再直接拼 ICON.coin），图标尺寸/间距与 .shop-btn 其它态一致 */
+      btn = '<button class="shop-btn buy" type="button" data-buy="' + id + '"><span class="ico" aria-hidden="true" data-ico="coin"></span>' + t.price + '</button>';
     }
     html += '<div class="shop-card' + (isEq ? ' equipped' : '') + (isOwned ? '' : ' locked') + '">' +
       (isOwned && !isEq ? '<div class="shop-own">已拥有</div>' : '') +
@@ -2994,8 +4162,8 @@ function renderShop(){
   });
   $('#shopGrid').innerHTML = html;
   paintIcons($('#shopGrid'));
-  renderStyleShop();
 }
+function renderShop(){ restoreListFocus($('#shopGrid'), buildShop); }
 
 $('#shopGrid').addEventListener('click', function(e){
   var btn = e.target.closest('button');
@@ -3030,61 +4198,156 @@ $('#shopGrid').addEventListener('click', function(e){
   }
 });
 
-/* ================= 面板开关 ================= */
-$('#boardBtn').addEventListener('click', function(){
-  renderBoard();
-  shopPanel.classList.add('hidden');
-  taskPanel.classList.add('hidden');
-  stylePanel.classList.add('hidden');
-  setPanel.classList.add('hidden');
-  openPanel(boardPanel);
-});
-$('#shopBtn').addEventListener('click', function(){
-  renderShop();
-  $('#shopToast').textContent = '';
-  boardPanel.classList.add('hidden');
-  taskPanel.classList.add('hidden');
-  stylePanel.classList.add('hidden');
-  setPanel.classList.add('hidden');
-  openPanel(shopPanel);
-});
-$('#taskBtn').addEventListener('click', function(){
+/* ================= tab 切换（荣誉堂 / 工坊 共用） ================= */
+var TAB_PANELS = {
+  honor:   { board: '#honorTabBoard', task: '#honorTabTask', roster: '#honorTabRoster' },
+  workshop:{ weapon: '#workshopTabWeapon', style: '#workshopTabStyle' }
+};
+function switchTab(panel, key, focusTab){
+  var map = TAB_PANELS[panel];
+  if(!map || !map[key]) return;
+  var bar = $(panel === 'honor' ? '#honorTabs' : '#workshopTabs');
+  if(bar){
+    Array.prototype.forEach.call(bar.querySelectorAll('.tab'), function(x){
+      var on = (x.getAttribute('data-tab') === key);
+      x.setAttribute('aria-selected', on ? 'true' : 'false');
+      x.tabIndex = on ? 0 : -1;   /* roving tabindex：整组只占一个 Tab 停靠点 */
+      if(on && focusTab){ x.focus(); }
+    });
+  }
+  Object.keys(map).forEach(function(k){
+    var body = $(map[k]);
+    if(body) body.hidden = (k !== key);
+  });
+  /* 图鉴 tab：懒渲染（脏标记），并把面板滚动位置复位到顶部 */
+  if(panel === 'honor' && key === 'roster'){
+    renderRosterIfVisible();
+    var rb = $(map.roster);
+    if(rb){ rb.scrollTop = 0; }
+  }
+  store.set(panel === 'honor' ? 'honorTab' : 'workshopTab', key);
+}
+/* tab 组键盘：←/→/Home/End 切换并保持焦点跟随 */
+function bindTabKeys(barSel, panel){
+  var bar = $(barSel);
+  if(!bar) return;
+  bar.addEventListener('keydown', function(e){
+    var tabs = Array.prototype.slice.call(bar.querySelectorAll('.tab'));
+    var i = tabs.indexOf(document.activeElement);
+    if(i < 0) return;
+    var n = tabs.length, next = -1;
+    if(e.key === 'ArrowRight'){ next = (i + 1) % n; }
+    else if(e.key === 'ArrowLeft'){ next = (i - 1 + n) % n; }
+    else if(e.key === 'Home'){ next = 0; }
+    else if(e.key === 'End'){ next = n - 1; }
+    if(next < 0 || next === i) return;
+    e.preventDefault();
+    switchTab(panel, tabs[next].getAttribute('data-tab'), true);
+  });
+}
+bindTabKeys('#honorTabs', 'honor');
+bindTabKeys('#workshopTabs', 'workshop');
+/* 荣誉堂顶部统计：严格沿用现有口径——当前可用积分 + 当前难度历史最佳 */
+function updateHonorStat(){
+  var c = $('#honorCoins');
+  if(c){ c.textContent = store.get('coins', 0); }
+  var b = $('#honorBest');
+  if(b){ b.textContent = store.get('best_' + mode, 0); }
+  var bm = $('#honorBestMode');
+  if(bm){ bm.textContent = (MODES[mode] || MODES.normal).name; }
+}
+function openHonorPanel(tab){
   refreshDailyIfNeeded();
+  renderBoard();
   renderTasks();
-  boardPanel.classList.add('hidden');
-  shopPanel.classList.add('hidden');
-  stylePanel.classList.add('hidden');
-  setPanel.classList.add('hidden');
-  openPanel(taskPanel);
-});
+  updateHonorStat();
+  var key = tab || store.get('honorTab', 'board');
+  if(!TAB_PANELS.honor[key]) key = 'board';
+  switchTab('honor', key);
+  openPanel(honorPanel);
+}
+function openWorkshopPanel(tab){
+  renderShop();
+  renderStyles();
+  var key = tab || store.get('workshopTab', 'weapon');
+  if(!TAB_PANELS.workshop[key]) key = 'weapon';
+  switchTab('workshop', key);
+  var wt = $('#workshopToast');
+  if(wt){ wt.textContent = ''; }
+  openPanel(workshopPanel);
+}
+function openSetPanel(){
+  syncSetPanel();
+  openPanel(setPanel);
+}
+(function(){
+  var hb = $('#honorBtn');   if(hb){ hb.addEventListener('click', function(){ openHonorPanel(); }); }
+  var wb = $('#workshopBtn');if(wb){ wb.addEventListener('click', function(){ openWorkshopPanel(); }); }
+  var sb = $('#setBtn');    if(sb){ sb.addEventListener('click', openSetPanel); }
+  var ht = $('#honorTabs');
+  if(ht){ ht.addEventListener('click', function(e){
+    var b = e.target && e.target.closest ? e.target.closest('.tab') : null;
+    if(b) switchTab('honor', b.getAttribute('data-tab'));
+  }); }
+  var wt2 = $('#workshopTabs');
+  if(wt2){ wt2.addEventListener('click', function(e){
+    var b = e.target && e.target.closest ? e.target.closest('.tab') : null;
+    if(!b) return;
+    var k = b.getAttribute('data-tab');
+    switchTab('workshop', k);
+    if(k === 'style'){ renderStyles(); }
+  }); }
+})();
+
 /* 排行榜：按模式筛选（全部 / 简易 / 普通 / 困难） */
 var rankFilter = store.get('rankFilter', 'all');
 if(['all','easy','normal','hard'].indexOf(rankFilter) < 0){ rankFilter = 'all'; }
 var rankFilterBox = $('#rankFilter');
-if(rankFilterBox){
+function syncRankFilter(){
+  if(!rankFilterBox) return;
   Array.prototype.forEach.call(rankFilterBox.querySelectorAll('button'), function(x){
-    x.classList.toggle('on', x.getAttribute('data-mf') === rankFilter);
+    var on = (x.getAttribute('data-mf') === rankFilter);
+    x.classList.toggle('on', on);
+    x.setAttribute('aria-pressed', on ? 'true' : 'false');   /* .on 视觉态与语义同源 */
   });
+}
+syncRankFilter();
+if(rankFilterBox){
   rankFilterBox.addEventListener('click', function(e){
     var b = e.target && e.target.closest ? e.target.closest('button[data-mf]') : null;
     if(!b) return;
     rankFilter = b.getAttribute('data-mf');
     store.set('rankFilter', rankFilter);
-    Array.prototype.forEach.call(rankFilterBox.querySelectorAll('button'), function(x){ x.classList.toggle('on', x === b); });
+    syncRankFilter();
     renderBoard();
   });
+}
+function showHome(){
+  showOnlyPanel(startScreen);
+  gsap.set(startScreen, { clearProps: 'opacity,visibility' });
+}
+/* 关闭功能面板：统一退回首页（原来首页层从未被隐藏，靠 z-index 透出；改为互斥后必须显式恢复） */
+function dismissToHome(panel){
+  closePanel(panel);
+  showHome();
+  refreshHome();
+  homeIntro();
 }
 document.querySelectorAll('.panel-close').forEach(function(btn){
   btn.addEventListener('click', function(){
     var id = btn.getAttribute('data-close');
-    closePanel($('#' + id));
+    var p = $('#' + id);
+    if(!p || p === guidePanel){ dismissGuide(); return; }
+    dismissToHome(p);
   });
 });
 /* ===== 弹窗键盘可达性：Esc 关闭 / 焦点转移与还原 / Tab 循环（验收报告 P1-2） ===== */
 var lastFocus = null;
 function visiblePanel(){
-  var ps = [boardPanel, shopPanel, taskPanel, stylePanel, setPanel, endScreen, startScreen];
-  for(var i = 0; i < ps.length; i++){ if(ps[i] && !ps[i].classList.contains('hidden')) return ps[i]; }
+  for(var i = 0; i < ALL_PANELS.length; i++){
+    var p = ALL_PANELS[i];
+    if(p && !p.classList.contains('hidden')) return p;
+  }
   return null;
 }
 function focusables(root){
@@ -3099,7 +4362,8 @@ document.addEventListener('keydown', function(e){
     if(!p || p === startScreen) return;             /* 首页不响应 Esc，避免误关 */
     e.preventDefault();
     if(p === endScreen){ var hb = $('#homeBtn'); if(hb){ hb.click(); } return; }
-    closePanel(p);
+    if(p === guidePanel){ dismissGuide(); return; }
+    dismissToHome(p);
     return;
   }
   if(e.key === 'Tab' && p){
@@ -3115,8 +4379,7 @@ document.addEventListener('keydown', function(e){
 });
 $('#homeBtn').addEventListener('click', function(){
   closePanel(endScreen);
-  startScreen.classList.remove('hidden');
-  gsap.set(startScreen, { clearProps: 'opacity,visibility' });
+  showHome();
   refreshHome();
   homeIntro();
 });
@@ -3261,7 +4524,7 @@ if(pauseBtn){
 document.addEventListener('visibilitychange', function(){
   if(document.hidden){
     hiddenAt = performance.now();
-    if(pauseBtn){ setBtnIcon(pauseBtn, 'play'); }
+    if(pauseBtn){ setBtnIcon(pauseBtn, 'play'); pauseBtn.setAttribute('aria-pressed', 'true'); }
     return;
   }
   var now = performance.now();
@@ -3276,6 +4539,8 @@ document.addEventListener('visibilitychange', function(){
     clockPaused += pd;
     if(combo > 0){ lastHitAt += pd; }
     hiddenAt = 0;
+    /* 切回来时按钮要回到「可暂停」图标，否则会一直停在播放态（与真实状态不符） */
+    if(pauseBtn && running){ setBtnIcon(pauseBtn, 'pause'); pauseBtn.setAttribute('aria-pressed', 'false'); }
   }
   if(AC && AC.state === 'suspended'){ try{ AC.resume(); }catch(e){} }
   refreshDailyIfNeeded();
@@ -3288,22 +4553,9 @@ $('#muteBtn').addEventListener('click', function(){
   store.set('muted', muted);                                      /* 刷新 / 重开一局不再复位 */
   applyVolume();
 });
+$('#quitBtn').addEventListener('click', quitGame);
 $('#startBtn').addEventListener('click', startGame);
 $('#restartBtn').addEventListener('click', startGame);
-
-/* 手机端图鉴展开/收起 */
-(function(){
-  var toggle = $('#rosterToggle'), roster = $('.roster');
-  if(!toggle || !roster) return;
-  toggle.addEventListener('click', function(){
-    roster.classList.toggle('open');
-    toggle.classList.toggle('open');
-    toggle.innerHTML = roster.classList.contains('open')
-      ? '<span class="rt-icon">⌃</span><span class="ico" data-ico="book"></span>收起图鉴'
-      : '<span class="rt-icon">⌄</span><span class="ico" data-ico="book"></span>目标图鉴';
-    paintIcons(toggle);
-  });
-})();
 
 /* ================= 贴图风格（积分商城 · 风格包） ================= */
 var STYLE_ART = {
@@ -3384,6 +4636,21 @@ function styleEquipped(){
   }
   return _styleEq;
 }
+/* 画风 → UI 主题映射（V2：steam → steampunk、pixel → pixelcute、ink → inkwash，其余画风一律 classic）。
+   主题是「整套画风已拥有 + 当前正在使用」的纯派生结果：不新增存档键、不动 SAVE_VER / migrateSave。
+   单张混搭（equipped=pixel 但未拥有整套）或未拥有的画风都不会触发换肤。
+   注意：首屏防闪内联脚本里有一份同名映射表（见 body 后第一段脚本），两处必须同时修改。 */
+var UI_THEME_BY_STYLE = { steam: 'steampunk', pixel: 'pixelcute', ink: 'inkwash' };
+function uiThemeFor(st){
+  return (st && styleSetOwned(st) && UI_THEME_BY_STYLE[st]) || 'classic';
+}
+function applyUiTheme(){
+  var t = uiThemeFor(styleEquipped());
+  if(document.body.getAttribute('data-ui-theme') !== t){
+    document.body.setAttribute('data-ui-theme', t);
+  }
+  return t;
+}
 function styleSprites(){
   if(_styleSpr === null){
     var o = store.get('styleSprites', null);
@@ -3463,7 +4730,7 @@ function makeThumb(src){
   im.src = src;
 }
 function markThumbs(){
-  ['#styleList', '#styleShopGrid', '#rosterGrid'].forEach(function(sel){
+  ['#styleList', '#rosterGrid'].forEach(function(sel){
     var root = $(sel); if(!root) return;
     Array.prototype.forEach.call(root.querySelectorAll('img'), function(im){
       var s = im.getAttribute('src');
@@ -3482,15 +4749,7 @@ function markThumbs(){
   });
 }
 var styleToastTO = null;
-function styleToast(msg, isErr){
-  var t = $('#styleToast');
-  if(!t) return;
-  t.innerHTML = msg;
-  paintIcons(t);
-  t.style.color = isErr ? '#c73e3e' : '#3f8a28';
-  clearTimeout(styleToastTO);
-  styleToastTO = setTimeout(function(){ t.textContent = ''; }, 2400);
-}
+function styleToast(msg, isErr){ shopToast(msg, isErr); }
 function shakeEl(el){
   if(!el || !el.classList) return;
   el.classList.remove('shake');
@@ -3499,12 +4758,12 @@ function shakeEl(el){
 }
 
 /* ---- 风格面板渲染：已拥有 + 未拥有 全部展示 ---- */
-function renderStyles(){
+function buildStyles(){
   var list = $('#styleList');
   if(!list) return;
-  if($('#styleCoins')){ $('#styleCoins').textContent = store.get('coins', 0); }
+  if($('#workshopCoins')){ $('#workshopCoins').textContent = store.get('coins', 0); }
+  if($('#workshopStyle')){ $('#workshopStyle').textContent = STYLE_SETS[styleEquipped()].name; }
   var cur = styleEquipped();
-  if($('#styleFoot')){ $('#styleFoot').textContent = STYLE_SETS[cur].name; }
   var html = '';
   STYLE_ORDER.forEach(function(st){
     var S = STYLE_SETS[st], isCur = (cur === st), owned = styleSetOwned(st);
@@ -3525,16 +4784,19 @@ function renderStyles(){
       html += '<i class="' + (ok ? 'ok' : 'no') + '"><img src="' + styleThumb(st, k) + '" alt="" draggable="false" decoding="async"></i>';
     });
     html += '</div><div class="sc-btns">';
-    if(isCur){ html += '<button class="shop-btn using" disabled>使用中</button>'; }
-    else if(canUse){ html += '<button class="shop-btn" data-equipst="' + st + '">装备</button>'; }
+    if(isCur){ html += '<button class="shop-btn using" type="button" disabled>使用中</button>'; }
+    else if(canUse){ html += '<button class="shop-btn" type="button" data-equipst="' + st + '">装备</button>'; }
     if(st !== 'anime'){
       if(owned){ html += '<span class="sc-tag own">整包已拥有</span>'; }
-      else { html += '<button class="shop-btn buy" data-buyset="' + st + '">整套 ' + STYLE_SET + '</button>'; }
+      else { html += '<button class="shop-btn buy" type="button" data-buyset="' + st + '">整套 ' + STYLE_SET + '</button>'; }
     }
-    html += '<button class="shop-btn ghost" data-expand="' + st + '">' +
-            (styleExpanded[st] ? '收起 ▲' : (st === 'anime' ? '查看全部 ▼' : '单张购买 ▼')) + '</button>';
+    /* 三角字形跨平台不一致：换成 chevUp / chevDown，并用 aria-expanded 播报展开态 */
+    var open = !!styleExpanded[st];
+    html += '<button class="shop-btn ghost" type="button" data-expand="' + st + '" aria-expanded="' + (open ? 'true' : 'false') + '">' +
+            '<span class="ico" aria-hidden="true" data-ico="' + (open ? 'chevUp' : 'chevDown') + '"></span>' +
+            (open ? '收起' : (st === 'anime' ? '查看全部' : '单张购买')) + '</button>';
     html += '</div>';
-    if(styleExpanded[st]){
+    if(open){
       html += '<div class="sc-grid">';
       STYLE_TYPES.forEach(function(k){
         var ok = styleSpriteOwned(st, k), nm = (TYPES[k] || {}).name || k;
@@ -3542,7 +4804,7 @@ function renderStyles(){
         html += '<span class="sci"><img src="' + styleThumb(st, k) + '" alt="" draggable="false" decoding="async"></span>';
         html += '<span class="scn">' + nm + '</span>';
         if(ok){ html += '<span class="scs">' + (st === 'anime' ? '默认' : '已拥有') + '</span>'; }
-        else { html += '<button class="shop-btn buy" data-buysprite="' + st + '|' + k + '">' + STYLE_SINGLE + '</button>'; }
+        else { html += '<button class="shop-btn buy" type="button" data-buysprite="' + st + '|' + k + '">' + STYLE_SINGLE + '</button>'; }
         html += '</div>';
       });
       html += '</div>';
@@ -3550,31 +4812,10 @@ function renderStyles(){
     html += '</div>';
   });
   list.innerHTML = html;
+  paintIcons(list);          /* 展开/收起箭头走 .ico 体系，重建后必须补画 */
   markThumbs();
 }
-
-/* ---- 商城里的「贴图风格包」货架 ---- */
-function renderStyleShop(){
-  var grid = $('#styleShopGrid');
-  if(!grid) return;
-  var cur = styleEquipped(), html = '';
-  STYLE_PACKS.forEach(function(st){
-    var S = STYLE_SETS[st], owned = styleSetOwned(st), n = styleSpriteCount(st), isCur = (cur === st);
-    html += '<div class="shop-card' + (isCur ? ' equipped' : '') + (owned ? '' : ' locked') + '">';
-    if(owned && !isCur){ html += '<div class="shop-own">已拥有</div>'; }
-    html += '<div class="shop-icon"><img src="' + styleThumb(st, 'mushroom') +
-            '" alt="" decoding="async" style="width:100%;height:100%;object-fit:contain"></div>';
-    html += '<div class="shop-name">' + S.name + '</div>';
-    html += '<div class="shop-desc">11 张全套贴图 · 已拥有 ' + n + '/11<br>' + S.desc + '</div>';
-    if(isCur){ html += '<button class="shop-btn using" disabled>使用中</button>'; }
-    else if(owned){ html += '<button class="shop-btn" data-equipst="' + st + '">装备</button>'; }
-    else { html += '<button class="shop-btn buy" data-buyset="' + st + '">整套 ' + STYLE_SET + '</button>'; }
-    html += '<button class="shop-btn ghost" data-opensprite="' + st + '">单张 ' + STYLE_SINGLE + '</button>';
-    html += '</div>';
-  });
-  grid.innerHTML = html;
-  markThumbs();
-}
+function renderStyles(){ restoreListFocus($('#styleList'), buildStyles); }
 
 /* ---- 装备 / 购买 ---- */
 function doEquipStyle(st, btn){
@@ -3586,7 +4827,7 @@ function doEquipStyle(st, btn){
   _styleEq = st;
   store.set('styleEquipped', st);
   SFX.equip();
-  renderStyles(); renderStyleShop(); renderRoster(); refreshHome();
+  renderStyles(); markRosterDirty(); refreshHome();
   styleToast('已切换为「' + STYLE_SETS[st].name + '」 · 随时可以切回原版');
 }
 
@@ -3608,7 +4849,7 @@ function doBuyStyleSet(st, btn){
   _styleEq = st;
   store.set('styleEquipped', st);
   SFX.buy();
-  renderStyles(); renderStyleShop(); renderRoster(); renderShop(); refreshHome();
+  renderStyles(); markRosterDirty(); renderShop(); refreshHome();
   styleToast('<span class="ico" data-ico="party"></span>购买成功！「' + STYLE_SETS[st].name + '」整套 11 张已装备，随时可换回去～');
 }
 
@@ -3638,14 +4879,14 @@ function doBuyStyleSprite(st, k, btn){
     store.set('styleEquipped', st);
   }
   SFX.buy();
-  renderStyles(); renderStyleShop(); renderRoster(); renderShop(); refreshHome();
+  renderStyles(); markRosterDirty(); renderShop(); refreshHome();
   styleToast(full
     ? '<span class="ico" data-ico="party"></span>集齐！「' + STYLE_SETS[st].name + '」整套已装备'
     : '<span class="ico" data-ico="check"></span>已加入风格包「' + STYLE_SETS[st].name + ' · ' + ((TYPES[k] || {}).name || k) +
       '」 · 当前 ' + styleSpriteCount(st) + ' / ' + STYLE_TYPES.length + ' 张，集齐后一键切换');
 }
 
-/* ---- 面板里的事件代理（风格面板 / 商城货架 共用一套） ---- */
+/* ---- 画风面板事件代理（切换 / 整套 / 单张 / 展开） ---- */
 function handleStyleClick(e){
   if(!e.target || !e.target.closest) return;
   var btn = e.target.closest('button');
@@ -3654,8 +4895,6 @@ function handleStyleClick(e){
   var bs = btn.getAttribute('data-buyset');
   var bsp = btn.getAttribute('data-buysprite');
   var ex = btn.getAttribute('data-expand');
-  var op = btn.getAttribute('data-opensprite');
-  if(op){ styleExpanded = {}; styleExpanded[op] = true; renderStyles(); openStylePanel(); return; }
   if(ex){
     var was = !!styleExpanded[ex];
     styleExpanded = {};
@@ -3672,32 +4911,12 @@ function handleStyleClick(e){
   }
 }
 
-function openStylePanel(){
-  renderStyles(); renderStyleShop();
-  if($('#styleToast')){ $('#styleToast').textContent = ''; }
-  boardPanel.classList.add('hidden');
-  shopPanel.classList.add('hidden');
-  taskPanel.classList.add('hidden');
-  setPanel.classList.add('hidden');
-  openPanel(stylePanel);
-}
-
 /* ---- 设置面板（音量 / 低动效 / 键盘 / 存档） ---- */
 function syncSetPanel(){
   var vr = $('#volRange');
   if(vr){ vr.value = String(Math.round(volume * 100)); }
   var lb = $('#lowfxBtn');
   if(lb){ lb.textContent = lowfx ? '已开启' : '关闭'; lb.setAttribute('aria-pressed', lowfx ? 'true' : 'false'); }
-}
-if($('#setBtn')){
-  $('#setBtn').addEventListener('click', function(){
-    syncSetPanel();
-    boardPanel.classList.add('hidden');
-    shopPanel.classList.add('hidden');
-    taskPanel.classList.add('hidden');
-    stylePanel.classList.add('hidden');
-    openPanel(setPanel);
-  });
 }
 if($('#volRange')){
   $('#volRange').addEventListener('input', function(){
@@ -3730,6 +4949,9 @@ if($('#lowfxBtn')){
 }
 if($('#wipeBtn')){
   $('#wipeBtn').addEventListener('click', function(){
+    if(this.getAttribute('aria-busy') === 'true') return;   /* 防连点：清档期间不再响应 */
+    this.setAttribute('aria-busy', 'true');
+    announce('正在清除本地存档…');
     try{
       Object.keys(localStorage).forEach(function(k){ if(k.indexOf('wmz_') === 0){ localStorage.removeItem(k); } });
     }catch(e){}
@@ -3738,19 +4960,31 @@ if($('#wipeBtn')){
 }
 
 /* ---- 入口按钮 ---- */
-if($('#styleBtn')){
-  $('#styleBtn').addEventListener('click', function(){ openStylePanel(); });
-}
 (function(){
-  var a = $('#styleList'), b = $('#styleShopGrid');
+  var a = $('#styleList');
   if(a){ a.addEventListener('click', handleStyleClick); }
-  if(b){ b.addEventListener('click', handleStyleClick); }
 })();
+
+/* ================= 首次启动引导（一次性） ================= */
+function dismissGuide(){
+  closePanel(guidePanel);
+  showHome();
+  store.set('guideSeen', true);
+}
+if($('#guideStartBtn')){
+  $('#guideStartBtn').addEventListener('click', function(){ SFX.ding(); dismissGuide(); });
+}
+function maybeOpenGuide(){
+  try{ if(store.get('guideSeen', false) === true) return; }
+  catch(e){ return; }               /* 存储不可用时直接放行，不阻断游戏 */
+  showHome();
+  openPanel(guidePanel, $('#guideStartBtn'));
+}
 
 /* ================= 初始化 ================= */
 buildField();
 /* 存档版本号：以后改结构时在此追加 migration，旧档缺字段也能安全补全 */
-var SAVE_VER = 3;
+var SAVE_VER = 4;
 function migrateSave(){
   var v = store.get('ver', 0);
   if(v < 2 && store.get('muted', null) === null){ store.set('muted', false); }
@@ -3760,6 +4994,12 @@ function migrateSave(){
   if(!STYLE_SETS[store.get('styleEquipped', 'anime')]){ store.set('styleEquipped', 'anime'); }
   if(store.get('board', null) !== null && !Array.isArray(store.get('board', []))){ store.set('board', []); }
   if(store.get('achv', null) !== null && !Array.isArray(store.get('achv', []))){ store.set('achv', []); }
+  /* v4：仅补 UI 记忆默认值，不改任何积分类键语义 */
+  if(store.get('guideSeen', null) === null){ store.set('guideSeen', false); }
+  if(store.get('honorTab', null) === null){ store.set('honorTab', 'board'); }
+  if(store.get('workshopTab', null) === null){ store.set('workshopTab', 'weapon'); }
+  if(!TAB_PANELS.honor[store.get('honorTab', 'board')]){ store.set('honorTab', 'board'); }
+  if(!TAB_PANELS.workshop[store.get('workshopTab', 'weapon')]){ store.set('workshopTab', 'weapon'); }
   store.set('ver', SAVE_VER);
 }
 migrateSave();
@@ -3772,15 +5012,15 @@ if(!store.ok){ onStoreFail(); }
   mb.setAttribute('aria-pressed', muted ? 'true' : 'false');
 })();
 document.body.classList.toggle('lowfx', lowfx);
-renderRoster();
+markRosterDirty();
 renderTasks();
 refreshHome();
 syncSetPanel();
 paintIcons(document);
-homeIntro();
+maybeOpenGuide();
 /* 安全网：入场动画若被环境节流或中断，也不会让元素卡在隐藏状态 */
 setTimeout(function(){
-  gsap.set('#startScreen .home-eyebrow, #startScreen .home-title, #startScreen .home-slogan, #startScreen .mode-card, #startScreen .big-btn, #startScreen .menu-row, #startScreen .roster-toggle, #rosterGrid .r-cell, #hud .stat, #comboBox',
+  gsap.set('#startScreen .home-eyebrow, #startScreen .home-title, #startScreen .home-slogan, #startScreen .mode-card, #startScreen .big-btn, #startScreen .menu-row .menu-btn, #hud .stat, #comboBox',
     { clearProps: 'opacity,visibility,transform' });
 }, 2000);
 /* PWA：注册 Service Worker（仅 http/https，file:// 直接跳过） */

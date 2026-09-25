@@ -1,8 +1,14 @@
 /* 打地鼠大作战 · 田园守护战 —— 离线缓存 Service Worker
    策略：预缓存入口；静态同源资源 stale-while-revalidate；导航请求 network-first 回退缓存。
    单文件游戏本体已内联，这里只兜底 index.html 与图标。 */
-const CACHE = 'whack-v1.4';
-const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './og.png'];
+const CACHE = 'whack-v1.14';
+const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './og.png',
+  './art/font/pixel-subset.woff2',
+  './art/hole_v2/grass.png', './art/hole_v2/hole-back.png', './art/hole_v2/hole-front.png',
+  './art/hole_v2/steam/grass.png', './art/hole_v2/steam/hole-back.png', './art/hole_v2/steam/hole-front.png',
+  './art/hole_v2/pixel/grass.webp', './art/hole_v2/pixel/hole-back.webp', './art/hole_v2/pixel/hole-front.webp',
+  './art/hole_v2/ink/grass.webp', './art/hole_v2/ink/hole-back.webp', './art/hole_v2/ink/hole-front.webp',
+  './art/bg/bg1.webp', './art/bg/bg2.webp', './art/bg/bg3.webp', './art/bg/bg4.webp'];
 
 self.addEventListener('install', function(e){
   e.waitUntil(
