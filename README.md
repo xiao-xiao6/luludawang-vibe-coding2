@@ -432,21 +432,24 @@ whack: function(){
 │   ├── README.md                 ← 你正在看的这个文件
 │   ├── art/bg/                   ← 页面背景（bg1 经典 / bg2 蒸汽 / bg3 像素 / bg4 水墨）
 │   ├── art/font/                 ← 像素主题字体 pixel-subset.woff2（Fusion Pixel，OFL-1.1 子集）
-│   ├── art/hole_v2/              ← 经典田园场地三图（grass / hole-back / hole-front）
-│   │   ├── steam/                ← 蒸汽朋克场地三图（蒸汽画风整套使用时自动启用）
-│   │   ├── pixel/                ← 像素场地三图 .webp（像素画风整套使用时自动启用）
-│   │   └── ink/                  ← 水墨场地三图 .webp（水墨画风整套使用时自动启用）
-│   └── bg1.png / 草地.png / 水墨淡彩/ / 星露谷半像素/ …
-│                                 ← ⚠️ 历史遗留：源素材被一起提交进了仓库，线上能访问但游戏用不到
+│   └── art/hole_v2/              ← 经典田园场地三图（grass / hole-back / hole-front）
+│       ├── steam/                ← 蒸汽朋克场地三图（蒸汽画风整套使用时自动启用）
+│       ├── pixel/                ← 像素场地三图 .webp（像素画风整套使用时自动启用）
+│       └── ink/                  ← 水墨场地三图 .webp（水墨画风整套使用时自动启用）
 │
 ├── 部署版【旧版，基本弃用】/          ← 🚫 9-20 旧版快照，仅作历史留档
 ├── 不同风格的贴图存放处/              ← 🎨 原始美术素材（按画风分目录）
+│   └── 场地与背景源素材/             ← 草地 / 洞口 / 遮罩 / bg1~3 等 PSD 导出的大图（3.6 MB）
+│                                      以前被误提交进仓库、跟着 Pages 一起公开，现已移出
 ├── art_tools/                    ← 🧰 美术处理与校验脚本
 │   └── release_check.py          ← ⭐ 发布校验 / 镜像生成（见部署指南）
 ├── _probe_dual/                  ← 📱 双端适配验证（CDP 真实 Chrome 探针）
 ├── _fix/ _style_work/ _backups/ _incoming_7/ _incoming_8/ _source/   ← 开发过程记录
 └── README.md                     ← 工作区索引，正文以本文件为准
 ```
+
+> 💡 **发布集 = 25 个文件**：`index.html`、`manifest.json`、`sw.js`、三个图标、`og.png`、`README.md` + `art/` 下 17 个资源。
+> `release_check.py` 会双向核对：引用到的资源必须都在，仓库里也不许留没人引用的大文件。
 
 > 💡 **只想部署游戏？** 用 `python art_tools/release_check.py --mirror <目录>` 按发布清单生成干净镜像，
 > 或直接 `git clone` 本仓库后取 `index.html` + `manifest.json` + `sw.js` + 四个图标 + `art/`。
@@ -492,6 +495,9 @@ python art_tools/release_check.py --mirror 发布镜像      # 校验并按清�
 ```bash
 python art_tools/release_check.py
 ```
+
+（脚本放在工作区的 `art_tools/` 下，**故意不进发布集**——它是开发工具，不该被 Pages 公开。
+ 只 clone 了本仓库的话，把这份脚本单独存一份，或按下面第 2 条手工核对。）
 
 它会：
 
