@@ -1,14 +1,15 @@
 /* 打地鼠大作战 · 田园守护战 —— 离线缓存 Service Worker
-   策略：预缓存入口；静态同源资源 stale-while-revalidate；导航请求 network-first 回退缓存。
-   单文件游戏本体已内联，这里只兜底 index.html 与图标。 */
-const CACHE = 'whack-v1.14';
-const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './og.png',
-  './art/font/pixel-subset.woff2',
-  './art/hole_v2/grass.png', './art/hole_v2/hole-back.png', './art/hole_v2/hole-front.png',
-  './art/hole_v2/steam/grass.png', './art/hole_v2/steam/hole-back.png', './art/hole_v2/steam/hole-front.png',
-  './art/hole_v2/pixel/grass.webp', './art/hole_v2/pixel/hole-back.webp', './art/hole_v2/pixel/hole-front.webp',
-  './art/hole_v2/ink/grass.webp', './art/hole_v2/ink/hole-back.webp', './art/hole_v2/ink/hole-front.webp',
-  './art/bg/bg1.webp', './art/bg/bg2.webp', './art/bg/bg3.webp', './art/bg/bg4.webp'];
+   策略：预缓存「首屏真正用得到」的那一组；静态同源资源 stale-while-revalidate；导航请求 network-first 回退缓存。
+   预缓存清单刻意只留默认（经典田园）一套：另外三套场地贴图与背景要等到玩家真的切到该画风时
+   再由运行时 stale-while-revalidate 顺手缓存，省掉手机首装时几百 KB 的白下载（验收报告 P2-3）。 */
+const CACHE = 'whack-v1.15';
+const ASSETS = ['./', './index.html', './manifest.json',
+  './icon-192.png', './icon-512.png', './icon-maskable-512.png',
+  './art/bg/bg1.webp',
+  './art/hole_v2/grass.png', './art/hole_v2/hole-back.png', './art/hole_v2/hole-front.png'];
+/* 按需缓存（不预下载）：另外三套场地贴图 art/hole_v2/{steam,pixel,ink}/、其余三张页面背景、
+   像素主题字体 art/font/pixel-subset.woff2 —— 玩家切到对应画风时由 stale-while-revalidate 顺手缓存。
+   og.png 只给社交爬虫抓，玩家设备永远不展示，已从清单移除。 */
 
 self.addEventListener('install', function(e){
   e.waitUntil(

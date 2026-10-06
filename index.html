@@ -93,6 +93,8 @@ body{
   --ui-game-bg:linear-gradient(180deg,#fffdf5 0%,#f2ecd9 100%);
   --ui-game-shadow:0 24px 60px #00000055;
   --ui-game-ring:#ffffffcc;
+  /* 画框柔光晕：卡片与页面背景之间垫一层同色系虚光，去掉「米白卡片硬切在照片上」的边（验收报告四章 3 条） */
+  --ui-game-halo:0 0 26px 9px #fffdf580;
   --ui-radius-card:26px;
   --ui-radius-panel:20px;
   --ui-radius-field:18px;
@@ -223,7 +225,7 @@ body{
   position:absolute;inset:0;display:flex;flex-direction:column;
   background:var(--ui-game-bg);
   border-radius:var(--ui-radius-card);padding:14px 16px 18px;
-  box-shadow:var(--ui-game-shadow), inset 0 0 0 4px var(--ui-game-ring);
+  box-shadow:var(--ui-game-halo),var(--ui-game-shadow),inset 0 0 0 4px var(--ui-game-ring),inset 0 0 18px 4px var(--ui-game-ring);
   overflow:hidden;
 }
 
@@ -239,6 +241,8 @@ body{
 #modeBox b{color:var(--ui-hud-mode-num);font-size:15px}
 #timeBox.urgent{border-color:var(--ui-hud-danger-line);color:var(--ui-hud-danger-ink);animation:urgent .5s infinite alternate}
 #timeBox.urgent b{color:var(--ui-hud-danger-ink)}
+/* 练习局标记：不计分不入榜时必须在 HUD 说得清清楚楚（验收报告 P2-10） */
+#practiceTag{border-color:var(--ui-warn-line);background:var(--ui-warn-bg);color:var(--ui-warn-ink);font-size:12.5px;box-shadow:0 3px 0 #f0a90c33}
 @media (min-width:721px){#scoreBox b,#timeBox b{font-size:24px}#scoreBox,#timeBox{border-width:3.5px}}
 @keyframes urgent{from{transform:scale(1)}to{transform:scale(1.07)}}
 #comboBox{
@@ -284,9 +288,10 @@ body{
 }
 body.fever #field{box-shadow:inset 0 0 0 4px #ff9f1c99, inset 0 4px 14px #00000022}
 body.fever #game{animation:feverPulse .4s ease-in-out infinite alternate}
+/* 两层阴影层数保持一致，逐层插值才平滑；from 用 transparent 占位 */
 @keyframes feverPulse{
-  from{box-shadow:var(--ui-game-shadow), inset 0 0 0 4px var(--ui-game-ring)}
-  to{box-shadow:var(--ui-game-shadow), inset 0 0 0 4px var(--ui-game-ring), 0 0 46px 8px #ff9f1cbb}
+  from{box-shadow:var(--ui-game-halo),var(--ui-game-shadow),inset 0 0 0 4px var(--ui-game-ring),inset 0 0 18px 4px var(--ui-game-ring),0 0 46px 8px transparent}
+  to{box-shadow:var(--ui-game-halo),var(--ui-game-shadow),inset 0 0 0 4px var(--ui-game-ring),inset 0 0 18px 4px var(--ui-game-ring),0 0 46px 8px #ff9f1cbb}
 }
 
 /* ================= 洞 ================= */
@@ -506,9 +511,7 @@ button[aria-busy="true"]::after{
 #pauseBtn[aria-busy="true"]::after,
 #muteBtn[aria-busy="true"]::after{right:50%;margin-right:-.45em;margin-top:-.45em}
 body.lowfx button[aria-busy="true"]::after{animation:none}
-@media (prefers-reduced-motion:reduce){
-  button[aria-busy="true"]::after{animation:none}
-}
+/* 减少动效的对应规则统一归档在样式表末尾的 reduced-motion 块里 */
 @media (hover:hover){
   button:not(:disabled):not([disabled]):not([aria-busy="true"]):hover{filter:brightness(1.07)}
   .rank-filter button:not(.on):hover{border-color:var(--c-gold);background:var(--c-gold-soft)}
@@ -527,9 +530,7 @@ body.lowfx button[aria-busy="true"]::after{animation:none}
 .big-btn:active{translate:0 4px;box-shadow:0 1px 0 var(--ui-primary-shadow)}
 @keyframes btnPulse{0%,100%{scale:1}50%{scale:1.045}}
 body.lowfx .big-btn{animation:none}
-@media (prefers-reduced-motion:reduce){
-  .big-btn{animation:none}
-}
+/* .big-btn 的减少动效处理见样式表末尾的统一 reduced-motion 归档块 */
 /* 首页三键：所有断点保持单行等宽，不允许换行 */
 .menu-row{
   display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s-2);
@@ -626,7 +627,7 @@ body.lowfx .big-btn{animation:none}
 .rank-row.top1{border-color:#ffd93d;background:#fffbe8;box-shadow:0 3px 0 #ffe9a8}
 .rank-row.top2{border-color:#cfd8e3;background:#f6faff}
 .rank-row.top3{border-color:#e8b48a;background:#fff5ec}
-.rank-medal{font-size:24px;width:34px;text-align:center;flex:none}
+.rank-medal{font-size:29px;width:38px;text-align:center;flex:none}
 .rank-no{
   width:30px;height:30px;border-radius:50%;background:#8ed16f;color:#fff;
   font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;flex:none;
@@ -718,8 +719,23 @@ body.lowfx .big-btn{animation:none}
   padding:6px 22px;color:#ffe9a8;font-size:15px;font-weight:bold;
 }
 #coinGain b{color:#ffd93d;font-size:20px}
-#statLine{color:#e8ffd0;font-size:14.5px;line-height:1.7;margin-top:10px}
-#statLine b{color:#ffd93d}
+/* 练习局提示条：替换 #coinGain / #bonusLine 的位置（那两个数字在练习局里没有意义） */
+.practice-note{display:inline-flex;align-items:center;gap:6px;margin-top:8px;
+  background:#ffd93d1f;border:2px dashed #ffd93d88;border-radius:var(--r-pill);
+  padding:6px 18px;color:#ffe9a8;font-size:13.5px;font-weight:700}
+.practice-note[hidden]{display:none}
+/* 本局统计：胶囊卡片网格（验收报告 P2-7，替代原先两行十项纯文本的「报表感」）
+   主要指标 .key 放大，次要指标收小；配色沿用结算页深底体系，水墨主题单独覆盖。 */
+.stat-grid{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;margin-top:12px;max-width:420px}
+.stat-pill{display:inline-flex;align-items:center;gap:5px;background:#ffffff14;border:1.5px solid #ffffff33;
+  border-radius:var(--r-pill);padding:4px 11px;color:#e8ffd0;font-size:12px;font-weight:700;line-height:1.25}
+.stat-pill .ico{width:1em;height:1em;margin-right:0;opacity:.85}
+.stat-pill b{color:#ffd93d;font-size:13.5px;font-weight:900}
+.stat-pill.key{background:#ffd93d1f;border-color:#ffd93d66;padding:7px 15px;font-size:13.5px}
+.stat-pill.key .ico{width:1.2em;height:1.2em;opacity:1}
+.stat-pill.key b{font-size:20px}
+.stat-pill.neg{border-color:#ff8a8a4d;background:#ff6b6b14}
+.stat-pill.neg b{color:#ffb3b3}
 .end-btns{display:flex;gap:14px;margin-top:14px;flex-wrap:wrap;justify-content:center}
 .best{color:#e8ffd0;font-size:13px;margin-top:10px}
 
@@ -774,9 +790,7 @@ body.paused #game::after{
 @media (hover:none){
   .mode-card:hover,.r-cell:hover,.shop-card:hover{transform:none}
 }
-@media (hover:none) and (pointer:coarse){
-  #cursor{display:none!important}
-}
+/* 触屏隐藏锤子光标的规则归档在样式表末尾 */
 
 /* ---- 偏窄竖屏（手机/竖屏平板）：3 列场地 ---- */
 @media (max-aspect-ratio:3/4){
@@ -846,7 +860,7 @@ body.paused #game::after{
   .panel-title{font-size:19px}
   .panel-sub{font-size:11px}
   .rank-row{padding:7px 10px;gap:8px}
-  .rank-medal{font-size:20px;width:26px}
+  .rank-medal{font-size:26px;width:33px}
   .rank-no{width:26px;height:26px;font-size:13px}
   .rank-score{font-size:18px}
   .shop-grid{grid-template-columns:repeat(2,1fr);gap:8px}
@@ -858,7 +872,11 @@ body.paused #game::after{
   #rankLetter{font-size:62px}
   #finalScore{font-size:30px}
   #bonusLine,#coinGain{font-size:13px;padding:5px 14px}
-  #statLine{font-size:11px}
+  .stat-grid{gap:5px;max-width:330px}
+  .stat-pill{font-size:10.5px;padding:3px 8px}
+  .stat-pill b{font-size:12px}
+  .stat-pill.key{font-size:11.5px;padding:5px 11px}
+  .stat-pill.key b{font-size:16px}
   .end-btns button{font-size:17px;padding:11px 34px}
 }
 
@@ -929,16 +947,8 @@ body.paused #game::after{
   #hud{padding-right:var(--fixed-w);padding-right:calc(var(--fixed-w) + env(safe-area-inset-right,0px))}
 }
 
-/* ---- 减少动态效果偏好：关掉纯装饰动画 ---- */
-@media (prefers-reduced-motion:reduce){
-  .cloud,.butterfly,.sun,.float-crop,.mc-icon,.big-btn,.home-title{animation:none!important}
-  #timeBox.urgent{animation:none!important}
-  #comboBox{animation:none!important;transition:none!important}
-  button:active{transform:none!important}
-  #cursor.swing{animation:none!important}
-  #comboBar{transition:none!important}
-  .r-cell:hover,.mode-card:hover{transform:none!important}
-}
+/* ---- 减少动态效果偏好：全部规则集中归档在样式表末尾的 reduced-motion 块，
+       放在最后是为了压过前面所有装饰动画声明，从而不需要成片的 !important ---- */
 
 /* ================= 图鉴符号图标 / 难度点 ================= */
 .r-cell .r-icon{
@@ -1036,9 +1046,7 @@ body.fever{--field-tint:var(--field-tint-fever)}
   padding:0 6%;pointer-events:none;user-select:none;
   filter:drop-shadow(0 5px 5px #0002);
 }
-@media (prefers-reduced-motion:reduce){
-  .mob.egg::before,.mob.egg::after{animation:none!important}
-}
+/* 彩蛋光晕的减少动效处理见样式表末尾的统一 reduced-motion 归档块 */
 /* 稀有度卡框 + 收集进度（浅底：保留色相、压深、去发光） */
 .r-cell{position:relative}
 .r-cell .r-badge{
@@ -1233,7 +1241,8 @@ input:focus-visible,[tabindex]:focus-visible{outline:none;box-shadow:var(--focus
 .btn.ghost:active{box-shadow:0 1px 0 #ffffff33}
 .btn.danger{background:linear-gradient(180deg,var(--c-danger),var(--c-danger-deep));box-shadow:0 5px 0 #a52f2f}
 .btn.danger:active{box-shadow:0 1px 0 #a52f2f}
-.btn[disabled],.btn.is-disabled{opacity:.55;cursor:default;transform:none!important;box-shadow:none}
+/* 禁用态靠特异性压过 .btn:hover / .btn:active，不再用 !important */
+.btn[disabled],.btn.is-disabled{opacity:.55;cursor:default;transform:none;box-shadow:none}
 .btn.is-selected{border-color:var(--c-gold);background:linear-gradient(180deg,#ffffff2c,#ffffff1f);box-shadow:0 0 0 3px #ffd93d55,0 0 22px #ffd93d66}
 /* ---- tab 组：荣誉堂 / 工坊共用 ---- */
 .tabs{display:flex;gap:var(--s-2);justify-content:center;flex-wrap:wrap;margin:0 0 var(--s-3)}
@@ -1280,13 +1289,19 @@ input:focus-visible,[tabindex]:focus-visible{outline:none;box-shadow:var(--focus
 .guide-foot{text-align:center;color:var(--c-ink-4);font-size:var(--fs-1);line-height:1.5}
 .guide-cta{width:100%;font-size:var(--fs-4);padding:12px 24px;margin-top:var(--s-2)}
 
+/* ---- 放弃本局确认弹层：走 panel 体系（P2-6），两个动作按钮左右并列 ---- */
+.quit-desc{margin:4px 0 2px;text-align:center}
+.quit-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:16px 0 6px}
+.quit-btns .shop-btn{min-width:136px}
+
 .ico{display:inline-flex;align-items:center;justify-content:center;width:1.15em;height:1.15em;vertical-align:-.15em;margin-right:4px;flex:none}
 .ico svg{width:100%;height:100%;display:block;stroke-width:var(--ico-sw,2)}
 /* ================= 图标着色：单色 currentColor =================
    图标统一走线形 + currentColor，颜色完全由所在容器决定：
    selected / disabled / 深底 / 浅底都靠容器 color 继承，不再对单个图标打
    filter 对比度补丁（旧版六条 drop-shadow / brightness hack 已删除）。 */
-/* 名次徽记：形态一致，仅用 color 区分金 / 银 / 铜（浅底上保证 ≥3:1） */
+/* 名次徽记：金牌带内圈 + 数字 1、银牌数字 2、铜牌数字 3（形状即可区分名次，色盲玩家也不靠颜色），
+   再用 color 拉开金 / 银 / 铜（浅底上保证 ≥3:1） */
 .ico[data-ico="gold1"]{color:#b8860b}
 .ico[data-ico="gold2"]{color:#7a8a9a}
 .ico[data-ico="gold3"]{color:#a86a3a}
@@ -1305,10 +1320,8 @@ input:focus-visible,[tabindex]:focus-visible{outline:none;box-shadow:var(--focus
 .set-row .set-label small{display:block;color:#a08a5a;font-size:11px;font-weight:400}
 .set-row input[type=range]{width:120px;flex:none;accent-color:var(--ui-accent)}
 body.lowfx .float-crop,body.lowfx .butterfly,body.lowfx .cloud{display:none}
-@media (max-width:380px),(max-width:720px) and (max-height:700px){
-  .r-cell .r-name{font-size:10px}
-}
-@media (max-width:720px) and (max-aspect-ratio:4/5){
+/* 窄屏 / 矮屏 / 竖屏三档共用同一条图鉴名字号，合成一个块，断点只管布局 */
+@media (max-width:380px),(max-width:720px) and (max-height:700px),(max-width:720px) and (max-aspect-ratio:4/5){
   .r-cell .r-name{font-size:10px}
 }
 /* ================= UI 主题：蒸汽朋克 =================
@@ -1339,6 +1352,7 @@ body[data-ui-theme="steampunk"]{
     linear-gradient(180deg,#3a2c1c 0%,#2b2119 55%,#241a12 100%);
   --ui-game-shadow:0 24px 60px #000000aa;
   --ui-game-ring:#b8860b80;
+  --ui-game-halo:0 0 26px 9px #1b120b88;
   --ui-radius-card:6px;--ui-radius-panel:6px;--ui-radius-field:8px;
   /* HUD 与连击 */
   --ui-hud-bg:#241a12;--ui-hud-line:#b8860b;--ui-hud-ink:#e0c88a;
@@ -1533,6 +1547,8 @@ body[data-ui-theme="pixelcute"]{
   --ui-game-bg:linear-gradient(180deg,#fff6da 0%,#ffeec2 100%);
   --ui-game-shadow:0 24px 60px #6b533055;
   --ui-game-ring:#fff6d9;
+  /* 像素主题不要虚光：用一圈实心硬边代替柔光晕，保住点阵画框的颗粒感 */
+  --ui-game-halo:0 0 0 7px #fff6d9;
   --ui-radius-card:0;--ui-radius-panel:0;--ui-radius-field:0;
   /* 像素方块感：所有通用圆角档位归零（药丸 / 胶囊 / 大圆角一律切直角） */
   --r-xs:0;--r-sm:0;--r-md:0;--r-lg:0;--r-xl:0;--r-pill:0;
@@ -1745,6 +1761,10 @@ body[data-ui-theme="pixelcute"] .rank-row,
 body[data-ui-theme="pixelcute"] .set-row,
 body[data-ui-theme="pixelcute"] .warn-bar,
 body[data-ui-theme="pixelcute"] .pill,
+body[data-ui-theme="pixelcute"] .stat-pill,
+body[data-ui-theme="pixelcute"] .practice-note,
+body[data-ui-theme="pixelcute"] #bonusLine,
+body[data-ui-theme="pixelcute"] #coinGain,
 body[data-ui-theme="pixelcute"] .r-cell .r-img.is-card,
 body[data-ui-theme="pixelcute"] .r-cell .r-badge,
 body[data-ui-theme="pixelcute"] .roster-prog .bar,
@@ -1759,7 +1779,7 @@ body[data-ui-theme="pixelcute"] .shop-wallet,
 body[data-ui-theme="pixelcute"] .rank-mode,
 body[data-ui-theme="pixelcute"] .sc-tag,
 body[data-ui-theme="pixelcute"] .r-cell .r-badge{box-shadow:var(--ui-px-inset)}
-body[data-ui-theme="pixelcute"] #game{box-shadow:var(--ui-px-inset-dark),var(--ui-game-shadow)}
+body[data-ui-theme="pixelcute"] #game{box-shadow:var(--ui-game-halo),var(--ui-px-inset-dark),var(--ui-game-shadow)}
 /* 面板：保留原有白内环，外面再套一圈棕描边 + 8px 硬投影（双层像素框） */
 body[data-ui-theme="pixelcute"] .panel-card{
   box-shadow:inset 0 0 0 3px var(--ui-panel-ring),inset 0 0 0 5px #c9a15e,0 8px 0 #b8873f;
@@ -1864,6 +1884,7 @@ body[data-ui-theme="inkwash"]{
   --ui-game-bg:linear-gradient(180deg,#fffdf6 0%,#f3ead8 100%);
   --ui-game-shadow:0 24px 60px #6b635733;
   --ui-game-ring:#fffdf6;
+  --ui-game-halo:0 0 26px 9px #f3eee1a6;
   --ui-radius-card:22px;--ui-radius-panel:18px;--ui-radius-field:16px;
   /* HUD 与连击：宣纸底 + 淡墨 / 淡青描边，数值用朱砂与墨青 */
   --ui-hud-bg:#faf5e8;--ui-hud-line:#a8791a;--ui-hud-ink:#6b4a12;
@@ -2065,8 +2086,11 @@ body[data-ui-theme="inkwash"] #bonusLine{background:#f2e8d5;border-color:#a8791a
 body[data-ui-theme="inkwash"] #bonusLine b{color:#a8412b}
 body[data-ui-theme="inkwash"] #coinGain{background:#f2e8d5;border-color:#a8791a;color:#6b4a12}
 body[data-ui-theme="inkwash"] #coinGain b{color:#a8412b}
-body[data-ui-theme="inkwash"] #statLine{color:#4a453d}
-body[data-ui-theme="inkwash"] #statLine b{color:#a8412b}
+body[data-ui-theme="inkwash"] .stat-pill{background:#f2e8d5;border-color:#d8c9a5;color:#4a453d}
+body[data-ui-theme="inkwash"] .stat-pill b{color:#a8412b}
+body[data-ui-theme="inkwash"] .practice-note{background:#f7edd6;border-color:#a8791a;color:#6b4a12}
+body[data-ui-theme="inkwash"] .stat-pill.key{background:#f7edd6;border-color:#a8791a}
+body[data-ui-theme="inkwash"] .stat-pill.neg{background:#fbeae6;border-color:#c98a7a}
 body[data-ui-theme="inkwash"] .best{color:#4a453d}
 /* ---- 滚动条：暖灰墨色，宣纸底上可辨识 ---- */
 body[data-ui-theme="inkwash"] .panel-body::-webkit-scrollbar-thumb,
@@ -2091,6 +2115,27 @@ body[data-ui-theme="inkwash"] [tabindex]:focus-visible{
   outline:3px solid #3d6350;outline-offset:2px;box-shadow:var(--focus-ring)
 }
 
+/* ================= 规则级强制覆盖 · 统一归档 =================
+   原先 reduced-motion 散在四个块里、靠 8 条 !important 硬压，主题块以后每加一档就得再补一遍
+   （验收报告四章 4 / 5 条）。现在全部收在这一个末尾块：位置在所有装饰动画声明之后，
+   同等特异性即可后来居上，只剩两条确实必要的 !important。 */
+@media (prefers-reduced-motion:reduce){
+  /* 装饰类：太阳光晕、飘云、蝴蝶（含扇翅的 span）、首页作物、标题流光、按钮脉冲、
+     倒计时 urgent 抖动、锤子光标挥击、彩蛋光晕 */
+  .cloud,.butterfly,.butterfly span,.sun,.float-crop,.big-btn,.home-title,
+  #timeBox.urgent,#cursor.swing,.mob.egg::before,.mob.egg::after{animation:none}
+  button[aria-busy="true"]::after{animation:none}
+  .r-cell:hover,.mode-card:hover{transform:none}
+  /* 必要的强制：按下位移要压过 #pauseBtn:active / #muteBtn:active 这类 ID 级规则；
+     .big-btn:active 用的是独立的 translate 属性，得点名一起清掉 */
+  button:active{transform:none!important}
+  .big-btn:active{translate:none}
+}
+/* 触屏没有鼠标指针，锤子光标必须藏起来；JS 会在 pointermove 里写行内 display，
+   只有 !important 能压住行内样式 —— 这是第二条必要的强制覆盖。 */
+@media (hover:none) and (pointer:coarse){
+  #cursor,body.playing #cursor{display:none!important}
+}
 </style>
 </head>
 <body>
@@ -2132,9 +2177,10 @@ body[data-ui-theme="inkwash"] [tabindex]:focus-visible{
       <div class="stat" id="modeBox" role="group" aria-label="当前难度"><span class="ico" id="modeIco" data-ico="flower"></span><b id="modeName">普通</b></div>
       <div class="stat" id="scoreBox" role="group" aria-live="off" aria-label="分数"><span aria-hidden="true">分数</span><b id="score">0</b></div>
       <div class="stat" id="timeBox" role="group" aria-live="off" aria-label="剩余时间"><span aria-hidden="true">时间</span><b id="time">60</b></div>
+      <div class="stat" id="practiceTag" hidden><span class="ico" data-ico="kbd"></span>练习局</div>
       <div id="comboBox" role="group" aria-live="off" aria-label="连击"><span aria-hidden="true">连击</span><b id="combo">0</b><span class="mult" id="mult">×1</span></div>
     </div>
-    <div id="comboRow"><span id="comboCap">连击窗口</span><div id="comboBarWrap" role="progressbar" aria-label="连击保持时间" aria-valuemin="0" aria-valuemax="100"><div id="comboBar"></div></div></div>
+    <div id="comboRow" aria-hidden="true"><span id="comboCap">连击窗口</span><div id="comboBarWrap"><div id="comboBar"></div></div></div>
     <div id="field" role="group" aria-label="打地鼠场地：目标会从洞里钻出，点击、触摸，或用方向键加空格即可击打"></div>
     <div id="liveRegion" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
   </div>
@@ -2214,7 +2260,8 @@ body[data-ui-theme="inkwash"] [tabindex]:focus-visible{
     <div id="finalScoreBox">局内得分<span id="finalScore">0</span></div>
     <div id="bonusLine"><span class="ico" data-ico="flower"></span>结算加成 <b id="modeBonus">+200</b></div>
     <div id="coinGain"><span class="ico" data-ico="coin"></span>最终积分 <b id="gainCoins">+0</b> · 总积分 <b id="totalCoins">0</b></div>
-    <p id="statLine"></p>
+    <p id="practiceNote" class="practice-note" hidden><span class="ico" data-ico="warn"></span>练习局 · 不计分 · 不入榜 · 不发奖励</p>
+    <div id="statGrid" class="stat-grid" role="group" aria-label="本局统计"></div>
     <div class="end-btns">
       <button id="restartBtn"><span class="ico" data-ico="refresh"></span>再来一局</button>
       <button class="menu-btn" id="homeBtn"><span class="ico" data-ico="home"></span>回首页</button>
@@ -2346,7 +2393,7 @@ body[data-ui-theme="inkwash"] [tabindex]:focus-visible{
         </div>
         <div class="set-row">
           <div class="set-label">键盘操作<small>方向键选洞口 · 空格 / 回车敲下去</small></div>
-          <button class="shop-btn" id="kbdHintBtn" type="button">试试看</button>
+          <button class="shop-btn" id="kbdHintBtn" type="button">开个练习局</button>
         </div>
         <div class="set-row">
           <div class="set-label">低动效模式<small>关闭装饰动画、减少星屑，低端机更顺</small></div>
@@ -2358,6 +2405,18 @@ body[data-ui-theme="inkwash"] [tabindex]:focus-visible{
         </div>
       </div>
       <div class="panel-foot">存档保存在本机浏览器 · 不会上传</div>
+    </div>
+  </div>
+
+  <!-- ============ 放弃本局确认（P2-6：替换无法主题化的原生 confirm） ============ -->
+  <div id="quitPanel" class="panel hidden" role="dialog" aria-modal="true" aria-labelledby="quitTitle" aria-describedby="quitDesc">
+    <div class="panel-card">
+      <div class="panel-title" id="quitTitle"><span class="ico" data-ico="warn"></span>要放弃本局吗？</div>
+      <p class="panel-sub quit-desc" id="quitDesc">本局成绩、积分与进度都不会保存。</p>
+      <div class="quit-btns">
+        <button class="shop-btn" id="quitStayBtn" type="button">继续游戏</button>
+        <button class="shop-btn buy" id="quitGoBtn" type="button">放弃本局</button>
+      </div>
     </div>
   </div>
 
@@ -2394,9 +2453,9 @@ var scoreEl = $('#score'), timeEl = $('#time'), comboEl = $('#combo'),
 var startScreen = $('#startScreen'), endScreen = $('#endScreen');
 var pauseBtn = $('#pauseBtn');
 var honorPanel = $('#honorPanel'), workshopPanel = $('#workshopPanel'),
-    guidePanel = $('#guidePanel'), setPanel = $('#setPanel');
+    guidePanel = $('#guidePanel'), setPanel = $('#setPanel'), quitPanel = $('#quitPanel');
 /* 统一可见性仲裁列表：guidePanel 放在最前（首次引导优先命中），startScreen 靠后。 */
-var ALL_PANELS = [guidePanel, honorPanel, workshopPanel, setPanel, endScreen, startScreen];
+var ALL_PANELS = [guidePanel, honorPanel, workshopPanel, setPanel, quitPanel, endScreen, startScreen];
 
 /* ================= 本地存档（Netlify 友好） ================= */
 var store = {
@@ -2619,9 +2678,9 @@ var ICON = {
   check:   lucide('<path d="M20 6 9 17l-5-5"/>'),
   storm:   lucide('<path d="M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973"/><path d="m13 12-3 5h4l-3 5"/>'),
   close:   lucide('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>'),
-  gold1:   lucide('<path d="M8 2.4l1.6 5.4h4.8L16 2.4"/><circle cx="12" cy="14.6" r="6.2"/><path d="M12 11.4l1 2.3 2.5.3-1.8 1.7.5 2.5-2.2-1.3-2.2 1.3.5-2.5-1.8-1.7 2.5-.3z"/>'),
-  gold2:   lucide('<path d="M8 2.4l1.6 5.4h4.8L16 2.4"/><circle cx="12" cy="14.6" r="6.2"/><path d="M12 11.4l1 2.3 2.5.3-1.8 1.7.5 2.5-2.2-1.3-2.2 1.3.5-2.5-1.8-1.7 2.5-.3z"/>'),
-  gold3:   lucide('<path d="M8 2.4l1.6 5.4h4.8L16 2.4"/><circle cx="12" cy="14.6" r="6.2"/><path d="M12 11.4l1 2.3 2.5.3-1.8 1.7.5 2.5-2.2-1.3-2.2 1.3.5-2.5-1.8-1.7 2.5-.3z"/>')
+  gold1:   lucide('<path d="M7.6 2.4h8.8l-2.2 5.9H9.8z"/><circle cx="12" cy="14.6" r="6.3"/><circle cx="12" cy="14.6" r="4.6"/><path d="M11.2 13.1l1.9-.9v5.3" stroke-width="2.4"/>'),
+  gold2:   lucide('<path d="M7.6 2.4h8.8l-2.2 5.9H9.8z"/><circle cx="12" cy="14.6" r="6.3"/><path d="M9.7 12.1h4.6v2.3H9.7v3.4h4.6" stroke-width="2.4"/>'),
+  gold3:   lucide('<path d="M7.6 2.4h8.8l-2.2 5.9H9.8z"/><circle cx="12" cy="14.6" r="6.3"/><path d="M9.7 12.1h4.6v5.7H9.7M9.7 14.9h4.6" stroke-width="2.4"/>')
 };
 /* 图标插槽：只输出空的 .ico 占位，真正的 SVG 由 paintIcons() 统一注入。
    命中不到 ICON 时给空占位（绝不再回退成 emoji 字符）。 */
@@ -2792,10 +2851,12 @@ if(!MODES[mode]){ mode = 'normal'; }
 
 /* ================= 游戏状态 ================= */
 var holes = [], running = false, fever = false;
+/* 练习局：不计分、不入榜、不发成就 / 每日任务奖励（验收报告 P2-10） */
+var practice = false;
 var score = 0, combo = 0, bestCombo = 0, timeLeft = 60, elapsed = 0;
 var lastHitAt = 0, lastTickSec = 99, tenSecSaid = false;
 var stats = { hits: 0, star: 0, wrong: 0, escaped: 0, miss: 0, lulu: 0, gift: 0, eliteHit: 0, events: 0 };
-var spawnTO = null, clockIV = null, rafId = null, eventTO = null;
+var spawnTO = null, clockIV = null, rafId = null, eventTOs = [];
 var TOTAL_TIME = 60, clockStart = 0, clockPaused = 0, hiddenAt = 0;
 var eliteCount = 0, feverCount = 0;
 /* 局内随机事件状态（C2） */
@@ -3135,6 +3196,7 @@ var HIT_HANDLERS = {
     }
     spawnText(x, y - 72, '击破!!', 'comboTxt');
     flash('#ff9ad555');
+    SFX.boom();   /* 王冠三格血量打空的那一下要炸开，否则和普通过硬没有区分（验收报告 P2-2） */
     return false;
   },
   /*  噜噜大王彩蛋：闪现极短，打中固定 +300 */
@@ -3210,6 +3272,7 @@ function clearOneBad(){
   gsap.to(found, { yPercent: 112, duration: motionOn() ? 0.24 : 0, ease: 'power2.in',
     onComplete: function(){ found.remove(); hh.busy = false; } });
   spawnText(window.innerWidth / 2, window.innerHeight * 0.4, '<span class="ico" data-ico="sparkle"></span>危险目标已清空!', 'good');
+  SFX.boom();   /* 礼盒开出「清场炸弹」：一次炸掉场上危险目标（验收报告 P2-2） */
   return true;
 }
 function onHit(e){
@@ -3486,6 +3549,7 @@ function enterFever(){
   fever = true;
   feverCount++;
   document.body.classList.add('fever');
+  SFX.boom();   /* 狂热开场用低频爆炸垫底，比只靠连击音更有「闸门打开」的感觉（验收报告 P2-2） */
   spawnText(window.innerWidth / 2, window.innerHeight * 0.3, '<span class="ico" data-ico="fire"></span>狂热时间!<span class="ico" data-ico="fire"></span>', 'feverTxt');
   if(motionOn()){
     gsap.fromTo('#field',
@@ -3538,8 +3602,9 @@ function startClock(){
 }
 
 /* ================= 开始 / 结束 ================= */
-function startGame(){
+function startGame(opts){
   if(running) return;
+  practice = !!(opts && opts.practice);
   var c = ac();
   if(c && c.state === 'suspended'){ c.resume(); }
   var M = MODES[mode];
@@ -3555,8 +3620,10 @@ function startGame(){
   scoreEl.textContent = '0'; comboEl.textContent = '0';
   multEl.textContent = '×1'; timeEl.textContent = String(TOTAL_TIME);
   $('#modeName').textContent = M.name;
+  $('#practiceTag').hidden = !practice;
   kbdOn = false; kbdIdx = -1; kbdPaint();
   paintIcons($('#hud'));
+  if(practice){ announce('练习局开始：这一局不计分、不入榜'); }
   comboBar.style.width = '0%';
   document.body.classList.remove('fever');
   document.body.classList.add('playing');
@@ -3590,14 +3657,17 @@ function rank(s, m){
   return ['D', '菜园快被偷光了！'];
 }
 
-function endGame(){
-  if(!running) return;
+/* 局内 → 局外的统一清场：结束、放弃、练习局结束三条路径共用，避免各写一份漏掉步骤 */
+function teardownRun(){
   running = false;
   document.body.classList.remove('playing');
   setPaused(false);
   if(pauseBtn){ pauseBtn.disabled = true; setBtnIcon(pauseBtn, 'pause'); pauseBtn.setAttribute('aria-pressed', 'false'); }
   clearTimeout(spawnTO);
   clearInterval(clockIV);
+  eventTOs.forEach(function(t){ clearTimeout(t); });
+  eventTOs = [];
+  eventTOs = [];
   cancelAnimationFrame(rafId);
   exitFever();
   comboBar.style.width = '0%';
@@ -3610,29 +3680,52 @@ function endGame(){
     if(old){ killMobTweens(old); gsap.killTweensOf(old); }
     h.slot.innerHTML = '';
   });
+}
+
+/* 本局统计：十项数据按主次做成胶囊，不再是两行纯文本（验收报告 P2-7） */
+function statPills(){
+  var items = [
+    { k:'hits',    label:'命中',     ico:'hammer',   v:stats.hits,                key:true  },
+    { k:'combo',   label:'最高连击', ico:'bolt',     v:bestCombo,                 key:true  },
+    { k:'star',    label:'星星',     ico:'star',     v:stats.star },
+    { k:'lulu',    label:'彩蛋',     ico:'egg',      v:stats.lulu || 0 },
+    { k:'gift',    label:'礼盒',     ico:'gift',     v:stats.gift || 0 },
+    { k:'elite',   label:'精英',     ico:'crown',    v:stats.eliteHit || 0 },
+    { k:'event',   label:'事件',     ico:'party',    v:eventState.fired || 0 },
+    { k:'wrong',   label:'误伤',     ico:'warn',     v:stats.wrong,               neg:true  },
+    { k:'miss',    label:'打空',     ico:'drop',     v:stats.miss || 0,           neg:true  },
+    { k:'escaped', label:'放跑',     ico:'chevDown', v:stats.escaped,             neg:true  }
+  ];
+  return items.map(function(it){
+    return '<span class="stat-pill' + (it.key ? ' key' : '') + (it.neg ? ' neg' : '') + '" data-k="' + it.k + '">' +
+      icoHtml(it.ico) + '<span>' + it.label + '</span><b>' + it.v + '</b></span>';
+  }).join('');
+}
+
+function endGame(){
+  if(!running) return;
+  var wasPractice = practice;
+  teardownRun();
 
   var M = MODES[mode];
   var finalScore = score + M.bonus;
-
-  var coins = store.get('coins', 0);
   var bestKey = 'best_' + mode;
-  var bestM = store.get(bestKey, 0);
-  var best = store.get('best', 0);
-  coins += finalScore;
-  bestM = Math.max(finalScore, bestM);
-  best = Math.max(finalScore, best);
-  store.set('coins', coins);
-  store.set(bestKey, bestM);
-  store.set('best', best);
+  var bestM = wasPractice ? store.get(bestKey, 0) : Math.max(finalScore, store.get(bestKey, 0));
 
-  var board = store.get('board', []);
-  var now = new Date();
-  var pad = function(n){ return n < 10 ? '0' + n : '' + n; };
-  var dateStr = (now.getMonth() + 1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
-  board.push({ s: finalScore, r: rank(finalScore, mode)[0], d: dateStr, m: mode });
-  board.sort(function(a, b){ return b.s - a.s; });
-  board = board.slice(0, 10);
-  store.set('board', board);
+  if(!wasPractice){
+    store.set('coins', store.get('coins', 0) + finalScore);
+    store.set(bestKey, bestM);
+    store.set('best', Math.max(finalScore, store.get('best', 0)));
+
+    var board = store.get('board', []);
+    var now = new Date();
+    var pad = function(n){ return n < 10 ? '0' + n : '' + n; };
+    var dateStr = (now.getMonth() + 1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+    board.push({ s: finalScore, r: rank(finalScore, mode)[0], d: dateStr, m: mode });
+    board.sort(function(a, b){ return b.s - a.s; });
+    board = board.slice(0, 10);
+    store.set('board', board);
+  }
 
   var rk = rank(finalScore, mode);
   var rl = $('#rankLetter');
@@ -3641,16 +3734,19 @@ function endGame(){
   $('#rankTitle').textContent = rk[1];
   $('#modeTag').innerHTML = '<span class="ico" data-ico="' + (ICON_KEY[mode] || 'flower') + '"></span>' + M.name + '模式';
   $('#bonusLine').innerHTML = '<span class="ico" data-ico="' + (ICON_KEY[mode] || 'flower') + '"></span>结算加成 <b id="modeBonus">+' + M.bonus + '</b>';
-  $('#statLine').innerHTML =
-    '命中 <b>' + stats.hits + '</b> 只 · 星星 <b>' + stats.star +
-    '</b> · 彩蛋 <b>' + (stats.lulu || 0) + '</b> · 最高连击 <b>' + bestCombo +
-    '</b> · 误伤 <b>' + stats.wrong + '</b> · 打空 <b>' + (stats.miss || 0) +
-    '</b> · 放跑 <b>' + stats.escaped + '</b><br>' +
-    '礼物 <b>' + (stats.gift || 0) + '</b> · 精英 <b>' + (stats.eliteHit || 0) +
-    '</b> · 事件 <b>' + (eventState.fired || 0) + '</b>';
+  $('#statGrid').innerHTML = statPills();
   $('#bestScore2').textContent = bestM;
   $('#finalScore').textContent = '0';
   $('#gainCoins').textContent = '+0';
+  /* 练习局要把「这一局不计分」写在脸上，否则玩家会以为进了榜。
+     加成 / 最终积分两个数字在练习局里没有意义，整条隐藏，换一条说明——
+     不要改写 #coinGain 的 innerHTML，那会连 #totalCoins / #gainCoins 一起删掉。 */
+  $('#bonusLine').hidden = wasPractice;
+  $('#coinGain').hidden = wasPractice;
+  $('#practiceNote').hidden = !wasPractice;
+  if(wasPractice){
+    $('#modeTag').innerHTML = '<span class="ico" data-ico="kbd"></span>练习局 · ' + M.name + '模式';
+  }
   showOnlyPanel(endScreen);
   updateHonorStat();
 
@@ -3665,56 +3761,64 @@ function endGame(){
     gsap.set(endScreen, { autoAlpha: 1 });
   }
   countUp($('#finalScore'), score, 0.85, '');
-  countUp($('#gainCoins'), finalScore, 0.9, '+');
+  if(!wasPractice){ countUp($('#gainCoins'), finalScore, 0.9, '+'); }
   paintIcons(endScreen);
-  announce('本局结束：' + score + ' 分，评级 ' + rk[0] + '，' + rk[1]);
+  announce((wasPractice ? '练习局结束（不计分、不入榜）：' : '本局结束：') + score + ' 分，评级 ' + rk[0] +
+    (wasPractice ? '' : '，' + rk[1]));
 
   if(finalScore >= MODES[mode].rank[1]){ SFX.fanfare(); } else { SFX.sad(); }
 
-  /* ---------- 长线统计 / 成就 / 每日任务 / 稀有度奖励 ---------- */
+  /* ---------- 长线统计 / 成就 / 每日任务 / 稀有度奖励（练习局全部跳过） ---------- */
   stats.events = eventState.fired || 0;
-  store.set('totalHits', totalHits() + stats.hits);
-  store.set('feverTotal', cumFever() + feverCount);
-  store.set('comboBest', Math.max(store.get('comboBest', 0), bestCombo));
-  store.set('scoreBest', Math.max(store.get('scoreBest', 0), score));
-  store.set('starBest', Math.max(store.get('starBest', 0), stats.star));
-  store.set('luluBest', Math.max(store.get('luluBest', 0), stats.lulu || 0));
-  refreshDailyIfNeeded();
-  dailyAddRun(stats, finalScore);
-  checkAchievements();
-  checkDaily();
-  checkRarityReward();
+  if(!wasPractice){
+    store.set('totalHits', totalHits() + stats.hits);
+    store.set('feverTotal', cumFever() + feverCount);
+    store.set('comboBest', Math.max(store.get('comboBest', 0), bestCombo));
+    /* 「单局分数」全库统一口径 = 含结算加成的 finalScore（验收报告 P2-1）：
+       成就、每日任务、排行榜、S/A 评级此前各有两套算法，现在都读同一个数。 */
+    store.set('scoreBest', Math.max(store.get('scoreBest', 0), finalScore));
+    store.set('starBest', Math.max(store.get('starBest', 0), stats.star));
+    store.set('luluBest', Math.max(store.get('luluBest', 0), stats.lulu || 0));
+    refreshDailyIfNeeded();
+    dailyAddRun(stats, finalScore);
+    checkAchievements();
+    checkDaily();
+    checkRarityReward();
+  }
   /* v1.2 P0-2：成就 / 每日任务 / 稀有度奖励全部入账后再刷新「总积分」，修掉结算页比存档少报 8600 的数字错位 */
   $('#totalCoins').textContent = store.get('coins', 0);
   renderTasks();
   refreshHome();
 }
 
-/* 放弃本局：只做清理，不结算分数、不写排行榜，直接回首页 */
-function quitGame(){
+/* 放弃本局：先弹自定义确认层（原生 window.confirm 无法主题化，全局观感断裂 —— 验收报告 P2-6）。
+   确认期间自动暂停，取消则原样继续；玩家自己已经暂停时不再多设一层，免得取消后变成「意外继续」。 */
+var quitAutoPaused = false;
+function askQuit(){
   if(!running) return;
-  if(!window.confirm('确定放弃本局吗？本局成绩和进度不会保存。')) return;
-  running = false;
-  document.body.classList.remove('playing');
-  setPaused(false);
-  if(pauseBtn){ pauseBtn.disabled = true; setBtnIcon(pauseBtn, 'pause'); pauseBtn.setAttribute('aria-pressed', 'false'); }
-  clearTimeout(spawnTO);
-  clearInterval(clockIV);
-  cancelAnimationFrame(rafId);
-  exitFever();
-  comboBar.style.width = '0%';
-  stopCursorLoop();
-  cursor.style.display = 'none';
-  clearFx();
-  holes.forEach(function(h){
-    h.busy = false;
-    var old = h.slot.querySelector('.mob');
-    if(old){ killMobTweens(old); gsap.killTweensOf(old); }
-    h.slot.innerHTML = '';
-  });
+  var desc = $('#quitDesc');
+  if(desc){
+    desc.textContent = practice ? '练习局本来就不计分，确定结束并回到首页吗？'
+                                : '本局成绩、积分与进度都不会保存。';
+  }
+  quitAutoPaused = !pauseStartAt;
+  if(quitAutoPaused){ setPaused(true); }
+  openPanel(quitPanel, $('#quitStayBtn'));
+  SFX.tick();
+}
+function cancelQuit(){
+  if(quitAutoPaused){ setPaused(false); }
+  quitAutoPaused = false;
+  closePanel(quitPanel);   /* closePanel 会把焦点还原到放弃按钮，局还在继续 */
+}
+function confirmQuit(){
+  quitAutoPaused = false;
+  closePanel(quitPanel);
+  teardownRun();
   showHome();
   refreshHome();
   announce('已放弃本局，回到首页');
+  setTimeout(function(){ var sb = $('#startBtn'); if(sb){ sb.focus(); } }, 80);
 }
 
 /* ================= 首页 / 图鉴 / 模式 / 排行榜 / 商城 ================= */
@@ -3950,10 +4054,8 @@ function fireEvent(){
 function scheduleEvents(){
   var n = 2 + ((Math.random() * 2) | 0);   /* 每局 2~3 次，保证「做了能被看到」 */
   for(var i = 0; i < n; i++){
-    (function(){
-      var at = 5000 + Math.random() * 40000;
-      setTimeout(function(){ if(running && !frozenNow()){ fireEvent(); } }, at);
-    })();
+    var at = 5000 + Math.random() * 40000;
+    eventTOs.push(setTimeout(function(){ if(running && !frozenNow()){ fireEvent(); } }, at));
   }
 }
 
@@ -4084,7 +4186,7 @@ function renderBoard(){
   rows.forEach(function(rec, i){
     var mk = rec.m || 'normal';
     var M = MODES[mk] || MODES.normal;
-    html += '<div class="rank-row top' + (i + 1) + '">' +
+    html += '<div class="rank-row' + (i < 3 ? ' top' + (i + 1) : '') + '">' +
       '<div class="rank-medal">' + (i < 3 ? medals[i] : '') + '</div>' +
       (i < 3 ? '' : '<div class="rank-no">' + (i + 1) + '</div>') +
       '<div class="rank-score">' + rec.s + '<small>分</small></div>' +
@@ -4363,6 +4465,7 @@ document.addEventListener('keydown', function(e){
     e.preventDefault();
     if(p === endScreen){ var hb = $('#homeBtn'); if(hb){ hb.click(); } return; }
     if(p === guidePanel){ dismissGuide(); return; }
+    if(p === quitPanel){ cancelQuit(); return; }   /* 放弃确认框里 Esc = 继续游戏，不能当成「退回首页」 */
     dismissToHome(p);
     return;
   }
@@ -4553,9 +4656,11 @@ $('#muteBtn').addEventListener('click', function(){
   store.set('muted', muted);                                      /* 刷新 / 重开一局不再复位 */
   applyVolume();
 });
-$('#quitBtn').addEventListener('click', quitGame);
-$('#startBtn').addEventListener('click', startGame);
-$('#restartBtn').addEventListener('click', startGame);
+$('#quitBtn').addEventListener('click', askQuit);
+if($('#quitStayBtn')){ $('#quitStayBtn').addEventListener('click', function(){ SFX.equip(); cancelQuit(); }); }
+if($('#quitGoBtn')){ $('#quitGoBtn').addEventListener('click', function(){ SFX.boom(); confirmQuit(); }); }
+$('#startBtn').addEventListener('click', function(){ startGame(); });
+$('#restartBtn').addEventListener('click', function(){ startGame(); });
 
 /* ================= 贴图风格（积分商城 · 风格包） ================= */
 var STYLE_ART = {
@@ -4929,12 +5034,13 @@ if($('#volRange')){
 if($('#kbdHintBtn')){
   $('#kbdHintBtn').addEventListener('click', function(){
     closePanel(setPanel);
-    if(!running){ startGame(); }
+    /* 练习局：只是想试试键盘的人不该被扔进一局正式比赛（会计分、会进榜）—— 验收报告 P2-10 */
+    if(!running){ startGame({ practice:true }); }
     setTimeout(function(){
       kbdOn = true;
       if(kbdIdx < 0){ kbdIdx = 0; }
       kbdPaint();
-      announce('键盘操作已启用：方向键选洞口，空格敲下去');
+      announce('练习局开始，不计分也不上榜：方向键选洞口，空格敲下去');
     }, 700);
   });
 }
@@ -4975,6 +5081,9 @@ if($('#guideStartBtn')){
   $('#guideStartBtn').addEventListener('click', function(){ SFX.ding(); dismissGuide(); });
 }
 function maybeOpenGuide(){
+  /* 无痕 / 禁用存储时 guideSeen 永远写不下，结果每次打开都被重播教学；
+     这类玩家连进度都留不住，直接跳过引导（验收报告 P2-9） */
+  if(!store.ok) return;
   try{ if(store.get('guideSeen', false) === true) return; }
   catch(e){ return; }               /* 存储不可用时直接放行，不阻断游戏 */
   showHome();
